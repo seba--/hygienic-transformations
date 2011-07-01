@@ -38,6 +38,7 @@ public Graph[str] stateGraph(Controller ctl) {
 }
 
 alias StateEnv = map[str, State];
+alias EventEnv = map[str, Event];
 
 public StateEnv stateEnv(Controller ctl) {
   return ( n: s | s:state(n, _, _) <- ctl.states);
