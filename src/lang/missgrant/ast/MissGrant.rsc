@@ -11,3 +11,9 @@ data Command = command(str name, str token);
 data Event = event(str name, str token);
 data Transition = transition(str event, str state);
 
+
+anno loc Controller@location;
+anno loc State@location;
+anno loc Command@location;
+anno loc Event@location;
+anno loc Transition@location;
