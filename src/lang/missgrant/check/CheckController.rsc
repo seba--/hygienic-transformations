@@ -6,6 +6,7 @@ import Message;
 
 /* To check
 
+Errors
 - no duplicate event/command decls
 - events, commands are declared
 - reset events must be in events
@@ -19,8 +20,10 @@ Warnings
 */
 
 public list[Message] checkController(Controller ctl) {
+  list[Message] errors = [];
+  
   env = ();
-  errors = for (e:event(n, t) <- ctl.events) {
+  errors += for (e:event(n, t) <- ctl.events) {
      if (n in env) { 
        append error("Duplicate event", e@location);
      }
@@ -34,10 +37,17 @@ public list[Message] checkController(Controller ctl) {
   env = ();
   errors += for (c:command(n, t) <- ctl.commands) {
      if (n in env) 
-       append error("Duplicate command", e@location);
+       append error("Duplicate command", c@location);
      if (t in invertUnique(env)) 
-       append error("Duplicate command token", e@location);
+       append error("Duplicate command token", c@location);
       env[n] = t;
+  }
+  
+  seen = {};
+  errors += for (s:state(n, _, _) <- ctl.states) {
+     if (n in env) 
+       append error("Duplicate state", s@location);
+     seen += {n};
   }
   
   errors += for (e <- ctl.resets, s <- ctl.states, t:transition(e, _) <- s.transitions) 
@@ -52,9 +62,9 @@ public list[Message] checkController(Controller ctl) {
     }
   }
   
-  cmds = [ n | command(n, _) <- ctl.commands ];
-  evs = [ n | event(n, _) <- ctl.events ];
-  sts = [ n | state(n, _, _) <- ctl.states ];
+  cmds = definedCommands(ctl);
+  evs = definedEvents(ctl);
+  sts = definedStates(ctl);
   
   errors += for (e <- ctl.resets, e notin evs) 
     append error("Undeclared reset event", ctl@location);
@@ -67,6 +77,26 @@ public list[Message] checkController(Controller ctl) {
     for (t:transition(_, s2) <- s.transitions, s2 notin sts)  
       append error("Undeclared state", s2@location);
   }
+  
+  g = stateGraph(ctl)+;
+  s0 = initial(ctl);
+  errors += for (s:state(n, _, _) <- ctl.states) {
+    if (n notin g[s0.name])
+      append warning("Unreachable state", s@location);
+  }
+  
+  as = usedActions(ctl);
+  errors += for (c:command(n, _) <- ctl.commands) {
+    if (n notin as) 
+      append warning("Unused command", c@location);
+  }
+  
+  es = usedEvents(ctl);
+  errors += for (e:event(n, _) <- ctl.events) {
+    if (n notin es, n notin ctl.resets) 
+      append warning("Unused event", e@location);
+  }
+  
   
   return errors;
 }

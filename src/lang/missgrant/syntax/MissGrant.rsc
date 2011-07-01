@@ -1,5 +1,7 @@
 module lang::missgrant::syntax::MissGrant
 
+// TODO: need bits for final/initial states.
+
 start syntax Controller = controller: Events ResetEvents? Commands? State+;
 syntax Events = "events" Event* "end";
 syntax ResetEvents = "resetEvents" Id* "end"; 
