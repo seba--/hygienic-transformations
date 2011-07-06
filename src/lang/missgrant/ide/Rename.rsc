@@ -5,68 +5,87 @@ import util::Prompt;
 
 import ParseTree;
 
-
-public str renameEvent(Controller ctl, loc sel) {
+public str rename(Controller ctl, loc sel) {
   newName = prompt("Enter new name: ");
   newId = parse(#Id, newName);
-  
-  if (/Event e <- ctl, e.name == newId) {
+  if (treeFound(Event e) := treeAt(#Event, sel, ctl)) {
+    ctl = renameEvent(ctl, e.name, newId);
+  }
+  else if (treeFound(State s) := treeAt(#State, sel, ctl)) {
+    ctl = renameState(ctl, s.name, newId);
+  }
+  else if (treeFound(Command c) := treeAt(#Command, sel, ctl)) {
+    ctl = renameCommand(ctl, c.name, newId);
+  }
+  else {
+    alert("No state, event or command selected");
+  }
+  return "<ctl>";
+}
+
+
+private Controller renameEvent(Controller ctl, Id oldName, Id newName) {
+  if (/Event e <- ctl, e.name == newName) {
     alert("Event <newName> already exists");
+    return ctl;
   } 
-  else if (treeFound(Event t) := treeAt(#Event, sel, ctl)) {
-    oldName = "<t.name>";
-    ctl = visit (ctl) {
-      case Transition t: {
-        if (oldName == "<t.event>") {
-          t.event = newId;
-        }
-        insert t;
+  return visit (ctl) {
+    case Transition t: {
+      if (oldName == t.event) {
+        t.event = newName;
       }
-      case Event e: {
-        if (oldName == "<e.name>") {
-          e.name = newId;
-        }
-        insert e;
+      insert t;
+    }
+    case Event e: {
+      if (oldName == e.name) {
+        e.name = newName;
       }
-      case ResetEvents rs => visit (rs) {
-        case Id i => newId when oldName == "<i>" 
-      }
+      insert e;
+    }
+    case ResetEvents rs => visit (rs) {
+      case Id i => newName when oldName == i 
     }
   }
-  else {
-    alert("No event selected");
-  }
-  
-  return "<ctl>";
 }
 
-public str renameState(Controller ctl, loc sel) {
-  newName = prompt("Enter new name: ");
-  newId = parse(#Id, newName);
-  
-  if (/State s <- ctl, s.name == newId) {
-    alert("State <newName> already exists");
+private Controller renameCommand(Controller ctl, Id oldName, Id newName) {
+  if (/Command c <- ctl, c.name == newName) {
+    alert("Command <newName> already exists");
+    return ctl;
   } 
-  else if (treeFound(State t) := treeAt(#State, sel, ctl)) {
-    oldName = "<t.name>";
-    ctl = visit (ctl) {
-      case Transition t: {
-        if (oldName == "<t.state>") {
-          t.state = newId;
-        }
-        insert t;
+  return visit (ctl) {
+    case Command c: {
+      if (oldName == c.name) {
+        c.name = newName;
       }
-      case State s: {
-        if (oldName == "<s.name>") {
-          s.name = newId;
-        }
-        insert s;
-      }
+      insert c;
+    }
+    case State s => visit (s) {
+       case Actions a => visit (a) { 
+          case Id i => newName when oldName == i
+       }
     }
   }
-  else {
-    alert("No state selected");
-  }
-  
-  return "<ctl>";
 }
+
+private Controller renameState(Controller ctl, Id oldName, Id newName) {
+  if (/State s <- ctl, s.name == newName) {
+    alert("State <newName> already exists");
+    return ctl;
+  } 
+  return visit (ctl) {
+    case Transition t: {
+      if (oldName == t.state) {
+        t.state = newName;
+      }
+      insert t;
+    }
+    case State s: {
+      if (oldName == s.name) {
+        s.name = newName;
+      }
+      insert s;
+    }
+  }
+}
+

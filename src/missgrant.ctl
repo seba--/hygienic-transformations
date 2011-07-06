@@ -22,7 +22,6 @@ state idle
  doorClosed => active 
 end 
 
-
 state active
  drawerOpened => waitingForLight
  lightOn => waitingForDrawer 

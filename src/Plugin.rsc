@@ -37,8 +37,7 @@ public void main() {
 			menu(CONTROLLER_LANG,[
 	    		action("Generate Switch", generateSwitch), 
 	    		action("Generate Methods", generateMethods),
-	    		edit("Rename state", renameState), 
-	    		edit("Rename event", renameEvent) 
+	    		edit("Rename...", rename) 
 		    ])
 	  	)
   };
