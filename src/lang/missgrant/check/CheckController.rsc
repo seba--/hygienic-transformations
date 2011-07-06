@@ -53,11 +53,11 @@ public list[Message] checkController(Controller ctl) {
   errors += for (e <- ctl.resets, s <- ctl.states, t:transition(e, _) <- s.transitions) 
      append error("Reset event used in transition", t@location);
   
-  errors += for (s <- ctl.states) {
+  errors += err: for (s <- ctl.states) {
     seen = {};
     for (t:transition(e, _) <- s.transitions) {
       if (e in seen) 
-        append error("Non-determinism", t@location);
+        append err: error("Non-determinism", t@location);
       seen += {e};
     }
   }
@@ -69,13 +69,13 @@ public list[Message] checkController(Controller ctl) {
   errors += for (e <- ctl.resets, e notin evs) 
     append error("Undeclared reset event", ctl@location);
   
-  errors += for (s <- ctl.states) {
+  errors += err: for (s <- ctl.states) {
   	for (a <- s.actions, a notin cmds)
-      append error("Undeclared action used", s@location);
+      append err: error("Undeclared action used", s@location);
     for (t:transition(e, _) <- s.transitions, e notin evs)  
-      append error("Undeclared event", t@location);
+      append err: error("Undeclared event", t@location);
     for (t:transition(_, s2) <- s.transitions, s2 notin sts)  
-      append error("Undeclared state", s2@location);
+      append err: error("Undeclared state", s2@location);
   }
   
   g = stateGraph(ctl)+;
