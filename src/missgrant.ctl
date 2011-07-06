@@ -8,7 +8,7 @@ end
 
 resetEvents
  doorOpened 
-end 
+end
 
 commands
  unlockPanel PNUL
@@ -22,6 +22,7 @@ state idle
  doorClosed => active 
 end 
 
+
 state active
  drawerOpened => waitingForLight
  lightOn => waitingForDrawer 
@@ -34,6 +35,7 @@ end
 state waitingForDrawer
  drawerOpened => unlockedPanel 
 end 
+
 
 state unlockedPanel
  actions {unlockPanel lockDoor}
