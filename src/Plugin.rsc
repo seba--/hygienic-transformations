@@ -6,8 +6,7 @@ import ParseTree;
 
 
 public void main() {
-	registerLanguage("Controller", "ctl", (str input, loc org) {
-		return parse(#Controller, input, org);
-		}
-	);
+  registerLanguage("Controller", "ctl", Controller(str input, loc org) {
+    return parse(#Controller, input, org);
+  });
 }
