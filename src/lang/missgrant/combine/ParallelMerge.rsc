@@ -1,6 +1,5 @@
 module lang::missgrant::combine::ParallelMerge
 
-import lang::missgrant::extract::ToRelation;
 import lang::missgrant::ast::MissGrant;
 import IO;
 
@@ -11,17 +10,15 @@ import IO;
 
 
 public Controller parMerge(Controller ctl1, Controller ctl2) {
-   states = [];
-   void add(State s) { states += [s]; }
-   parMerge(ctl1, ctl2, add); 
    return controller(unique(ctl1.events + ctl2.events),
   			unique(ctl1.resets + ctl2.resets),
   			unique(ctl1.commands + ctl2.commands),
-  			states);
+  			mergeStates(ctl1, ctl2));
 }
 
-private str parMerge(Controller ctl1, Controller ctl2, void(State) add) {
+private list[State] mergeStates(Controller ctl1, Controller ctl2) {
   memo = {};
+  states = [];
   env1 = stateEnv(ctl1);
   env2 = stateEnv(ctl2);
   
@@ -42,11 +39,13 @@ private str parMerge(Controller ctl1, Controller ctl2, void(State) add) {
 	      + [ transition(e, merge(env1[u1], s2)) | e <- e1 - both, transition(e, u1) <- s1.transitions ] 
 	      + [ transition(e, merge(s1, env2[u2])) | e <- e2 - both, transition(e, u2) <- s2.transitions ];
 	
-	  add(state(nn, unique(s1.actions + s2.actions), trs));
+	  states += [state(nn, unique(s1.actions + s2.actions), trs)];
 	  return nn;
   }
   
-  return merge(initial(ctl1), initial(ctl2));
+  merge(initial(ctl1), initial(ctl2));
+  return states;
+  
 }
 
 

@@ -1,6 +1,6 @@
 module lang::missgrant::compile::ToSwitch
 
-import lang::missgrant::compile::ToJava;
+import lang::missgrant::compile::ToMethods;
 import lang::missgrant::ast::MissGrant;
 
 public str controller2switch(Controller ctl) {
