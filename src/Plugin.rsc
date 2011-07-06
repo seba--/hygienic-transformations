@@ -7,6 +7,7 @@ import lang::missgrant::check::CheckController;
 import lang::missgrant::desugar::DesugarResetEvents;
 import lang::missgrant::compile::ToSwitch;
 import lang::missgrant::compile::ToMethods;
+import lang::missgrant::ide::Rename;
 
 import util::IDE;
 import ParseTree;
@@ -35,7 +36,9 @@ public void main() {
 		popup(
 			menu(CONTROLLER_LANG,[
 	    		action("Generate Switch", generateSwitch), 
-	    		action("Generate Methods", generateMethods) 
+	    		action("Generate Methods", generateMethods),
+	    		edit("Rename state", renameState), 
+	    		edit("Rename event", renameEvent) 
 		    ])
 	  	)
   };

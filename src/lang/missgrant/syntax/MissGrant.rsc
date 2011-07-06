@@ -6,13 +6,13 @@ syntax Events = @Foldable "events" Event* "end";
 syntax ResetEvents = @Foldable "resetEvents" Id* "end"; 
 syntax Commands = @Foldable "commands" Command* "end";
 
-syntax Command = command: Id Id;
-syntax Event = event: Id Id;
+syntax Command = command: Id name Id token;
+syntax Event = event: Id name Id token;
 
-syntax State = @Foldable state: "state" Id Actions? Transition+ "end";
+syntax State = @Foldable state: "state" Id name Actions? Transition+ "end";
 syntax Actions = "actions" "{" Id+ "}";
 
-syntax Transition = transition: Id "=\>" Id;
+syntax Transition = transition: Id event "=\>" Id state;
 
 syntax Id = lex [a-zA-Z][a-zA-Z0-9_]* - Reserved # [a-zA-Z0-9_];
 
