@@ -1,26 +1,39 @@
 module lang::missgrant::eval::Step
 
 import lang::missgrant::ast::MissGrant;
+import IO;
 
-alias Output = tuple[str state, list[str] tokens];
+alias Output = tuple[ControllerState, list[str]];
 
 public Output eval(Controller ctl, list[str] tokens) {
-  senv = stateEnv(ctl);
-  eenv = eventEnv(ctl);
-  cenv = commandEnv(ctl);
-  output = <initial(ctl), []>;
+  state = initialControllerState(ctl);
+  actionsFired = [];
   for (t <- tokens) {
-    new = step(t, curr.state, senv, eenv, cenv);
-    output = <new.state, output.tokens + new.tokens>;
+    <state,newActions> = step(state,t);
+    actionsFired += newActions;
   }
-  return output;
+  return <state,actionsFired>;
 }
 
-public Output step(str token, str state, StateEnv senv, EventEnv eenv, CommandEnv cenv) {
-  s1 = senv[state];
-  e = eenv[token];
-  if (transition(e, s2) <- s1.transitions) {
-    return <s2, [ c.token | a <- s2.actions, c <- cenv[a] ]>;
+public Output step(ControllerState state, str eventToken) {
+  eventName = state.eventTokenToName[eventToken];
+  curState = state.stateEnv[state.curStateName];
+  actionsFired = [];
+  str newStateName = "";
+  bool moved = false;
+  
+  if(eventName <- state.ctl.resets){
+  	newStateName = initial(state.ctl).name;
+  	moved = true;
+  } else if(transition(eventName,ns) <- curState.transitions ) {
+  	newStateName = ns;
+  	moved = true;
   }
-  throw "No transition on <token> in state <state>";
+ 
+  if(moved){
+  	state.curStateName = newStateName;
+  	return <state, [ state.commandNameToToken[n] | n <- state.stateEnv[newStateName].actions]>;
+  } else {
+  	return <state,[]>;
+  }
 }

@@ -2,6 +2,18 @@ module lang::missgrant::ast::MissGrant
 
 import List;
 import Graph;
+import Map;
+
+data ControllerState = 
+	controllerState(
+		Controller ctl,
+		str curStateName, 
+		StateEnv stateEnv,
+		map[str,str] eventNameToToken,
+		map[str,str]  commandNameToToken,
+		map[str,str]  eventTokenToName,
+		map[str,str]  commandTokenToName
+	);
 
 data Controller = controller(list[Event] events, 
 					list[str] resets, 
@@ -38,19 +50,17 @@ public Graph[str] stateGraph(Controller ctl) {
 }
 
 alias StateEnv = map[str, State];
-alias EventEnv = map[str, Event];
-alias CommandEnv = map[str, Command];
 
 public StateEnv stateEnv(Controller ctl) {
   return ( n: s | s:state(n, _, _) <- ctl.states);
 } 
 
-public StateEnv eventEnv(Controller ctl) {
-  return ( n: e | e:event(n, _) <- ctl.events);
+public map[str,str] eventEnv(Controller ctl) {
+  return ( n: t | e:event(n, t) <- ctl.events);
 } 
 
-public CommandEnv commandEnv(Controller ctl) {
-  return ( n: c | c:command(n, _) <- ctl.commands);
+public map[str,str] commandEnv(Controller ctl) {
+  return ( n: t | command(n, t) <- ctl.commands);
 } 
 
 public set[str] usedEvents(Controller ctl) {
@@ -71,4 +81,12 @@ public set[str] definedEvents(Controller ctl) {
 
 public set[str] definedStates(Controller ctl) {
   return { n | state(n, _, _) <- ctl.states };
+}
+
+public ControllerState initialControllerState(Controller ctl){
+	evNameToToken = eventEnv(ctl);
+	comNameToToken = commandEnv(ctl);
+	return controllerState(ctl, initial(ctl).name, stateEnv(ctl),
+			 evNameToToken, comNameToToken,
+			 invertUnique(evNameToToken),invertUnique(comNameToToken));
 }
