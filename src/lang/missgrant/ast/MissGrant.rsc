@@ -49,7 +49,7 @@ public StateEnv eventEnv(Controller ctl) {
   return ( n: e | e:event(n, _) <- ctl.events);
 } 
 
-public StateEnv commandEnv(Controller ctl) {
+public CommandEnv commandEnv(Controller ctl) {
   return ( n: c | c:command(n, _) <- ctl.commands);
 } 
 
