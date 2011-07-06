@@ -1,16 +1,15 @@
 module lang::missgrant::syntax::MissGrant
 
-// TODO: need bits for final/initial states.
+start syntax Controller = controller: Events events ResetEvents? resets Commands? commands State+ states;
 
-start syntax Controller = controller: Events ResetEvents? Commands? State+;
-syntax Events = "events" Event* "end";
-syntax ResetEvents = "resetEvents" Id* "end"; 
-syntax Commands = "commands" Command* "end";
+syntax Events = @Foldable "events" Event* "end";
+syntax ResetEvents = @Foldable "resetEvents" Id* "end"; 
+syntax Commands = @Foldable "commands" Command* "end";
 
 syntax Command = command: Id Id;
 syntax Event = event: Id Id;
 
-syntax State = state: "state" Id Actions? Transition+ "end";
+syntax State = @Foldable state: "state" Id Actions? Transition+ "end";
 syntax Actions = "actions" "{" Id+ "}";
 
 syntax Transition = transition: Id "=\>" Id;
@@ -25,7 +24,7 @@ syntax LAYOUT
 
 layout LAYOUTLIST 
     = LAYOUT* 
-	# [\t-\n \r \ ] 
+	# [\t-\n\r\ ] 
 	# "/*" ;
 
 syntax Comment 
