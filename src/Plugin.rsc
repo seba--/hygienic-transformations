@@ -4,6 +4,9 @@ import lang::missgrant::syntax::MissGrant;
 import lang::missgrant::ide::Outline;
 import lang::missgrant::utils::Implode;
 import lang::missgrant::check::CheckController;
+import lang::missgrant::desugar::DesugarResetEvents;
+import lang::missgrant::compile::ToSwitch;
+import lang::missgrant::compile::ToMethods;
 
 import util::IDE;
 import ParseTree;
@@ -25,7 +28,28 @@ public void main() {
   
   registerAnnotator(CONTROLLER_LANG, Controller (Controller input) {
     msgs = toSet(checkController(implode(input)));
-    iprint(msgs);
     return input[@messages=msgs];
   });
+  
+  contribs = {
+		popup(
+			menu(CONTROLLER_LANG,[
+	    		action("Generate Switch", generateSwitch), 
+	    		action("Generate Methods", generateMethods) 
+		    ])
+	  	)
+  };
+	
+  registerContributions(CONTROLLER_LANG, contribs);
 }
+
+private void generateSwitch(Controller pt, loc l) {
+  name = "ControllerSwitch";
+  writeFile(|project://missgrant/src/<name>.java|, controller2switch(name, desugarResetEvents(implode(pt))));
+}
+
+private void generateMethods(Controller pt, loc l) {
+  name = "ControllerMethods";
+  writeFile(|project://missgrant/src/<name>.java|, controller2methods(name, desugarResetEvents(implode(pt))));
+}
+

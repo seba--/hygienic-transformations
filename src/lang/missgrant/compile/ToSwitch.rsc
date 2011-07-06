@@ -3,8 +3,8 @@ module lang::missgrant::compile::ToSwitch
 import lang::missgrant::compile::ToMethods;
 import lang::missgrant::ast::MissGrant;
 
-public str controller2switch(Controller ctl) {
-  return "public class Controller {
+public str controller2switch(str name, Controller ctl) {
+  return "public class <name> {
          '  <states2consts(ctl.states)>
          '  <controller2run(ctl)>
          '  <for (e <- ctl.events) {>

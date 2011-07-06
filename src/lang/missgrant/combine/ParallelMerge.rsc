@@ -36,16 +36,18 @@ private list[State] mergeStates(Controller ctl1, Controller ctl2) {
 	  trs = [ transition(e, merge(env1[u1], env2[u2])) | e <- both, 
 	  		  transition(e, u1) <- s1.transitions, 
 	  		  transition(e, u2) <- s2.transitions ]
-	      + [ transition(e, merge(env1[u1], s2)) | e <- e1 - both, transition(e, u1) <- s1.transitions ] 
-	      + [ transition(e, merge(s1, env2[u2])) | e <- e2 - both, transition(e, u2) <- s2.transitions ];
+	      + [ transition(e, merge(env1[u1], s2)) | e <- e1 - both, 
+	      		transition(e, u1) <- s1.transitions ] 
+	      + [ transition(e, merge(s1, env2[u2])) | e <- e2 - both, 
+	      		transition(e, u2) <- s2.transitions ];
 	
 	  states += [state(nn, unique(s1.actions + s2.actions), trs)];
 	  return nn;
   }
   
   merge(initial(ctl1), initial(ctl2));
-  return states;
   
+  return states;
 }
 
 

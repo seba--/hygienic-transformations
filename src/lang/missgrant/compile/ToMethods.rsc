@@ -1,9 +1,9 @@
-module lang::missgrant::compile::ToJava
+module lang::missgrant::compile::ToMethods
 
 import  lang::missgrant::ast::MissGrant;
 
-public str controller2java(Controller ctl) {
-  return "public class Controller {
+public str controller2methods(str name, Controller ctl) {
+  return "public class <name> {
   	     '  <for (e <- ctl.events) {>
   	     '  <event2java(e)>
   	     '  <}>
