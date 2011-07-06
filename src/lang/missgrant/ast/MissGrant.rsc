@@ -39,9 +39,18 @@ public Graph[str] stateGraph(Controller ctl) {
 
 alias StateEnv = map[str, State];
 alias EventEnv = map[str, Event];
+alias CommandEnv = map[str, Command];
 
 public StateEnv stateEnv(Controller ctl) {
   return ( n: s | s:state(n, _, _) <- ctl.states);
+} 
+
+public StateEnv eventEnv(Controller ctl) {
+  return ( n: e | e:event(n, _) <- ctl.events);
+} 
+
+public StateEnv commandEnv(Controller ctl) {
+  return ( n: c | c:command(n, _) <- ctl.commands);
 } 
 
 public set[str] usedEvents(Controller ctl) {
