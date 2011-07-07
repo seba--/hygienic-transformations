@@ -306,6 +306,21 @@ implode(#&lt;Your AST module&gt;::&lt;Root ADT type&gt;, pt);
       >Note: you may put the facts you've extracted from the previous assignment to good use in the analysis.</p
       ><p
       >Tip: for reachability analysis use the builtin Rascal operator for transitive closure (post-fix +).</p
+      ><div id="connecting-the-checker-to-the-ide"
+      ><h2
+	>Connecting the checker to the IDE</h2
+	><p
+	>To hook up your checker to the IDE you have to add the following line to main in Plugin.rsc:</p
+	><pre
+	><code
+	  >registerAnnotator(&quot;Controller&quot;, check);
+</code
+	  ></pre
+	><p
+	>The check function (which you'll have to provide), is expected to take a (concrete!) parse tree and return an annotated parse tree. Concrete parse trees can be annotated with a set of Messages. In the check function you'll have to invoke your checker, get the collection of error message, and annotate the parse tree with it. You can annotate a tree using x[@a=v], where x is the tree, a is the annotation name and v is the annotated value.</p
+	><p
+	>NB: error marking is still very experimental. You may encounter incorrect marking in some cases.</p
+	></div
       ></div
     ><div id="code-generation-to-java"
     ><h1
@@ -332,6 +347,20 @@ implode(#&lt;Your AST module&gt;::&lt;Root ADT type&gt;, pt);
 	></ul
       ><p
       >Note that upon entering states the actions (if any) should be executed. To be able to run the code, assume the input stream is a java.util.Scanner object, and use nextLine to obtain the next token. Actions print tokens onto an outputstream, which can be any java.io.Writer.</p
+      ><div id="connecting-the-code-generator-to-the-ide"
+      ><h2
+	>Connecting the code generator to the IDE</h2
+	><p
+	>To be able to invoke the code generator from the state machine editor, add the following lines to main in Plugin.rsc.</p
+	><pre
+	><code
+	  >contribs = {popup(menu(&quot;Controller,[action(&quot;Generate Java&quot;, generate)]))};
+registerContributions(&quot;Controller&quot;, contribs);
+</code
+	  ></pre
+	><p
+	>You'll have to write a generate function that actually invokes your code generator and write the result to file. Take a look in util::IDE to find out the expected signature for generate. Function for input/output can be found in the standard library IO.</p
+	></div
       ></div
     ><div id="parallel-merge-of-two-state-machines"
     ><h1
