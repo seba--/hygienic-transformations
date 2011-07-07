@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+><head
+  ><title
+    ></title
+    ><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"
+     /><meta name="generator" content="pandoc"
+     /><link rel="stylesheet" href="http://homepages.cwi.nl/~storm/teaching/bb.css" type="text/css" media="all" />
+</head
+  ><body
+  ><div id="five-languages-symposium-rascal"
+    ><h1
+      >Five Languages Symposium: Rascal</h1
+      ><div id="introduction"
+      ><h2
+	>Introduction</h2
+	><p
+	><a href="http://www.rascal-mpl.org"
+	  >Rascal</a
+	  > is programming language for source code analysis and transformation. The primary application areas are (legacy) system renovation, reverse engineering and reengineering, and the implementation of domain specific languages (DSLs). DSLs are languages tailored to a specific application domain. Examples include SQL, Excel, Make, LaTeX, VHDL, etc. Today we are going to use Rascal to implement a small language for statemachines. The example is derived from Martin Fowler's book on Domain Specific Languages. The relevant chapter is published online:</p
+	><blockquote
+	><p
+	  ><a href="http://www.informit.com/articles/article.aspx?p=1592379"
+	    >http://www.informit.com/articles/article.aspx?p=1592379</a
+	    ></p
+	  ></blockquote
+	><p
+	>State machines are useful for describing state dependent behaviour, for instance to control machines or workflow engines. DSLs are a particular form of model-driven development (MDE), where software is specified using high-level models, from which then the implementation is generated.</p
+	><p
+	>In the tutorial we will explore the Rascal language and environment by implementing the following facets of the DSL:</p
+	><ul
+	><li
+	  ><p
+	    >A context-free grammar to describe the syntax of state machines</p
+	    ></li
+	  ><li
+	  ><p
+	    >An algebraic data type (ADT) for describing state machine abstract syntax trees (ASTs)</p
+	    ></li
+	  ><li
+	  ><p
+	    >A consistency checker for state machines. This component, for instance, highlights use of undefined states or events, marks duplicate states, commands or events and detects unreachable states.</p
+	    ></li
+	  ><li
+	  ><p
+	    >Reset events (see the link above) are syntactic sugar: they can be <em
+	      >desugared</em
+	      > into an equivalent statemachine that does not use them.</p
+	    ></li
+	  ><li
+	  ><p
+	    >A graphic visualization of a state machine as a graph.</p
+	    ></li
+	  ><li
+	  ><p
+	    >A code generator that produces a Java code consuming and producing tokens. (This is called a Model-to-Text transformation)</p
+	    ></li
+	  ><li
+	  ><p
+	    >A transformation that takes two state machines and produces a new state machine that runs the two original machines in parallel. (This is called a Model-to-Model transformation). The resulting state machine can be input to the original code generator and visualizer.</p
+	    ></li
+	  ><li
+	  ><p
+	    >A simple evaluator to simulate a state machine. This can be connected to the visualization to interactively step through a state machine.</p
+	    ></li
+	  ><li
+	  ><p
+	    >A simple source-to-source transformation to implement a rename refactoring for states, events and/or commands.</p
+	    ></li
+	  ><li
+	  ><p
+	    >Provide domain-specific IDE features for state machines: context-menus to invoke the code generator, outline views, folding, error marking.</p
+	    ></li
+	  ></ul
+	><p
+	>Some of these assignments are more complicated than others. This is not a problem: we will see how far we get!</p
+	><p
+	>To get up and running, download the following zipfile:</p
+	><blockquote
+	><p
+	  >[http://www.cwi.nl/<sub
+	    >storm/5lang-rascal.zip](http://www.cwi.nl/</sub
+	    >storm/5lang-rascal.zip)</p
+	  ></blockquote
+	><p
+	>Unzip it into a dedicated directory. The Zip file contains pre-built Eclipse workspace including a Rascal project for state machines. The project contains some setup code and example state machines.</p
+	><div id="warming-up"
+	><h3
+	  >Warming Up</h3
+	  ></div
+	><div id="syntax-definition-for-state-machines"
+	><h3
+	  >Syntax Definition for State Machines</h3
+	  ><p
+	  >Rascal has builtin support for context-free grammars which can be used to define the syntax of programming languages. A syntax rule consists of the following parts:</p
+	  ><pre
+	  ><code
+	    >syntax NonTerminal = label_1: Element_1i ... Element_1m1
+                   | ...
+                   | label_n: Element ... Element_nmn
+</code
+	    ></pre
+	  ><p
+	  >This defines a rule named &quot;NonTerminal&quot; with <em
+	    >n</em
+	    > alternatives. Each alternative has a label and a sequence of Elements. The elements of an alternative define the syntax to be recognized by this rule. An element can be one of the following symbols:</p
+	  ><ul
+	  ><li
+	    >&quot;a literal&quot;</li
+	    ><li
+	    >ANonTerminal</li
+	    ><li
+	    >a regular symbol: X? for optional, X* for zero-or-more, X+ for one-or-more, and the separated list operators: {X &quot;sep&quot;}*, and {X &quot;sep&quot;}+. X can be any symbol, but typically will be a non-terminal</li
+	    ></ul
+	  ><p
+	  >To define lexical rules (e.g., for identifiers) character classes are used (similar to regular expressions):</p
+	  ><ul
+	  ><li
+	    >char class [a-z]: recognize a character between a and z. Or: [\t\n\r\ ]: recognize a whitespace character</li
+	    ><li
+	    >![a-z]: recognize any non-lowercase-alphabetic character</li
+	    ><li
+	    >?, *, and + can be used on character classes as well</li
+	    ></ul
+	  ><p
+	  >To create a grammar for state machines, create a new Rascal module, and add rules to recognizes the syntax invented by Martin Fowler (page 3 of the article cited above).</p
+	  ><p
+	  >To get up and running add the following definitions for layout (whitespace and comments) and identifiers:</p
+	  ><pre
+	  ><code
+	    >syntax Id = lex [a-zA-Z][a-zA-Z0-9_]* - Reserved # [a-zA-Z0-9_];
+syntax Reserved = &quot;events&quot; | &quot;end&quot; | &quot;resetEvents&quot; | &quot;state&quot; | &quot;actions&quot; ;
+syntax LAYOUT = lex whitespace: [\t-\n\r\ ]  | lex Comment ;
+layout LAYOUTLIST = LAYOUT* # [\t-\n\r\ ] # &quot;/*&quot; ;
+syntax Comment = lex @category=&quot;Comment&quot;  &quot;/*&quot; CommentChar* &quot;*/&quot; ;
+syntax CommentChar = lex ![*] | lex Asterisk ;
+syntax Asterisk = lex [*] # [/] ;
+</code
+	    ></pre
+	  ><p
+	  ><strong
+	    >Quiz: what is the meaning of the # and - constructs?</strong
+	    ></p
+	  ><p
+	  >Don't forget to add a start syntax rule. This will instruct the parser what to recognize when a file is parsed in an editor. For instance, like this:</p
+	  ><pre
+	  ><code
+	    >start syntax Controller = controller: Events ResetEvents? Commands? State+ states;
+</code
+	    ></pre
+	  ><p
+	  >After you've created the syntax module. Create a module Plugin.rsc in the src directory of the project. Add the following lines to make the syntax available to the environment:</p
+	  ><p
+	  >Open up a Rascal console, enter &quot;import Plugin;&quot;, then &quot;main();&quot;. If all is well, you can now open &quot;.ctl&quot; files (see the input directory of the project) and get syntax highlighting.</p
+	  ><pre
+	  ><code
+	    >module Plugin
+
+import &lt;you syntax module&gt;;
+import util::IDE;
+import ParseTree;
+
+public void main() {
+  registerLanguage(&quot;Controller&quot;, &quot;ctl:, &lt;Your start symbol&gt;(str input, loc org) {
+     return parse(#&lt;Your start symbol&gt;, input, org);
+  });
+}
+</code
+	    ></pre
+	  ></div
+	></div
+      ></div
+    ></body
+  ></html
+>
+
