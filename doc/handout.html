@@ -11,13 +11,21 @@
   ><div id="five-languages-symposium-rascal"
     ><h1
       >Five Languages Symposium: Rascal</h1
+      ><p
+      ><em
+	>This document can also be viewed <a href="http://www.cwi.nl/~storm/5lang11/handout.html"
+	  >online</a
+	  >. PDF can be found <a href="http://www.cwi.nl/~storm/5lang11/handout.pdf"
+	  >here</a
+	  >.</em
+	></p
       ><div id="introduction"
       ><h2
 	>Introduction</h2
 	><p
 	><a href="http://www.rascal-mpl.org"
 	  >Rascal</a
-	  > is programming language for source code analysis and transformation. The primary application areas are (legacy) system renovation, reverse engineering and reengineering, and the implementation of domain specific languages (DSLs). DSLs are languages tailored to a specific application domain. Examples include SQL, Excel, Make, LaTeX, VHDL, etc. Today we are going to use Rascal to implement a small language for statemachines. The example is derived from Martin Fowler's book on Domain Specific Languages. The relevant chapter is published online:</p
+	  > is programming language for source code analysis and transformation. The primary application areas are (legacy) system renovation, reverse engineering and reengineering, and the implementation of domain specific languages (DSLs). DSLs are languages tailored to a specific application domain. Examples include SQL, Excel, Make, LaTeX, VHDL, etc. Today we are going to use Rascal to implement a small domains specific language for statemachines. The example is derived from Martin Fowler's book on Domain Specific Languages. The relevant chapter is published online:</p
 	><blockquote
 	><p
 	  ><a href="http://www.informit.com/articles/article.aspx?p=1592379"
@@ -25,7 +33,7 @@
 	    ></p
 	  ></blockquote
 	><p
-	>State machines are useful for describing state dependent behaviour, for instance to control machines or workflow engines. DSLs are a particular form of model-driven development (MDE), where software is specified using high-level models, from which then the implementation is generated.</p
+	>State machines are useful for describing state dependent behaviour, for instance to control machines or workflow engines. DSLs are a particular form of model-driven development (MDE), where software is specified using high-level models, from which the implementation is generated.</p
 	><p
 	>For more information on the theory of this kind of state machines, you may want to consult <a href="http://en.wikipedia.org/wiki/Finite_state_transducer"
 	  >Wikipedia</a
@@ -35,7 +43,7 @@
 	><ul
 	><li
 	  ><p
-	    >A context-free grammar to describe the syntax of state machines</p
+	    >A context-free grammar to describe the syntax of the state machine language</p
 	    ></li
 	  ><li
 	  ><p
@@ -65,11 +73,11 @@
 	    ></li
 	  ><li
 	  ><p
-	    >A simple evaluator to simulate a state machine. This can be connected to the visualization to interactively step through a state machine.</p
+	    >A simple evaluator to simulate a state machine.</p
 	    ></li
 	  ><li
 	  ><p
-	    >A simple source-to-source transformation to implement a rename refactoring for states, events and/or commands.</p
+	    >A source-to-source transformation to implement a rename refactoring for states, events and/or commands.</p
 	    ></li
 	  ><li
 	  ><p
@@ -78,20 +86,50 @@
 	  ></ul
 	><p
 	>Some of these assignments are more complicated than others. This is not a problem: we will see how far we get!</p
+	></div
+      ><div id="installation"
+      ><h2
+	>Installation</h2
 	><p
-	>To get up and running, download the following zipfile:</p
-	><blockquote
+	>You have to download and install <em
+	  >Eclipse for RCP and RAP Developers</em
+	  >. We have experience with Galileo and Helios. It looks like Indigo will work too.</p
 	><p
-	  ><a href="http://www.cwi.nl/~storm/5lang-rascal.zip"
-	    >5lang-rascal.zip</a
-	    ></p
-	  ></blockquote
+	>Install IMP prerequisites from:</p
+	><ul
+	><li
+	  >IMP: <a href="http://download.eclipse.org/technology/imp/updates/0.2/"
+	    >http://download.eclipse.org/technology/imp/updates/0.2/</a
+	    ></li
+	  ></ul
 	><p
-	>Unzip it into a dedicated directory. The Zip file contains pre-built Eclipse workspace including a Rascal project for state machines. The project contains some setup code and example state machines.</p
-	><div id="warming-up"
-	><h3
-	  >Warming Up</h3
-	  ></div
+	>Install Rascal + IMP from:</p
+	><ul
+	><li
+	  >5lang11: <a href="http://www.cwi.nl/~storm/5lang11/update"
+	    >http://www.cwi.nl/~storm/5lang11/update</a
+	    ></li
+	  ></ul
+	><p
+	>Some notes:</p
+	><ul
+	><li
+	  ><p
+	    >You have to have a Java SDK available (JRE is not enough).</p
+	    ></li
+	  ><li
+	  ><p
+	    >Make sure you use 64 bit version of Eclipse if your JVM is 64 bit (mutatis mutandis for 32 bit).</p
+	    ></li
+	  ><li
+	  ><p
+	    >Project names with spaces or installing in a directory with space will not work.</p
+	    ></li
+	  ></ul
+	><p
+	>To start, open the Rascal perspective. Create a new project for the summerschool. Download <a href="http://www.cwi.nl/~storm/5lang11/5lang11.zip"
+	  >http://www.cwi.nl/~storm/5lang11/5lang11.zip</a
+	  >.</p
 	></div
       ></div
     ><div id="syntax-definition-for-state-machines"
@@ -114,7 +152,7 @@
       ><li
 	>&quot;a literal&quot;</li
 	><li
-	>ANonTerminal</li
+	>a NonTerminal</li
 	><li
 	>a regular symbol: X? for optional, X* for zero-or-more, X+ for one-or-more, and the separated list operators: {X &quot;sep&quot;}*, and {X &quot;sep&quot;}+. X can be any symbol, but typically will be a non-terminal</li
 	></ul
@@ -124,7 +162,7 @@
       ><li
 	>char class [a-z]: recognize a character between a and z. Or: [\t\n\r\ ]: recognize a whitespace character</li
 	><li
-	>![a-z]: recognize any non-lowercase-alphabetic character</li
+	>![a-z]: recognize any character that is not a lowercase alphabetic character</li
 	><li
 	>?, *, and + can be used on character classes as well</li
 	></ul
@@ -276,7 +314,9 @@ implode(#&lt;Your AST module&gt;::&lt;Root ADT type&gt;, pt);
       ><p
       >The relations of the previous assignment are an abstract representation of a state machine. This provides excellent input to visualizing a state machine as a graph. In the Rascal project we have provided a visualizer for state machines. You visualize a state machine by providing the relations of the previous assignment to the visualizer as follows:</p
       ><p
-      >TBD</p
+      >import the module ShowStateMachine</p
+      ><p
+      >call the function void stateMachineVis(TransRel trans, ActionRel arel, str init) supplying it with your own relation representation of the state machine.</p
       ><p
       >In the visualization there are buttons for each event. You can click on them to interactively simulate the execution of the state machine. To do this, the visualizer uses a step function based on the transition relation. This step function could be defined as follows:</p
       ><pre
@@ -382,7 +422,7 @@ registerContributions(&quot;Controller&quot;, contribs);
 </code
 	  ></pre
 	><p
-	>You'll have to write a generate function that actually invokes your code generator and write the result to file. Take a look in util::IDE to find out the expected signature for generate. Function for input/output can be found in the standard library IO.</p
+	>You'll have to write a generate function that actually invokes your code generator and writes the result to file. Take a look in util::IDE to find out the expected signature for generate. Functions for input/output can be found in the standard library IO.</p
 	></div
       ></div
     ><div id="parallel-merge-of-two-state-machines"
@@ -391,7 +431,11 @@ registerContributions(&quot;Controller&quot;, contribs);
       ><p
       >The desugaring reset events (cf. above) is an instance of a simple model-to-model transformation. In this assignment we will engage in a model-to-model transformation that is slightly more complex. The goal is to take two state machines and produce a new one that runs the two original state machines in parallel.</p
       ><p
-      >The states in the machine resulting from mergin machines S1 and S2 are identified by tuples of the states of both machines. Execution thus starts in a the initial state &lt;s0, u0&gt; where s0 and u0 are the initial states of S1 and S2 respectively. Running S1 and S2 in parallel then entails the following:</p
+      >In the realm of gothic security systems the company noticed that sometimes a client wanted two or more hidden compartments in the same room. the two controllers may share events, such as opening the drawer. In this case it is off course more cost effective to install a single controller instead of two. This is archieved by <em
+	>merging</em
+	> the two state machines trough the algorithm you are going to program now and the installing the resulting state machine onto a single controller.</p
+      ><p
+      >The states in the machine resulting from merging machines S1 and S2 are identified by tuples of the states of both machines. Execution thus starts in a the initial state &lt;s0, u0&gt; where s0 and u0 are the initial states of S1 and S2 respectively. Running S1 and S2 in parallel then entails the following:</p
       ><ul
       ><li
 	><p
@@ -421,7 +465,7 @@ registerContributions(&quot;Controller&quot;, contribs);
       ><p
       >In the first assignment we mentioned that the use of ASTs is often more convenient for processing a language since it omits a lot of irrelevant detail that is present in the concrete syntax tree. However, for some application this detail is actually essential. Refactoring is one such application: after a refactoring, you don't want to have discarded all layout and comments! Hence, when implementing a refactoring we cannot use the AST.</p
       ><p
-      >Rascal provides &quot;edit&quot; contributions to context menus (cf. hooking up the code generator above). Such contributions accept closures that take a concrete parse tree, and source location indicating the current selection in the editor. They should return a string with the (possibly) rewritten source. The goal of this refactoring is to implement &quot;rename&quot;: rename the selected element everywhere in the parse tree to the new name.</p
+      >Rascal provides &quot;edit&quot; contributions to context menus (cf. hooking up the code generator above). Such contributions accept closures that take a concrete parse tree, and source location indicating the current selection in the editor. They should return a string with the (possibly) rewritten source. The goal of this refactoring is to implement the &quot;rename&quot; refactoring for events, commands and states.</p
       ><p
       >Some hints and guidelines:</p
       ><ul

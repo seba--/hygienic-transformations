@@ -2,6 +2,10 @@
 Five Languages Symposium: Rascal
 ================================
 
+*This document can also be viewed
+ [online](http://www.cwi.nl/~storm/5lang11/handout.html). PDF can be
+ found [here](http://www.cwi.nl/~storm/5lang11/handout.pdf).*
+
 Introduction
 ------------
 
@@ -69,13 +73,36 @@ by implementing the following facets of the DSL:
 Some of these assignments are more complicated than others. This is
 not a problem: we will see how far we get!
 
-To get up and running, download the following zipfile:
 
-> [5lang-rascal.zip](http://www.cwi.nl/~storm/5lang-rascal.zip)
+## Installation
 
-Unzip it into a dedicated directory. The Zip file contains pre-built
-Eclipse workspace including a Rascal project for state machines. The
-project contains some setup code and example state machines.
+You have to download and install *Eclipse for RCP and RAP
+Developers*. We have experience with Galileo and Helios. It looks like
+Indigo will work too.
+
+Install IMP prerequisites from:
+
+- IMP: [http://download.eclipse.org/technology/imp/updates/0.2/](http://download.eclipse.org/technology/imp/updates/0.2/)
+  
+Install Rascal + IMP from:
+
+- 5lang11: [http://www.cwi.nl/\~storm/5lang11/update](http://www.cwi.nl/~storm/5lang11/update)
+
+
+Some notes:
+
+- You have to have a Java SDK available (JRE is not enough).
+
+- Make sure you use 64 bit version of Eclipse if your JVM is 64 bit
+  (mutatis mutandis for 32 bit).
+
+- Project names with spaces or installing in a directory with space
+  will not work.
+
+To start, open the Rascal perspective. Create a new project for the
+summerschool. Download
+[http://www.cwi.nl/\~storm/5lang11/5lang11.zip](http://www.cwi.nl/~storm/5lang11/5lang11.zip).
+
 
 Syntax Definition for State Machines
 ====================================

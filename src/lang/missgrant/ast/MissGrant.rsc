@@ -4,17 +4,6 @@ import List;
 import Graph;
 import Map;
 
-data ControllerState = 
-	controllerState(
-		Controller ctl,
-		str curStateName, 
-		StateEnv stateEnv,
-		map[str,str] eventNameToToken,
-		map[str,str]  commandNameToToken,
-		map[str,str]  eventTokenToName,
-		map[str,str]  commandTokenToName
-	);
-
 data Controller = controller(list[Event] events, 
 					list[str] resets, 
 					list[Command] commands,
@@ -32,6 +21,19 @@ anno loc State@location;
 anno loc Command@location;
 anno loc Event@location;
 anno loc Transition@location;
+
+data ControllerState = 
+	controllerState(
+		Controller ctl,
+		str curStateName, 
+		StateEnv stateEnv,
+		map[str,str] eventNameToToken,
+		map[str,str]  commandNameToToken,
+		map[str,str]  eventTokenToName,
+		map[str,str]  commandTokenToName
+	);
+
+
 
 public State initial(Controller ctl) {
   return ctl.states[0];
