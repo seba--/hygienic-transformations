@@ -10,11 +10,11 @@ public tuple[str,list[str]] addCommands(tuple[str,list[str]] a, tuple[str,list[s
 	return <b[0],a[1] + b[1]>;
 }
 
-public Output eval(StateTrans trans, Commands commands, str init, list[str] tokens) {
+public Output eval(TransRel trans, ActionRel commands, str init, list[str] tokens) {
   return (<init,[]> | addCommands(step(trans,commands,it[0],token)) | token <- tokens);
 }
 
-public Output step(StateTrans trans, Commands commands, str init,str token){
+public Output step(TransRel trans, ActionRel commands, str init,str token){
 	if(c <- trans[init,token]){
 		return <c,toList(commands[c])>;
 	} else {
