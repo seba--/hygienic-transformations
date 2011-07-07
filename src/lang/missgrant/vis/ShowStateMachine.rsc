@@ -7,6 +7,8 @@ import List;
 import Real;
 import Integer;
 import IO;
+import util::Resources;
+import vis::Render;
 
 public FProperty popup(str S,FProperty props...){
    return mouseOver(box(text(S), [fillColor("lightyellow"),grow(1.2),resizable(false),mouseStick(false)] + props));
@@ -31,9 +33,14 @@ public Figure stateMachineGraph(ControllerState s){
 	str getColor(int i){
 		return (s.ctl.states[i].name == s.curStateName) ? "red" : ((i == 0) ? "green" : "lightskyblue");
 	} 
+	void () genOnClick(State ss){
+		loc l = ss@location;
+		return void () {edit(l,ss.name); };
+	}
+	
 	list[Figure] nodes = [box(text(s.ctl.states[i].name)
 							,fillColor(getColor(i)),grow(2.5),id(s.ctl.states[i].name)
-							,popup(actionList(s.ctl.states[i].actions,s.commandNameToToken))) 
+							,popup(actionList(s.ctl.states[i].actions,s.commandNameToToken)),onClick(genOnClick(s.ctl.states[i]))) 
 							| i <- [0..size(s.ctl.states)-1]];
 	Edges edges = [[ edge(
 						st.name,
@@ -69,4 +76,5 @@ public Figure stateMachineVis(Controller c){
 		hcat([text("Commands:")] + [box(text(comm),popup(state.commandTokenToName[comm]),grow(1.3)) | comm <-commandsTokens],resizable(false)),
 		stateMachineGraph(state)]); });
 }
+
 		
