@@ -287,13 +287,11 @@ representation of a state machine. This provides excellent input to
 visualizing a state machine as a graph. In the Rascal project we have
 provided a visualizer for state machines. You visualize a state
 machine by providing the relations of the previous assignment to the
-visualizer as follows:
+visualizer as follows: import the module ShowStateMachine and then
+call the function :
 
-import the module
-     ShowStateMachine
-
-call the function 
      void stateMachineVis(TransRel trans, ActionRel arel, str init)
+
 supplying it with your own relation representation of the state machine.
 
 In the visualization there are buttons for each event. You can click

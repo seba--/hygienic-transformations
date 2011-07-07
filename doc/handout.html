@@ -312,11 +312,14 @@ implode(#&lt;Your AST module&gt;::&lt;Root ADT type&gt;, pt);
     ><h1
       >Visualizing a state machine</h1
       ><p
-      >The relations of the previous assignment are an abstract representation of a state machine. This provides excellent input to visualizing a state machine as a graph. In the Rascal project we have provided a visualizer for state machines. You visualize a state machine by providing the relations of the previous assignment to the visualizer as follows:</p
+      >The relations of the previous assignment are an abstract representation of a state machine. This provides excellent input to visualizing a state machine as a graph. In the Rascal project we have provided a visualizer for state machines. You visualize a state machine by providing the relations of the previous assignment to the visualizer as follows: import the module ShowStateMachine and then call the function :</p
+      ><pre
+      ><code
+	> void stateMachineVis(TransRel trans, ActionRel arel, str init)
+</code
+	></pre
       ><p
-      >import the module ShowStateMachine</p
-      ><p
-      >call the function void stateMachineVis(TransRel trans, ActionRel arel, str init) supplying it with your own relation representation of the state machine.</p
+      >supplying it with your own relation representation of the state machine.</p
       ><p
       >In the visualization there are buttons for each event. You can click on them to interactively simulate the execution of the state machine. To do this, the visualizer uses a step function based on the transition relation. This step function could be defined as follows:</p
       ><pre
