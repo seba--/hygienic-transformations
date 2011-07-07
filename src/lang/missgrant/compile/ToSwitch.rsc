@@ -34,7 +34,6 @@ public str controller2run(Controller ctl) {
          '      <for (s <- ctl.states) {>
          '      <state2case(s)>
          '      <}>
-         '      default: throw new RuntimeException(\"Unkown event: \" + token);
          '    }
          '}";
 }

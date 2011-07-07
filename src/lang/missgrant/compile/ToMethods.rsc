@@ -39,6 +39,7 @@ public str state2java(State state) {
          '     <stateName(t.state)>(input, output);
          '     return;
          '  }
+         '  <stateName(action)>(input, output);
          '  <}>
          '}";   
 }
