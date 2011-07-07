@@ -11,16 +11,16 @@ code analysis and transformation. The primary application areas are
 the implementation of domain specific languages (DSLs). DSLs are
 languages tailored to a specific application domain. Examples include
 SQL, Excel, Make, LaTeX, VHDL, etc. Today we are going to use Rascal
-to implement a small language for statemachines. The example is
-derived from Martin Fowler's book on Domain Specific Languages. The
-relevant chapter is published online: 
+to implement a small domains specific language for statemachines. The 
+example is derived from Martin Fowler's book on Domain Specific Languages.
+The relevant chapter is published online: 
 
  > [http://www.informit.com/articles/article.aspx?p=1592379](http://www.informit.com/articles/article.aspx?p=1592379)
    
 State machines are useful for describing state dependent behaviour,
 for instance to control machines or workflow engines. DSLs are a
 particular form of model-driven development (MDE), where software is
-specified using high-level models, from which then the implementation
+specified using high-level models, from which the implementation
 is generated.
 
 For more information on the theory of this kind of state machines, you
@@ -30,7 +30,8 @@ may want to consult
 In the tutorial we will explore the Rascal language and environment
 by implementing the following facets of the DSL:
  
- - A context-free grammar to describe the syntax of state machines
+ - A context-free grammar to describe the syntax of the state machine
+   language
  
  - An algebraic data type (ADT) for describing state machine abstract
    syntax trees (ASTs)
@@ -56,9 +57,7 @@ by implementing the following facets of the DSL:
    resulting state machine can be input to the original code generator
    and visualizer.
 
- - A simple evaluator to simulate a state machine. This can be
-   connected to the visualization to interactively step through a
-   state machine.
+ - A simple evaluator to simulate a state machine. 
    
  - A source-to-source transformation to implement a rename refactoring
    for states, events and/or commands.
@@ -78,11 +77,6 @@ Unzip it into a dedicated directory. The Zip file contains pre-built
 Eclipse workspace including a Rascal project for state machines. The
 project contains some setup code and example state machines.
 
-### Warming Up
-
-    
-
-
 Syntax Definition for State Machines
 ====================================
 
@@ -100,7 +94,7 @@ alternative define the syntax to be recognized by this rule. An
 element can be one of the following symbols:
 
 - "a literal"
-- ANonTerminal
+- a NonTerminal
 - a regular symbol: X? for optional, X* for zero-or-more, X+ for
   one-or-more, and the separated list operators: {X "sep"}*, and {X
   "sep"}+. X can be any symbol, but typically will be a non-terminal
@@ -110,7 +104,7 @@ used (similar to regular expressions):
 
 - char class [a-z]: recognize a character between a and z. Or:
    [\\t\\n\\r\\ ]: recognize a whitespace character
-- ![a-z]: recognize any non-lowercase-alphabetic character
+- ![a-z]: recognize any character that is not a lowercase alphabetic character
 - ?, *, and + can be used on character classes as well
 
 To create a grammar for state machines, create a new Rascal module,
@@ -268,7 +262,12 @@ provided a visualizer for state machines. You visualize a state
 machine by providing the relations of the previous assignment to the
 visualizer as follows:
 
-TBD
+import the module
+     ShowStateMachine
+
+call the function 
+     void stateMachineVis(TransRel trans, ActionRel arel, str init)
+supplying it with your own relation representation of the state machine.
 
 In the visualization there are buttons for each event. You can click
 on them to interactively simulate the execution of the state
@@ -397,7 +396,15 @@ model-to-model transformation that is slightly more complex. The goal
 is to take two state machines and produce a new one that runs the two
 original state machines in parallel. 
 
-The states in the machine resulting from mergin machines S1 and S2 are
+In the realm of gothic security systems the company noticed that sometimes
+a client wanted two or more hidden compartments in the same room. the two 
+controllers may share events, such as opening the drawer. In this case it
+is off course more cost effective to install a single controller instead of
+two. This is archieved by *merging* the two state machines trough the 
+algorithm you are going to program now and the installing the resulting 
+state machine onto a single controller. 
+
+The states in the machine resulting from merging machines S1 and S2 are
 identified by tuples of the states of both machines. Execution thus
 starts in a the initial state <s0, u0> where s0 and u0 are the initial
 states of S1 and S2 respectively. Running S1 and S2 in parallel then
