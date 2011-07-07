@@ -8,8 +8,10 @@ import lang::missgrant::desugar::DesugarResetEvents;
 import lang::missgrant::compile::ToSwitch;
 import lang::missgrant::compile::ToMethods;
 import lang::missgrant::ide::Rename;
+import lang::missgrant::vis::ShowStateMachine;
 
 import util::IDE;
+import vis::Render;
 import ParseTree;
 import List;
 import IO;
@@ -37,6 +39,7 @@ public void main() {
 			menu(CONTROLLER_LANG,[
 	    		action("Generate Switch", generateSwitch), 
 	    		action("Generate Methods", generateMethods),
+	    		action("Visualize", visualizeController),
 	    		edit("Rename...", rename) 
 		    ])
 	  	)
@@ -55,3 +58,6 @@ private void generateMethods(Controller pt, loc l) {
   writeFile(|project://missgrant/src/<name>.java|, controller2methods(name, desugarResetEvents(implode(pt))));
 }
 
+private void visualizeController(Controller pt, loc l) {
+  render(stateMachineVis(implode(pt)));
+}
