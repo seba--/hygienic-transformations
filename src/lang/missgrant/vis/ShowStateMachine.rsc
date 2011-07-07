@@ -14,7 +14,7 @@ import Graph;
 import Set;
 import lang::missgrant::extract::ToRelation;
 
-public Figure stateMachineGraph(StateTrans trans,str init,str state){
+public Figure stateMachineGraph(TransRel trans,str init,str state){
 	str getColor(str s){
 		return (s == state) ? "red" : ((s == init) ? "green" : "lightskyblue");
 	} 
@@ -29,7 +29,7 @@ public Figure stateMachineGraph(StateTrans trans,str init,str state){
 	return graph(nodes,edges,hint("layered"),width(900),height(1000),top(),gap(70));
 }
 
-public void stateMachineVisInterface(StateTrans trans, Commands commands, str init){
+public void stateMachineVisInterface(TransRel trans, ActionRel commands, str init){
 	str cur = init;
 	list[str] eventsTokens = [];
 	list[str] commandsTokens = [];
