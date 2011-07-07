@@ -412,10 +412,57 @@ registerContributions(&quot;Controller&quot;, contribs);
       >Since the result of the parallel merge transformation is again just an ordinary state machine, you can reuse the code generator of the previous assignment <em
 	>as is</em
 	> to run two state machines in parallel.</p
+      ><p
+      >Bonus exercise: write an interpreter that evaluates two state machines in parallel, without performing the parallel merge.</p
       ></div
-    ><div id="simulation-of-a-state-machine"
+    ><div id="bonus-rename-refactoring"
     ><h1
-      >Simulation of a state machine</h1
+      >Bonus: Rename Refactoring</h1
+      ><p
+      >In the first assignment we mentioned that the use of ASTs is often more convenient for processing a language since it omits a lot of irrelevant detail that is present in the concrete syntax tree. However, for some application this detail is actually essential. Refactoring is one such application: after a refactoring, you don't want to have discarded all layout and comments! Hence, when implementing a refactoring we cannot use the AST.</p
+      ><p
+      >Rascal provides &quot;edit&quot; contributions to context menus (cf. hooking up the code generator above). Such contributions accept closures that take a concrete parse tree, and source location indicating the current selection in the editor. They should return a string with the (possibly) rewritten source. The goal of this refactoring is to implement &quot;rename&quot;: rename the selected element everywhere in the parse tree to the new name.</p
+      ><p
+      >Some hints and guidelines:</p
+      ><ul
+      ><li
+	><p
+	  >Use prompt from the util::Prompt module to ask for a new name. Use alert to signal that something is wrong.</p
+	  ></li
+	><li
+	><p
+	  >Use the treeAt function (from ParseTree) to find the source tree that corresponds to the selection. (Use pattern matching on the result to find out the type of the thing that was selected).</p
+	  ></li
+	><li
+	><p
+	  >Use the parse function (from ParseTree) to parse the new name (which is a string) into proper Identifiers.</p
+	  ></li
+	><li
+	><p
+	  >Think about the preconditions for the refactoring: when is it valid to rename something (assuming the state machine is well-formed)?</p
+	  ></li
+	><li
+	><p
+	  >Think about where a renaming should be applied. For instance, if an event is renamed, you should update the event declaration and any transition that fires on the event.</p
+	  ></li
+	><li
+	><p
+	  >Rename could be applied to events, states, and commands. Implement the refactoring for one kind of thing first. Then generalize.</p
+	  ></li
+	><li
+	><p
+	  >Use the visit statement to rewrite the concrete syntax tree. You may use concrete syntax patterns to match in cases. For instance you could use (Transition)<code
+	    >&lt;Id e&gt; =&gt; &lt;Id s&gt;</code
+	    > to match a transition (depending on your grammar of course). Note that Rascal has to merge the grammar of the object language (state machines) and the grammar of Rascal to be able to parse such patterns. This may take some time.</p
+	  ></li
+	></ul
+      ><p
+      >You may hook up the rename functionality to the IDE by extending the the popup menu actions as follows:</p
+      ><pre
+      ><code
+	>contribs = {popup([ ..., edit(&quot;Rename...&quot;, rename)])};
+</code
+	></pre
       ></div
     ></body
   ></html

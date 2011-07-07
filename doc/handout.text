@@ -60,8 +60,8 @@ by implementing the following facets of the DSL:
    connected to the visualization to interactively step through a
    state machine.
    
- - A simple source-to-source transformation to implement a rename
-   refactoring for states, events and/or commands.
+ - A source-to-source transformation to implement a rename refactoring
+   for states, events and/or commands.
    
  - Provide domain-specific IDE features for state machines:
    context-menus to invoke the code generator, outline views, folding,
@@ -384,8 +384,8 @@ add the following lines to main in Plugin.rsc.
     registerContributions("Controller", contribs);
 
 You'll have to write a generate function that actually invokes your
-code generator and write the result to file.  Take a look in util::IDE
-to find out the expected signature for generate. Function for
+code generator and writes the result to file.  Take a look in util::IDE
+to find out the expected signature for generate. Functions for
 input/output can be found in the standard library IO.
 
 Parallel merge of two state machines
@@ -420,11 +420,61 @@ Since the result of the parallel merge transformation is again just an
 ordinary state machine, you can reuse the code generator of the
 previous assignment *as is* to run two state machines in parallel.
 
-Simulation of a state machine
-=============================
+Bonus exercise: write an interpreter that evaluates two state machines
+in parallel, without performing the parallel merge.
 
+Bonus: Rename Refactoring
+=========================
 
+In the first assignment we mentioned that the use of ASTs is often
+more convenient for processing a language since it omits a lot of
+irrelevant detail that is present in the concrete syntax
+tree. However, for some application this detail is actually
+essential. Refactoring is one such application: after a refactoring,
+you don't want to have discarded all layout and comments! Hence, when
+implementing a refactoring we cannot use the AST. 
 
+Rascal provides "edit" contributions to context menus (cf. hooking up
+the code generator above). Such contributions accept closures that
+take a concrete parse tree, and source location indicating the current
+selection in the editor. They should return a string with the
+(possibly) rewritten source. The goal of this refactoring is to
+implement the "rename" refactoring for events, commands and states.
+
+Some hints and guidelines:
+
+- Use prompt from the util::Prompt module to ask for a new
+  name. Use alert to signal that something is wrong.
+
+- Use the treeAt function (from ParseTree) to find the source tree
+  that corresponds to the selection. (Use pattern matching on the
+  result to find out the type of the thing that was selected).
+
+- Use the parse function (from ParseTree) to parse the new name (which
+  is a string) into proper Identifiers.
+
+- Think about the preconditions for the refactoring: when is it valid
+  to rename something (assuming the state machine is well-formed)?
+  
+- Think about where a renaming should be applied. For instance, if an
+  event is renamed, you should update the event declaration and any
+  transition that fires on the event.
+  
+- Rename could be applied to events, states, and commands. Implement
+  the refactoring for one kind of thing first. Then generalize.
+  
+- Use the visit statement to rewrite the concrete syntax tree. You may
+  use concrete syntax patterns to match in cases. For instance you
+  could use (Transition)`<Id e> => <Id s>` to match a transition
+  (depending on your grammar of course). Note that Rascal has to merge
+  the grammar of the object language (state machines) and the grammar
+  of Rascal to be able to parse such patterns. This may take some
+  time. 
+
+You may hook up the rename functionality to the IDE by extending the
+the popup menu actions as follows:
+
+    contribs = {popup([ ..., edit("Rename...", rename)])};
 
 
 
