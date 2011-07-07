@@ -81,7 +81,7 @@ public list[Message] checkController(Controller ctl) {
   g = stateGraph(ctl)+;
   s0 = initial(ctl);
   errors += for (s:state(n, _, _) <- ctl.states) {
-    if (n notin g[s0.name])
+    if (n notin g[s0.name], s != s0)
       append warning("Unreachable state", s@location);
   }
   
