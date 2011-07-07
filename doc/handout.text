@@ -3,26 +3,29 @@ Five Languages Symposium: Rascal
 ================================
 
 *This document can also be viewed
- [online](http://www.cwi.nl/~storm/5lang11/handout.html). PDF can be
+ [on-line](http://www.cwi.nl/~storm/5lang11/handout.html). PDF can be
  found [here](http://www.cwi.nl/~storm/5lang11/handout.pdf).*
+
+Authors: [Tijs van der Storm](mailto:storm@cwi.nl) and
+[Atze van der Ploeg](mailto:ploeg@cwi.nl). 
 
 Introduction
 ------------
 
 [Rascal](http://www.rascal-mpl.org) is programming language for source
 code analysis and transformation. The primary application areas are
-(legacy) system renovation, reverse engineering and reengineering, and
+(legacy) system renovation, reverse engineering and re-engineering, and
 the implementation of domain specific languages (DSLs). DSLs are
 languages tailored to a specific application domain. Examples include
-SQL, Excel, Make, LaTeX, VHDL, etc. Today we are going to use Rascal
-to implement a small domains specific language for statemachines. The 
-example is derived from Martin Fowler's book on Domain Specific Languages.
-The relevant chapter is published online: 
+SQL, Excel, Make, Latex, VHDL, etc. Today we are going to use Rascal
+to implement a small domain specific language for state machines. The
+example is derived from Martin Fowler's book on Domain Specific
+Languages.  The relevant chapter is published on-line:
 
  > [http://www.informit.com/articles/article.aspx?p=1592379](http://www.informit.com/articles/article.aspx?p=1592379)
    
 State machines are useful for describing state dependent behaviour,
-for instance to control machines or workflow engines. DSLs are a
+for instance to control machines or work-flow engines. DSLs are a
 particular form of model-driven development (MDE), where software is
 specified using high-level models, from which the implementation
 is generated.
@@ -41,7 +44,7 @@ by implementing the following facets of the DSL:
    syntax trees (ASTs)
 
  - Reset events (see the link above) are syntactic sugar: they can be
-   *desugared* into an equivalent statemachine that does not use them.
+   *desugared* into an equivalent state machine that does not use them.
 
  - Extraction of relations from a state machine. This allows easier
    analysis of state machines. The relations can be connected to the
@@ -61,17 +64,16 @@ by implementing the following facets of the DSL:
    resulting state machine can be input to the original code generator
    and visualizer.
 
- - A simple evaluator to simulate a state machine. 
-   
- - A source-to-source transformation to implement a rename refactoring
-   for states, events and/or commands.
-   
  - Provide domain-specific IDE features for state machines:
    context-menus to invoke the code generator, outline views, folding,
    error marking.
+
+ - Bonus: a source-to-source transformation to implement a rename
+   refactoring for states, events and/or commands.
+   
    
 Some of these assignments are more complicated than others. This is
-not a problem: we will see how far we get!
+not a problem: we will see how far we get.
 
 
 ## Installation
@@ -100,20 +102,29 @@ Some notes:
   will not work.
 
 To start, open the Rascal perspective. Create a new project for the
-summerschool. Download
-[http://www.cwi.nl/\~storm/5lang11/5lang11.zip](http://www.cwi.nl/~storm/5lang11/5lang11.zip).
+summer school. Download
+[http://www.cwi.nl/\~storm/5lang11/5lang11.zip](http://www.cwi.nl/~storm/5lang11/5lang11.zip)
+and add the files to the project's src directory.
+
+To open a Rascal console right-click on a Rascal editor or directory
+in the package outline, in the context-menu you'll find Launch
+Console.
+
+Currently, after you have made a change in a Rascal module, you'll
+have to re-import the module in the console for the changes to take
+effect. 
 
 
 Syntax Definition for State Machines
-====================================
+------------------------------------
 
-Rascal has builtin support for context-free grammars which can be used
+Rascal has built-in support for context-free grammars which can be used
 to define the syntax of programming languages. A syntax rule consists
 of the following parts:
 
     syntax NonTerminal = label_1: Element_1i ... Element_1m1
                        | ...
-                       | label_n: Element ... Element_nmn
+                       | label_n: Element ... Element_nmn ;
     
 This defines a rule named "NonTerminal" with *n* alternatives. Each
 alternative has a label and a sequence of Elements. The elements of an
@@ -130,7 +141,7 @@ To define lexical rules (e.g., for identifiers) character classes are
 used (similar to regular expressions):
 
 - char class [a-z]: recognize a character between a and z. Or:
-   [\\t\\n\\r\\ ]: recognize a whitespace character
+   [\\t\\n\\r\\ ]: recognize a white-space character
 - ![a-z]: recognize any character that is not a lowercase alphabetic character
 - ?, *, and + can be used on character classes as well
 
@@ -139,7 +150,7 @@ and add rules to recognizes the syntax invented by Martin Fowler (page
 3 of the article cited above).
 
 To get up and running add the following definitions for layout
-(whitespace and comments) and identifiers:
+(white-space and comments) and identifiers:
 
     syntax Id = lex [a-zA-Z][a-zA-Z0-9_]* - Reserved # [a-zA-Z0-9_];
     syntax Reserved = "events" | "end" | "resetEvents" | "state" | "actions" ;
@@ -149,7 +160,8 @@ To get up and running add the following definitions for layout
     syntax CommentChar = lex ![*] | lex Asterisk ;
     syntax Asterisk = lex [*] # [/] ;
 
-**Quiz: what is the meaning of the # and - constructs?**
+*Quiz: what is the meaning of the # and - constructs? Why are they
+needed?*
 
 Don't forget to add a start syntax rule. This will instruct the parser
 what to recognize when a file is parsed in an editor. For instance,
@@ -161,14 +173,6 @@ After you've created the syntax module. Create a module Plugin.rsc in
 the src directory of the project. Add the following lines to make the
 syntax available to the environment:
 
-
-Open up a Rascal console, enter "import Plugin;", then "main();". If
-all is well, you can now open ".ctl" files (see the input directory of
-the project) and get syntax highlighting.
-
-
-    module Plugin
-
     import <you syntax module>;
     import util::IDE;
     import ParseTree;
@@ -179,6 +183,13 @@ the project) and get syntax highlighting.
       });
     }
 
+Open up a Rascal console, enter "import Plugin;", then "main();". If
+all is well, you can now open ".ctl" files and get syntax
+highlighting.
+
+Tip: use the @Foldable attribute on a production alternative to get
+folding behaviour in the editor.
+
 You can also parse from within the Rascal console:
 
     import <Your syntax module>;
@@ -187,14 +198,18 @@ You can also parse from within the Rascal console:
 
 The result will be a concrete syntax tree: a tree representing the
 structure of the input string. As you can see, it is very verbose: it
-includes *all* information about the source, including whitespace and
+includes *all* information about the source, including white-space and
 comments. Sometimes it can be tedious to work with such trees. For
 this reason, one often defines an *abstract* syntax tree which omits
 details that are irrelevant and leaves only the structure of the
 source. This is the next step.
 
+*Quiz: what is the meaning of # in the use of parse? Hint: type in
+"#int" in the Rascal console.*
+ 
+
 Abstract Syntax
-===============
+---------------
 
 Rascal uses algebraic data types (ADTs) for describing abstract
 syntax, as is common in functional programming language. The Rascal
@@ -208,16 +223,16 @@ definition in the following way:
   "data X = "
 
 - Every alternative of a non-terminal X maps to a constructor
-  alternative of the ADT X, where the name of the constructor
-  corresponds to the label of alternative.
+  alternative of the ADT X, where the name of the constructor must
+  correspond to the label of alternative.
 
 - Every element in an alternative that is not a literal, maps to a
   constructor argument.  
 
-- Regular symbols X?, X*, X+, {X "sep"}*, {X "sep"}+ map to list[T]
+- Regular symbols X?, X*, X+, {X "sep"}\*, {X "sep"}+ map to list[T]
   where T is the type corresponding to X.
   
-- Lexical symbols (e.g., identifiers) maps to the str datatype.
+- Lexical symbols (e.g., identifiers) maps to the str data type.
 
 You can now convert concrete syntax trees to ASTs as follows:
 
@@ -225,16 +240,18 @@ You can now convert concrete syntax trees to ASTs as follows:
     import <Your AST module>;
     implode(#<Your AST module>::<Root ADT type>, pt);
     
-Not that you'll have to qualified the root type of the ADT with the
+Not that you'll have to qualify the root type of the ADT with the
 module name since the name will otherwise clash with the start symbol
-of your grammar (Exercise: make a dedicated implode module which hides
-this complexity, so that you can just use implode(pt) without
-specifying the types.).
+of your grammar.
 
-From now on, we will work with the AST values only. 
+Exercise: make a dedicated implode module which hides this complexity,
+so that you can just use implode(pt) without specifying the types.
+
+From now on, we will work with AST values primarily. 
+
 
 Simple source to source transformation
-======================================
+--------------------------------------
 
 Consider the following paragraph in Fowler's text:
 
@@ -245,21 +262,22 @@ Consider the following paragraph in Fowler's text:
 >  because it simplifies the diagram.
 
 What this means is, that it is possible to construct an equivalent
-state machine that does not depend on reset events. In this assignment
-you are to write a transformation that *desugars* reset events
-according to the quote above.
+state machine that does not depend on reset events. In other words, the
+resetEvents feature of the state machine language is *syntactic
+sugar*. In this assignment you are to write a transformation that
+*desugars* reset events according to the quote above.
 
-*Tip: use the Rascal visit construct to transform a state machine
+*Tip: use the Rascal visit construct to transform the state machine
  AST.*
 
 Fact extraction
-===============
+---------------
 
-For some application, especially analysis, the tree structure of the
-AST is not ideal. In this assignment you will write a function that
-extracts a relational representation of state machines. Relations in
-Rascal are natural representations for graphs. And a state machine can
-be considered as a special kind of graph.
+For some applications, especially source code analyses, the tree
+structure of the AST is not ideal. In this assignment you will write a
+function that extracts a relational abstraction of state
+machines. Relations are natural representations for graphs. And a
+state machine can be considered as a special kind of graph.
 
 In order to connect the resulting analysis to the state machine
 visualizer, we use the following types as interfaces:
@@ -280,19 +298,20 @@ previous step.
 
 
 Visualizing a state machine
-===========================
+---------------------------
 
 The relations of the previous assignment are an abstract
 representation of a state machine. This provides excellent input to
-visualizing a state machine as a graph. In the Rascal project we have
-provided a visualizer for state machines. You visualize a state
+graphically visualizing a state machine. The provided Rascal project
+contains a module to visualize state machines. You visualize a state
 machine by providing the relations of the previous assignment to the
-visualizer as follows: import the module ShowStateMachine and then
-call the function :
+visualizer as follows. Import the module ShowStateMachine and then
+call the function:
 
      void stateMachineVis(TransRel trans, ActionRel arel, str init)
 
-supplying it with your own relation representation of the state machine.
+supplying it with the two relations of the previous exercise and the
+initial state.
 
 In the visualization there are buttons for each event. You can click
 on them to interactively simulate the execution of the state
@@ -313,14 +332,14 @@ tuple of a final state and a list of output tokens.
 
 
 Well-formedness checking of state machines
-===========================================
+------------------------------------------
 
 Many programming languages have type checkers. In the case of state
 machines, there isn't really a notion of types. Nevertheless, it is
 still possible to make mistakes. In this assignment the goal is to
 make a checker function that detects such mistakes. This function will
 return a collection of error or warning messages. The data type to be
-used for this can be found in the standard library module "Message". 
+used for this can be found in the standard library module Message.
 
 The list of things you could check for includes (but might not be
 limited by) the following:
@@ -340,14 +359,15 @@ your AST module for each ADT type:
 
     anno loc <ADT type>@location;
 
-Now you can obtain an AST node's source location using "n@location".
-The locations in the Message data type are used by the IDE to do error
-marking.
+Now you can obtain an AST node's source location using the
+aNode@location notation. The locations in the Message data type are
+used by the IDE to do error marking.
 
 Note: you may put the facts you've extracted from the previous
-assignment to good use in the analysis.
+assignment to good use in some of the analyses that the checker
+performs. 
 
-Tip: for reachability analysis use the builtin Rascal operator for
+Tip: for reachability analysis use the built-in Rascal operator for
 transitive closure (post-fix +).
 
 
@@ -359,45 +379,49 @@ to main in Plugin.rsc:
     registerAnnotator("Controller", check);
 
 The check function (which you'll have to provide), is expected to take
-a (concrete!) parse tree and return an annotated parse tree. Concrete
+a concrete parse tree and return an annotated parse tree. Concrete
 parse trees can be annotated with a set of Messages. In the check
 function you'll have to invoke your checker, get the collection of
 error message, and annotate the parse tree with it. You can annotate a
 tree using x[@a=v], where x is the tree, a is the annotation name and
 v is the annotated value.
 
-NB: error marking is still very experimental. You may encounter
-incorrect marking in some cases.
-
 Code-generation to Java
-=======================
+-----------------------
 
-State machine have to be executed in code somehow. One approach is to
+State machines have to be executed in code somehow. One approach is to
 generate (Java) code. In this assignment you are to write a function
 that generates Java code using Rascal's built-in string
 templates. String templates are string literals with advanced
 mechanisms for interpolation:
 
-- Expression interpolation: "Hello <name>!"
-- For loop interpolation: "abc<for (x <- ["c", "d", "e"]) {><x><}>fgh"
-- If statement interpolation: "abc<if (x > 0) {><x><} else {><x +
+- Expression interpolation: "Hello \<name\>!"
+- For loop interpolation: "abc<for (x <- ["c", "d", "e"]) {>\<x\><}>fgh"
+- If statement interpolation: "abc<if (x > 0) {>\<x\><} else {><x +
   1><}>"
-  
+
+Tip: you may use the ' (single quote) character to add artifical
+margins in strings. String templates will be expanded relative to the
+margin. This improves readability of the templates.
+
 There are multiple ways for generating code from a state machine. You
 may consider one of the following alternatives:
 
 - Generate a single switch statement, which dispatches on integer
   constants defined for each state. Upon transitioning, a
   current-state variable is updated.
-- Generate methods for each state which call other methods upon
+- Generate methods for each state which call other state methods upon
   transitioning.
 - Generate object instantiations according to Fowler's text.
  
 Note that upon entering states the actions (if any) should be
 executed. To be able to run the code, assume the input stream is a
 java.util.Scanner object, and use nextLine to obtain the next
-token. Actions print tokens onto an outputstream, which can be any
-java.io.Writer.
+token. Actions print tokens onto an outputstream, which can be a
+java.io.PrintWriter.
+
+*Quiz: what is wrong with the second approach? What is the reason that
+it's a problem in Java, but not, say, in Scheme?*
 
 ## Connecting the code generator to the IDE
 
@@ -408,12 +432,13 @@ add the following lines to main in Plugin.rsc.
     registerContributions("Controller", contribs);
 
 You'll have to write a generate function that actually invokes your
-code generator and writes the result to file.  Take a look in util::IDE
-to find out the expected signature for generate. Functions for
-input/output can be found in the standard library IO.
+code generator and writes the result to file. Take a look in util::IDE
+(in the Rascal Eclipse standard library) to find out the expected
+signature for generate. Functions for input/output can be found in the
+standard library IO.
 
 Parallel merge of two state machines
-====================================
+------------------------------------
 
 The desugaring reset events (cf. above) is an instance of a simple
 model-to-model transformation. In this assignment we will engage in a
@@ -421,13 +446,13 @@ model-to-model transformation that is slightly more complex. The goal
 is to take two state machines and produce a new one that runs the two
 original state machines in parallel. 
 
-In the realm of gothic security systems the company noticed that sometimes
-a client wanted two or more hidden compartments in the same room. the two 
-controllers may share events, such as opening the drawer. In this case it
-is off course more cost effective to install a single controller instead of
-two. This is archieved by *merging* the two state machines trough the 
-algorithm you are going to program now and the installing the resulting 
-state machine onto a single controller. 
+In the realm of Gothic security systems the company noticed that
+sometimes a client wanted two or more hidden compartments in the same
+room. the two controllers may share events, such as opening the
+drawer. In this case it is off course more cost effective to install a
+single controller instead of two. This is achieved by merging the two
+state machines through the algorithm you are going to program now and
+installing the resulting state machine onto a single controller.
 
 The states in the machine resulting from merging machines S1 and S2 are
 identified by tuples of the states of both machines. Execution thus
@@ -452,19 +477,24 @@ Since the result of the parallel merge transformation is again just an
 ordinary state machine, you can reuse the code generator of the
 previous assignment *as is* to run two state machines in parallel.
 
-Bonus exercise: write an interpreter that evaluates two state machines
-in parallel, without performing the parallel merge.
+Exercise: write an interpreter that evaluates two state machines in
+parallel, without performing the parallel merge.
+
+Exercise: use string templates to write an unparser for state machine
+ASTs so that you may inspect the result of the parallel merge as
+source code in an editor.
 
 Bonus: Rename Refactoring
-=========================
+-------------------------
 
 In the first assignment we mentioned that the use of ASTs is often
 more convenient for processing a language since it omits a lot of
 irrelevant detail that is present in the concrete syntax
-tree. However, for some application this detail is actually
-essential. Refactoring is one such application: after a refactoring,
+tree. However, for some applications this detail *is*
+important. Refactoring is one such application: after a refactoring,
 you don't want to have discarded all layout and comments! Hence, when
-implementing a refactoring we cannot use the AST. 
+implementing a refactoring we cannot use the AST, but have to use
+concrete parse trees.
 
 Rascal provides "edit" contributions to context menus (cf. hooking up
 the code generator above). Such contributions accept closures that
@@ -497,14 +527,24 @@ Some hints and guidelines:
   
 - Use the visit statement to rewrite the concrete syntax tree. You may
   use concrete syntax patterns to match in cases. For instance you
-  could use (Transition)`<Id e> => <Id s>` to match a transition
+  could use (Transition)\`\<Id e\> => \<Id s\>\` to match a transition
   (depending on your grammar of course). Note that Rascal has to merge
   the grammar of the object language (state machines) and the grammar
   of Rascal to be able to parse such patterns. This may take some
-  time. 
+  time.
+  
+- If you add labels to the elements of productions in your grammar,
+  you can access sub-trees of (typed) parse trees as if they are fields.
+  For instance, for additive expressions:
+  
+      syntax Exp = add: Exp lhs "+" Exp rhs
 
+  On a parse tree pt of type Exp, you can now evaluate pt.lhs and
+  pt.rhs. Additionally you can test if a parse tree is of a
+  particular alternative using: pt is add.
+   
 You may hook up the rename functionality to the IDE by extending the
-the popup menu actions as follows:
+the pop-up menu actions as follows:
 
     contribs = {popup([ ..., edit("Rename...", rename)])};
 
