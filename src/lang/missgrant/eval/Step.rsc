@@ -1,39 +1,23 @@
 module lang::missgrant::eval::Step
 
 import lang::missgrant::ast::MissGrant;
+import lang::missgrant::extract::ToRelation;
 import IO;
 
-alias Output = tuple[ControllerState, list[str]];
+alias Output = tuple[str state, list[str] commands];
 
-public Output eval(Controller ctl, list[str] tokens) {
-  state = initialControllerState(ctl);
-  actionsFired = [];
-  for (t <- tokens) {
-    <state,newActions> = step(state,t);
-    actionsFired += newActions;
-  }
-  return <state,actionsFired>;
+public tuple[str,list[str]] addCommands(tuple[str,list[str]] a, tuple[str,list[str]] b){
+	return <b[0],a[1] + b[1]>;
 }
 
-public Output step(ControllerState state, str eventToken) {
-  eventName = state.eventTokenToName[eventToken];
-  curState = state.stateEnv[state.curStateName];
-  actionsFired = [];
-  str newStateName = "";
-  bool moved = false;
-  
-  if(eventName <- state.ctl.resets){
-  	newStateName = initial(state.ctl).name;
-  	moved = true;
-  } else if(transition(eventName,ns) <- curState.transitions ) {
-  	newStateName = ns;
-  	moved = true;
-  }
- 
-  if(moved){
-  	state.curStateName = newStateName;
-  	return <state, [ state.commandNameToToken[n] | n <- state.stateEnv[newStateName].actions]>;
-  } else {
-  	return <state,[]>;
-  }
+public Output eval(StateTrans trans, Commands commands, str init, list[str] tokens) {
+  return (<init,[]> | addCommands(step(trans,commands,it[0],token)) | token <- tokens);
+}
+
+public Output step(StateTrans trans, Commands commands, str init,str token){
+	if(c <- trans[init,token]){
+		return <c,toList(commands[c])>;
+	} else {
+		return <c,[]>;
+	}
 }

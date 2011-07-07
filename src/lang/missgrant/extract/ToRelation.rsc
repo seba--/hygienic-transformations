@@ -2,13 +2,14 @@ module lang::missgrant::extract::ToRelation
 
 import  lang::missgrant::ast::MissGrant;
 
-alias ActionMap = map[str state, list[str] actions];
-alias TransRel[&State] = rel[&State from, str event, &State to]; 
+alias StateTrans = rel[str state, str eventToken,  str toState];
+alias Commands = rel[str state, str commandToken];
 
-public TransRel[str] transRel(Controller ctl) {
+
+public StateTrans transRel(Controller ctl) {
   return { <s1, e, s2> | /state(s1, _, ts) <- ctl, transition(e, s2) <- ts };
 }
 
-public ActionMap actionMap(Controller ctl) {
-  return ( s: as | /state(s, as, _) <- ctl ); 
+public Commands commands(Controller ctl) {
+  return {<s, a> | /state(s, as, _) <- ctl, a <- as }; 
 }

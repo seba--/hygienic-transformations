@@ -6,7 +6,7 @@ events
  drawerOpened D2OP
  lightOn L1ON
  doorOpened D1OP
- safeClosed PNCL 
+ safeClosed SFCL 
 end 
 
 resetEvents
