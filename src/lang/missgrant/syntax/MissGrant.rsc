@@ -9,7 +9,7 @@ syntax Commands = @Foldable "commands" Command* "end";
 syntax Command = command: Id name Id token;
 syntax Event = event: Id name Id token;
 
-syntax State = @Foldable state: "state" Id name Actions? Transition+ "end";
+syntax State = @Foldable state: "state" Id name Actions? Transition* "end";
 syntax Actions = "actions" "{" Id+ "}";
 
 syntax Transition = transition: Id event "=\>" Id state;

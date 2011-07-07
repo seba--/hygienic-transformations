@@ -39,7 +39,7 @@ public Figure stateMachineGraph(ControllerState s){
 	}
 	
 	list[Figure] nodes = [box(text(s.ctl.states[i].name)
-							,fillColor(getColor(i)),grow(2.5),id(s.ctl.states[i].name)
+							,fillColor(getColor(i)),grow(1.1),id(s.ctl.states[i].name)
 							,popup(actionList(s.ctl.states[i].actions,s.commandNameToToken)),onClick(genOnClick(s.ctl.states[i]))) 
 							| i <- [0..size(s.ctl.states)-1]];
 	Edges edges = [[ edge(
@@ -49,7 +49,7 @@ public Figure stateMachineGraph(ControllerState s){
 						toArrow(triangle(10,fillColor("black")))
 					)
 				 | trans <- st.transitions]   | st <- s.ctl.states];
-	return graph(nodes,edges,hint("layered"),width(800),height(300),gap(120));
+	return graph(nodes,edges,hint("layered"),width(1500),height(1000),top(),gap(120));
 }
 
 public Figure stateMachineVis(Controller c){
@@ -71,9 +71,9 @@ public Figure stateMachineVis(Controller c){
 	}
 	
 	return computeFigure(Figure() { return vcat([
-		hcat([button(ev.name,getAddInputHandler(ev.token)) | ev <- c.events]),
-		hcat([text("Events:")] + [box(text(ev),popup(state.eventTokenToName[ev]),grow(1.3)) | ev <-eventsTokens],resizable(false)),
-		hcat([text("Commands:")] + [box(text(comm),popup(state.commandTokenToName[comm]),grow(1.3)) | comm <-commandsTokens],resizable(false)),
+		hcat([button(ev.name,getAddInputHandler(ev.token)) | ev <- c.events],vresizable(false)),
+		hcat([text("Events:")] + [box(text(ev),popup(state.eventTokenToName[ev]),grow(1.1)) | ev <-eventsTokens],resizable(false)),
+		hcat([text("Commands:")] + [box(text(comm),popup(state.commandTokenToName[comm]),grow(1.1)) | comm <-commandsTokens],resizable(false)),
 		stateMachineGraph(state)]); });
 }
 
