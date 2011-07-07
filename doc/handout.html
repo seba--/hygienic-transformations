@@ -270,9 +270,32 @@ implode(#&lt;Your AST module&gt;::&lt;Root ADT type&gt;, pt);
       ><p
       >NB: You may assume that reset events have been desugared as in the previous step.</p
       ></div
-    ><div id="well-formnedness-checking-of-state-machines"
+    ><div id="visualizing-a-state-machine"
     ><h1
-      >Well-formnedness checking of state machines</h1
+      >Visualizing a state machine</h1
+      ><p
+      >The relations of the previous assignment are an abstract representation of a state machine. This provides excellent input to visualizing a state machine as a graph. In the Rascal project we have provided a visualizer for state machines. You visualize a state machine by providing the relations of the previous assignment to the visualizer as follows:</p
+      ><p
+      >TBD</p
+      ><p
+      >In the visualization there are buttons for each event. You can click on them to interactively simulate the execution of the state machine. To do this, the visualizer uses a step function based on the transition relation. This step function could be defined as follows:</p
+      ><pre
+      ><code
+	> public tuple[str state, list[str] output] step(str s1, str token, 
+                TransRel trans, ActionRel actions) {
+    if (&lt;s1, token, s2&gt; &lt;- trans) {
+       return &lt;s2, [ a | &lt;s2, a&gt; &lt;- actions ]&gt;;
+    }
+    return &lt;s1, []&gt;;
+ }
+</code
+	></pre
+      ><p
+      >Exercise: write an interpreter for state machines based on this step function. This function should take a list of tokens and return a tuple of a final state and a list of output tokens.</p
+      ></div
+    ><div id="well-formedness-checking-of-state-machines"
+    ><h1
+      >Well-formedness checking of state machines</h1
       ><p
       >Many programming languages have type checkers. In the case of state machines, there isn't really a notion of types. Nevertheless, it is still possible to make mistakes. In this assignment the goal is to make a checker function that detects such mistakes. This function will return a collection of error or warning messages. The data type to be used for this can be found in the standard library module &quot;Message&quot;.</p
       ><p

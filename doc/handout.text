@@ -257,7 +257,38 @@ looking up event/command names to find the associated tokens.
 NB: You may assume that reset events have been desugared as in the
 previous step.
 
-Well-formnedness checking of state machines
+
+Visualizing a state machine
+===========================
+
+The relations of the previous assignment are an abstract
+representation of a state machine. This provides excellent input to
+visualizing a state machine as a graph. In the Rascal project we have
+provided a visualizer for state machines. You visualize a state
+machine by providing the relations of the previous assignment to the
+visualizer as follows:
+
+TBD
+
+In the visualization there are buttons for each event. You can click
+on them to interactively simulate the execution of the state
+machine. To do this, the visualizer uses a step function based on the
+transition relation. This step function could be defined as follows:
+
+     public tuple[str state, list[str] output] step(str s1, str token, 
+                    TransRel trans, ActionRel actions) {
+        if (<s1, token, s2> <- trans) {
+           return <s2, [ a | <s2, a> <- actions ]>;
+        }
+        return <s1, []>;
+     }
+        
+Exercise: write an interpreter for state machines based on this step
+function. This function should take a list of tokens and return a
+tuple of a final state and a list of output tokens.
+
+
+Well-formedness checking of state machines
 ===========================================
 
 Many programming languages have type checkers. In the case of state
