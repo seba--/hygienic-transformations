@@ -28,10 +28,10 @@ end
 
 state idle	
  actions {unlockGate turnBackBookCase turnBackCandleStick}
- gateClosed => waintingForRest
+ gateClosed => waitingForRest
 end 
 
-state waintingForRest
+state waitingForRest
  fridgeOpened => waitCandleFireBook 
  candleStickTurned => waitFridgeFireBook
  fireplaceLit => waitFridgeCandleBook
