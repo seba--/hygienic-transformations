@@ -4,7 +4,9 @@ SRC = ${HANDOUT}.text
 
 main:
 	pandoc --css="http://homepages.cwi.nl/~storm/teaching/bb.css" -t html ${SRC} > ${HANDOUT}.html
-	markdown2pdf -o ${HANDOUT}.pdf ${SRC}
+	pandoc -f markdown -o latex --standalone \
+	    -H preamble.tex -o ${HANDOUT}.tex ${SRC}
+	pdflatex ${HANDOUT}.tex
 	cd ../input; zip 5lang11.zip *; mv 5lang11.zip ../doc; cd -
 
 upload:

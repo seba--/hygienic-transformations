@@ -244,10 +244,14 @@ Not that you'll have to qualify the root type of the ADT with the
 module name since the name will otherwise clash with the start symbol
 of your grammar.
 
-Exercise: make a dedicated implode module which hides this complexity,
-so that you can just use implode(pt) without specifying the types.
+Exercise (optional): make a dedicated implode module which hides this
+complexity, so that you can just use implode(pt) without specifying
+the types.
 
 From now on, we will work with AST values primarily. 
+
+*Quiz: what are source code transformations where ASTs are
+inconvenient to be used?*
 
 
 Simple source to source transformation
@@ -269,6 +273,10 @@ sugar*. In this assignment you are to write a transformation that
 
 *Tip: use the Rascal visit construct to transform the state machine
  AST.*
+ 
+*Quiz: could you implement the inverse transformation (i.e. resugaring
+of resetEvents)?*
+
 
 Fact extraction
 ---------------
@@ -295,6 +303,9 @@ looking up event/command names to find the associated tokens.
 
 NB: You may assume that reset events have been desugared as in the
 previous step.
+
+*Quiz: what is the difference between a binary relation and a map?*
+
 
 
 Visualizing a state machine
@@ -326,9 +337,9 @@ transition relation. This step function could be defined as follows:
         return <s1, []>;
      }
         
-Exercise: write an interpreter for state machines based on this step
-function. This function should take a list of tokens and return a
-tuple of a final state and a list of output tokens.
+Exercise (optional): write an interpreter for state machines based on
+this step function. This function should take a list of tokens and
+return a tuple of a final state and a list of output tokens.
 
 
 Well-formedness checking of state machines
@@ -423,6 +434,10 @@ java.io.PrintWriter.
 *Quiz: what is wrong with the second approach? What is the reason that
 it's a problem in Java, but not, say, in Scheme?*
 
+*Quiz: what are the draw-backs of using strings for code generation?
+What are alternatives?*
+
+
 ## Connecting the code generator to the IDE
 
 To be able to invoke the code generator from the state machine editor,
@@ -477,12 +492,16 @@ Since the result of the parallel merge transformation is again just an
 ordinary state machine, you can reuse the code generator of the
 previous assignment *as is* to run two state machines in parallel.
 
-Exercise: write an interpreter that evaluates two state machines in
-parallel, without performing the parallel merge.
+Exercise (optional): write an interpreter that evaluates two state
+machines in parallel, without performing the parallel merge.
 
-Exercise: use string templates to write an unparser for state machine
-ASTs so that you may inspect the result of the parallel merge as
-source code in an editor.
+Exercise (optional): use string templates to write an unparser for
+state machine ASTs so that you may inspect the result of the parallel
+merge as source code in an editor.
+
+Exercise (optional): implement other operations on state machines
+(e.g., concat, compose, union etc.---see the Wikipedia page cited
+above). 
 
 Bonus: Rename Refactoring
 -------------------------
