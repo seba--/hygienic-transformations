@@ -251,7 +251,7 @@ the types.
 From now on, we will work with AST values primarily. 
 
 *Quiz: what are source code transformations where ASTs are
-inconvenient to be used?*
+cumbersome to use?*
 
 
 Simple source to source transformation
@@ -443,7 +443,7 @@ What are alternatives?*
 To be able to invoke the code generator from the state machine editor,
 add the following lines to main in Plugin.rsc.
 
-    contribs = {popup(menu("Controller,[action("Generate Java", generate)]))};
+    contribs = {popup(menu("Controller",[action("Generate Java", generate)]))};
     registerContributions("Controller", contribs);
 
 You'll have to write a generate function that actually invokes your
