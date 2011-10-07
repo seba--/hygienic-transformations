@@ -25,7 +25,6 @@ public Figure stateMachineGraph(TransRel trans,str init,str state){
 						edge("<fromS>,<labelS>,<toS>",toS,triangle(10,fillColor("black")))
 				 | <fromS,labelS,toS> <-trans];
 	
-	println("Hiero : <edges>");
 	return graph(nodes,edges,hint("layered"),width(900),height(1000),top(),gap(70));
 }
 

@@ -14,25 +14,22 @@ syntax Actions = "actions" "{" Id+ "}";
 
 syntax Transition = transition: Id event "=\>" Id state;
 
-syntax Id = lex [a-zA-Z][a-zA-Z0-9_]* - Reserved # [a-zA-Z0-9_];
+lexical Id = ([a-zA-Z][a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Reserved ;
 
-syntax Reserved = "events" | "end" | "resetEvents" | "state" | "actions" ;
+keyword Reserved = "events" | "end" | "resetEvents" | "state" | "actions" ;
 
-syntax LAYOUT 
-	= lex whitespace: [\t-\n\r\ ] 
-    | lex Comment ;
+lexical LAYOUT 
+	= whitespace: [\t-\n\r\ ] 
+    | Comment ;
 
 layout LAYOUTLIST 
     = LAYOUT* 
-	# [\t-\n\r\ ] 
-	# "/*" ;
+	!>> [\t-\n\r\ ] 
+	!>> "/*" ;
 
-syntax Comment 
-	= lex @category="Comment"  "/*" CommentChar* "*/" ;
+lexical Comment = @category="Comment"  "/*" CommentChar* "*/" ;
 
-syntax CommentChar 
-	= lex ![*] | lex Asterisk ;
+lexical CommentChar = ![*] | Asterisk ;
 
-syntax Asterisk
-	= lex [*] # [/] ;
+lexical Asterisk = [*] !>> [/] ;
  

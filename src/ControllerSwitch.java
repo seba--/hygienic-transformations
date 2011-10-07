@@ -98,7 +98,6 @@ public class ControllerSwitch {
           break;
         }
         
-        default: throw new RuntimeException("Unkown event: " + token);
       }
   }
   
