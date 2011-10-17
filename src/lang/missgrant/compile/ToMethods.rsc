@@ -2,8 +2,8 @@ module lang::missgrant::compile::ToMethods
 
 import  lang::missgrant::ast::MissGrant;
 
-public str controller2methods(str name, Controller ctl) {
-  return "public class <name> {
+public str controller2methods(str name, Controller ctl) =
+         "public class <name> {
   	     '  <for (e <- ctl.events) {>
   	     '  <event2java(e)>
   	     '  <}>
@@ -14,22 +14,19 @@ public str controller2methods(str name, Controller ctl) {
   	     '  <state2java(s)>
   	     '  <}>
   	     '}";
-}
 
-public str event2java(Event event) {
-  return "private boolean <event.name>(String token) {
+public str event2java(Event event) =
+         "private boolean <event.name>(String token) {
          '  return token.equals(\"<event.token>\");
          '}";
-}
 
-public str command2java(Command command) {
-  return "private void <command.name>(Writer output) {
+public str command2java(Command command) =
+         "private void <command.name>(Writer output) {
          '  output.write(\"<command.token>\");
          '}";
-}
 
-public str state2java(State state) {
-  return "private void <stateName(state)>(Scanner input, Writer output) {
+public str state2java(State state) =
+         "private void <stateName(state)>(Scanner input, Writer output) {
          '  <for (a <- state.actions) {>
          '  <a>(output);
          '  <}>
@@ -42,12 +39,6 @@ public str state2java(State state) {
          '  <stateName(state)>(input, output);
          '  <}>
          '}";   
-}
 
-public str stateName(State s) {
-  return stateName(s.name);
-}
-
-public str stateName(str s) {
-  return "state$<s>";
-}
+public str stateName(State s) = stateName(s.name);
+public str stateName(str s) = "state$<s>";

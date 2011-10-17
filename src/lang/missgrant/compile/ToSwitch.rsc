@@ -3,8 +3,8 @@ module lang::missgrant::compile::ToSwitch
 import lang::missgrant::compile::ToMethods;
 import lang::missgrant::ast::MissGrant;
 
-public str controller2switch(str name, Controller ctl) {
-  return "public class <name> {
+public str controller2switch(str name, Controller ctl) =
+         "public class <name> {
          '  <states2consts(ctl.states)>
          '  <controller2run(ctl)>
          '  <for (e <- ctl.events) {>
@@ -14,8 +14,6 @@ public str controller2switch(str name, Controller ctl) {
   	     '  <command2java(c)>
   	     '  <}>
   	     '}";
-}
-
 
 public str states2consts(list[State] states) {
   i = 0;
@@ -25,8 +23,8 @@ public str states2consts(list[State] states) {
 }
 
 
-public str controller2run(Controller ctl) {
-  return "public void run(Scanner input, Writer output) {
+public str controller2run(Controller ctl) =
+         "public void run(Scanner input, Writer output) {
          '  int state = <stateName(initial(ctl))>;
          '  while (true) {
          '    String token = input.nextLine();
@@ -36,10 +34,9 @@ public str controller2run(Controller ctl) {
          '      <}>
          '    }
          '}";
-}
 
-public str state2case(State s) {
-  return "case <stateName(s)>: {
+public str state2case(State s) =
+         "case <stateName(s)>: {
          '  <for (a <- s.actions) {>
          '     <a>(output);
          '  <}>
@@ -50,5 +47,4 @@ public str state2case(State s) {
          '  <}>
          '  break;
          '}";
-}
 

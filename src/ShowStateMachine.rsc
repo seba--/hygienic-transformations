@@ -13,12 +13,6 @@ import Set;
 alias TransRel = rel[str state, str eventToken,  str toState];
 alias ActionRel = rel[str state, str commandToken];
 
-public Figure triangle(int side,FProperty props...){
-  return overlay([point(left(),bottom()),point(top()), point(right(),bottom())], 
-  	[shapeConnected(true), shapeClosed(true),  size(side,sqrt(3.0/4.0) * toReal(side)),
-  	resizable(false)] + props);
-}
-
 public Figure stateMachineGraph(TransRel trans,str init,str state){
 	str getColor(str s){
 		return (s == state) ? "red" : ((s == init) ? "green" : "lightskyblue");

@@ -1,6 +1,6 @@
 module lang::missgrant::check::CheckController
 
-import lang::missgrant::ast::MissGrant;
+import lang::missgrant::ast::AST;
 import Map;
 import Message;
 

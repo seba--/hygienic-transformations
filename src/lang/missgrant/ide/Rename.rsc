@@ -6,7 +6,6 @@ import util::Prompt;
 import ParseTree;
 
 // this code is bulky because it avoids using concrete syntax
-// for sake of responsiveness.
 
 public str rename(Controller ctl, loc sel) {
   newName = prompt("Enter new name: ");

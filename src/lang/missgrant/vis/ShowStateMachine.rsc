@@ -15,7 +15,7 @@ import Set;
 import lang::missgrant::extract::ToRelation;
 
 public Figure stateMachineGraph(TransRel trans,str init,str state){
-	str getColor(str s){
+	str getColor(str s) {
 		return (s == state) ? "red" : ((s == init) ? "green" : "lightskyblue");
 	} 
 
@@ -33,14 +33,14 @@ public void stateMachineVisInterface(TransRel trans, ActionRel commands, str ini
 	list[str] eventsTokens = [];
 	list[str] commandsTokens = [];
 	
-	void handleToken(str token){
+	void handleToken(str token) {
 		if(c <- trans[cur,token]){
 			cur = c;
 			commandsTokens+=toList(commands[cur]);
 		}
 	}
 	
-	void () getAddInputHandler(str tokenName){
+	void () getAddInputHandler(str tokenName) {
 		return void () { eventsTokens+=[tokenName]; handleToken(tokenName); };
 	}
 	return render(computeFigure(Figure() { return vcat([

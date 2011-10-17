@@ -18,14 +18,9 @@ lexical Id = ([a-zA-Z][a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Reserved ;
 
 keyword Reserved = "events" | "end" | "resetEvents" | "state" | "actions" ;
 
-lexical LAYOUT 
-	= whitespace: [\t-\n\r\ ] 
-    | Comment ;
+lexical LAYOUT = whitespace: [\t-\n\r\ ] | Comment ;
 
-layout LAYOUTLIST 
-    = LAYOUT* 
-	!>> [\t-\n\r\ ] 
-	!>> "/*" ;
+layout LAYOUTLIST = LAYOUT* !>> [\t-\n\r\ ] !>> "/*" ;
 
 lexical Comment = @category="Comment"  "/*" CommentChar* "*/" ;
 

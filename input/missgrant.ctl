@@ -17,6 +17,8 @@ commands
  unlockDoor D1UL
 end 	
 
+/* bla */
+
 state idle	
  actions {unlockDoor lockPanel}
  doorClosed => active 

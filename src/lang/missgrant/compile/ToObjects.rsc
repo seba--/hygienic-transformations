@@ -2,8 +2,8 @@ module lang::missgrant::compile::ToObjects
 
 import lang::missgrant::ast::MissGrant;
 
-public str instantiateController(Controller ctl) {
-  return "<for (e <- ctl.events) {>
+public str instantiateController(Controller ctl) =
+         "<for (e <- ctl.events) {>
          'Event <e.name> = new Event(\"<e.name>\", \"<e.token>\");
          '<}>
          '<for (c <- ctl.commands) {>
@@ -23,7 +23,6 @@ public str instantiateController(Controller ctl) {
          'machine.addResetEvents(<r>);
          '<}>
          ";
-}
 
 
 
