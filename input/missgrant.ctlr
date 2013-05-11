@@ -1,15 +1,15 @@
 
 // a comment
 
+
 events
  doorClosed D1CL
  drawerOpened D2OP
- 
  lightOn L1ON
  doorOpened D1OP
  panelClosed PNCL 
-end 
-
+end
+ 
 resetEvents
  doorOpened
 end
@@ -19,9 +19,11 @@ commands
  lockPanel PNLK
  lockDoor D1LK
  unlockDoor D1UL
-end 	
+end     
 
-state idle	
+
+
+state idle  
  actions {unlockDoor lockPanel}
  doorClosed => active
 end 
@@ -30,7 +32,7 @@ end
 
 state active
  drawerOpened => waitingForLight
- lightOn => waitingForDrawer 
+ lightOn => active after 4 => waitingForDrawer 
 end 
 
 

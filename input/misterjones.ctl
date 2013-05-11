@@ -10,6 +10,7 @@ events
  gateClosed GTCL 
 end 
 
+
 resetEvents
  gateOpened
  candleStickTurnedBack
@@ -108,4 +109,5 @@ end
 
 state active
  actions {turnBookCase}
+ bookTaken => active
 end
