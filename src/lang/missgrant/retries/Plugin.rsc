@@ -35,6 +35,10 @@ set[Message] check(Controller ctl)
   , nonDeterministicStates2()], ctl) when bprintln("Check is the right one");
 
 
+Controller desugar(Controller ctl)
+  = desugar([Desugaring::resetEvents(), Desugaring::retries()], ctl)
+  ;
+
 void main() {
   registerLanguage(CONTROLLER_LANG, CONTROLLER_EXT, Tree(str src, loc l) {
      return parse(src, l);
@@ -46,7 +50,7 @@ void main() {
              }),
 
              builder(set[Message] (Tree pt) {
-               ctl = desugar([resetEvents(), retries()], implode(pt));
+               ctl = desugar(implode(pt));
                out = (pt@\loc)[extension="java"];
                class = split(".", out.file)[0];
                println("CLASS = <class>");
