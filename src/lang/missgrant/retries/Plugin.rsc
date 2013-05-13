@@ -27,12 +27,11 @@ set[Message] check(Controller ctl)
   , duplicateCommands()
   , unusedCommands()
   , deadendStates()
-  , retries()
   , undefinedStates2()
   , undefinedEvents2()
   , unreachableStates2()
   , unusedEvents2()
-  , nonDeterministicStates2()], ctl) when bprintln("Check is the right one");
+  , nonDeterministicStates2()], ctl);
 
 
 Controller desugar(Controller ctl)
@@ -53,7 +52,6 @@ void main() {
                ctl = desugar(implode(pt));
                out = (pt@\loc)[extension="java"];
                class = split(".", out.file)[0];
-               println("CLASS = <class>");
                writeFile(out, compile(class, ctl));
                return {};
              })

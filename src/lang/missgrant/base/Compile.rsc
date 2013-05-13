@@ -1,3 +1,4 @@
+@Requires{Desugaring: resets}
 module lang::missgrant::base::Compile
 
 import lang::missgrant::base::AST;

@@ -4,4 +4,4 @@ import lang::missgrant::retries::AST;
 import ParseTree;
 extend lang::missgrant::base::Outline;
 
-node outline(t:transition(e, _, n, s)) = "transition"()[@label="<e> -\> <s> after <n>"][@\loc=t@location];
+node outline(t:transition(e, n, s)) = "transition"()[@label="<e> -\> <s> after <n>"][@\loc=t@location];

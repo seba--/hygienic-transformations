@@ -31,7 +31,7 @@ end
 
 state active
  drawerOpened => waitingForLight
- lightOn => active after 4 => waitingForDrawer 
+ lightOn after 4 => waitingForDrawer 
 end 
 
 

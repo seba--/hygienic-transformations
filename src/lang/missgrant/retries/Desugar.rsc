@@ -17,7 +17,7 @@ Controller desugar(retries(), Controller ctl) {
 }
 
 list[State] state2RetryStates(State s) 
-  = ( [] | it + transition2RetryStates(s, t) | t:transition(e, x, n, y) <- s.transitions );
+  = ( [] | it + transition2RetryStates(s, t) | t:transition(e, n, y) <- s.transitions );
 
 list[State] transition2RetryStates(State from, Transition t) {
   list[Transition] normalTransitions(State s) 

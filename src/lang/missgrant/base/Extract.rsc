@@ -6,6 +6,7 @@ import lang::missgrant::base::AST;
 alias TransRel = rel[str state, str event,  str toState];
 alias ActionRel = rel[str state, str command];
 
+@Require{Desugaring: resetEvents}
 TransRel transRel(Controller ctl) 
   = { <s1, t.event, t.state> | /state(s1, _, ts) <- ctl, Transition t <- ts
        /*, event(e, tk) <- ctl.events */};

@@ -110,7 +110,7 @@ public class missgrantr {
           
           
           if (lightOn(token)) {
-             state = state$active_4;
+             state = state$waitingForDrawer;
           }
           
           break;
