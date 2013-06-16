@@ -14,7 +14,7 @@ syntax Actions = "actions" "{" Id+ "}";
 
 syntax Transition 
   = transition: Id event "=\>" Id state 
-  | transition: Id event "=\>" Id state "after" Nat number "=\>" Id state;
+  | transition: "after" Nat number Id event "=\>" Id state;
 
 lexical Nat = [1-9][0-9]* !>> [0-9];
 
@@ -25,7 +25,7 @@ lexical Nat = [1-9][0-9]* !>> [0-9];
 
 lexical Id = ([a-zA-Z][a-zA-Z0-9_]* !>> [a-zA-Z0-9_]) \ Reserved ;
 
-keyword Reserved = "events" | "end" | "resetEvents" | "state" | "actions" ;
+keyword Reserved = "events" | "end" | "resetEvents" | "state" | "actions" | "after";
 
 layout Standard 
   = WhitespaceOrComment* !>> [\ \t\n\f\r] !>> "//";

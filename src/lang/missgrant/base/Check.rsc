@@ -36,6 +36,7 @@ data Check
   | unusedEvents()
   | unusedCommands()
   | deadendStates()
+  | noNegativeRetries()
   ;
 
 set[Message] check(list[Check] features, Controller ctl)
@@ -54,6 +55,7 @@ set[Message] check(nonDeterministicStates(), Controller ctl) = nonDeterministicS
 set[Message] check(unusedEvents(), Controller ctl) = unusedEvents(ctl);
 set[Message] check(unusedCommands(), Controller ctl) = unusedCommands(ctl);
 set[Message] check(deadendStates(), Controller ctl) = deadendStates(ctl);
+set[Message] check(noNegativeRetries(), Controller ctl) = noNegativeRetries(ctl);
 
 public set[Message] check(Controller ctl) 
   = undefinedStates(ctl)
@@ -125,6 +127,10 @@ public set[Message] duplicateStates(Controller ctl)
 public set[Message] deadendStates(Controller ctl)
   = { error("Dead-end state", s@location) | /State s <- ctl, s.transitions == [] }
   ;
+  
+public set[Message] noNegativeRetries(Controller ctl)
+  = { error("Retry count must be positive", t@location) | /Transition t <- ctl, t.number < 1 }
+  ; 
 
 public set[&V] duplicates(list[&T] lst, &U(&T) fst, &V(&T) snd) {
   tuple[set[&U] xs, set[&V] ys] accu = <{}, {}>;
