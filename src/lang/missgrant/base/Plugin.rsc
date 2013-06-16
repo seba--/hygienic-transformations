@@ -59,7 +59,7 @@ void main() {
     		 }),
 
     		 builder(set[Message] (Tree pt) {
-    		   ctl = desugar([resetEvents()], implode(pt));
+    		   ctl = desugar([resetEvents(), retries()], implode(pt));
     		   out = (pt@\loc)[extension="java"];
     		   class = split(".", out.file)[0];
     		   writeFile(out, compile(class, ctl));

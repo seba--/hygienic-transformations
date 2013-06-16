@@ -25,3 +25,5 @@ node outline(s:state(n, as, ts)) = "state"([ outline(t) | t <- ts ])[@label=n][@
 // todo: pass env around to lookup state locs.
 node outline(t:transition(e, s)) = "transition"()[@label="<e> -\> <s>"][@\loc=t@location];
 
+node outline(t:transition(n, e, s)) = "transition"()[@label="after <n> <e> -\> <s>"][@\loc=t@location];
+

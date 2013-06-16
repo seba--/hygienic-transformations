@@ -56,3 +56,4 @@ str unparse(state(n, as, ts)) =
   'end";
 
 str unparse(transition(e, t)) = "<e> =\> <t>";
+str unparse(transition(n, e, s)) = "after <n> <e> =\> <s>";

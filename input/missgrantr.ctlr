@@ -12,14 +12,14 @@ end
  
 resetEvents
  doorOpened
-end
+end 
 
 commands
  unlockPanel PNUL
- lockPanel PNLK
+ lockPanel PNLK 
  lockDoor D1LK
  unlockDoor D1UL
-end     
+end      
 
 
 state idle  
@@ -32,14 +32,14 @@ end
 state active
  drawerOpened => waitingForLight
  lightOn after 4 => waitingForDrawer 
-end 
+end  
 
 
-state waitingForLight
+state waitingForLight 
  lightOn => unlockedPanel 
 end 
-
-state waitingForDrawer
+ 
+state waitingForDrawer 
  drawerOpened => unlockedPanel
 end 
 

@@ -1,4 +1,3 @@
-
 // a comment
 
 events
@@ -10,40 +9,42 @@ events
  panelClosed PNCL 
 end 
 
-resetEvents
+resetEvents 
  doorOpened
-end
+end 
 
 commands
  unlockPanel PNUL
  lockPanel PNLK
  lockDoor D1LK
  unlockDoor D1UL
-end 	
-
-state idle	
+end
+  
+state idle
  actions {unlockDoor lockPanel}
- doorClosed => active
-end 
-
-
-
+ doorClosed => active 
+ after 4 lockPanel => lockedOut  
+end
+  
 state active
  drawerOpened => waitingForLight
  lightOn => waitingForDrawer 
 end 
 
 
-state waitingForLight
+state waitingForLight 
  lightOn => unlockedPanel 
-end 
+end  
 
 state waitingForDrawer
  drawerOpened => unlockedPanel
 end 
 
-
+ 
 state unlockedPanel
  actions {unlockPanel lockDoor}
  panelClosed => idle 
+end
+
+state lockedOut
 end
