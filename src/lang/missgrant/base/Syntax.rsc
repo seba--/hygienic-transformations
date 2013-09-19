@@ -1,6 +1,6 @@
 module lang::missgrant::base::Syntax
 
-start syntax Controller = controller: Events events ResetEvents? resets Commands? commands State+ states;
+start syntax Controller = controller: Events events ResetEvents? resets Commands? commands State* states;
 
 syntax Events = @Foldable "events" Event* "end";
 syntax ResetEvents = @Foldable "resetEvents" Id* "end"; 

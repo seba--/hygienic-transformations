@@ -19,11 +19,12 @@ commands
  lockDoor D1LK
  unlockDoor D1UL
 end
+
+
   
 state idle
  actions {unlockDoor lockPanel}
  doorClosed => active 
- after 4 lockPanel => lockedOut  
 end
   
 state active

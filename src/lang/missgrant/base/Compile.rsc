@@ -12,8 +12,8 @@ str compile(str name, Controller ctl) =
        '  <states2consts(ctl.states)>
        '  <controller2run(ctl)>
        '  <for (e <- ctl.events) {>
-  	   '  <event2java(e)>
-  	   '  <}>
+  	     '    <event2java(e)>
+  	     '  <}>
        '  <for (c <- ctl.commands) {>
        '  <command2java(c)>
        '  <}>
