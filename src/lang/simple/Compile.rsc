@@ -26,7 +26,7 @@ Prog compile(list[State] states, list[str] events) {
 
 
 Def state2constdef(State s, int i) {
-  return define(var(s.name), [], val(nat(i)));
+  return define(var(s.name)[@location = s@location], [], val(nat(i)));
 }
 
 list[Def] states2constdefs(list[State] states) {
@@ -43,10 +43,11 @@ Def state2def(State s) {
 Exp transitions2condexp([], Exp deflt) = deflt;
 
 Exp mkvar(str name) = evar(var(name));
+Exp mkvar(str name, loc l) = evar(var(name)[@location = l]);
 
 Exp transitions2condexp([t, *ts], Exp deflt) = 
   cond( eq(mkvar("event"), val(string(t.event))) 
-      , call(var(t.state), []) 
+      , call(var(t.state)[@location = t@location], []) 
       , transitions2condexp(ts, deflt));
 
 Def stateDispatch(list[State] states) = 
@@ -58,13 +59,13 @@ Def stateDispatch(list[State] states) =
 Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
-  cond( eq(mkvar("state"), call(var(s.name), []))
+  cond( eq(mkvar("state"), call(var(s.name)[@location = s@location], []))
        , call(var("<s.name>-trans"), [mkvar("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
   return 
-    ( assign(var("current"), call(var(init.name), [])) 
+    ( assign(var("current"), call(var(init.name)[@location = init@location], [])) 
     | seq(it, assign(var("current"), call(var("trans-dispatch"), [mkvar("current"), val(string(e))])))
     | e <- es);
 }

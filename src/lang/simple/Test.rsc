@@ -18,7 +18,8 @@ Controller statemachine1() = load(|project://MissGrant/input/missgrant.ctl|);
 
 void printCompiled1() = println(pretty(compile(statemachine1())));
 
-Prog compiled1() = finishGenProg(compile(statemachine1()));
+Prog unfinishedCompiled1() = compile(statemachine1()); 
+Prog compiled1() = finishGenProg(unfinishedCompiled1());
 
 Result names1() = resolveNames(compiled1());
 
