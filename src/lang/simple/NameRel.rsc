@@ -24,10 +24,20 @@ Result resolveNames(Def def, map[str,loc] scope) =
   resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
 
 Result resolveNames(evar(v), map[str,loc] scope) = 
-  {<v.name, v@location,scope[v.name]>};
+  {<v.name, v@location,scope[v.name]>}
+  when v.name in scope;
+//Result resolveNames(evar(v), map[str,loc] scope) = 
+//  {<v.name, UNBOUND>}
+//  when v.name notin scope;
+
 
 Result resolveNames(assign(v, e), map[str,loc] scope) =
-  resolveNames(e, scope) + {<v.name, v@location, scope[v.name]>};
+  resolveNames(e, scope) + {<v.name, v@location, scope[v.name]>}
+  when v.name in scope;
+
+Result resolveNames(assign(v, e), map[str,loc] scope) =
+  resolveNames(e, scope + (v.name:v@location))
+  when v.name notin scope;
 
 Result resolveNames(call(v, args), map[str,loc] scope) =
   ({} | it + resolveNames(a, scope) | a <- args) + {<v.name, v@location, scope[v.name]>};
