@@ -11,6 +11,7 @@ import lang::simple::Finishing;
 import lang::simple::NameRel;
 import lang::simple::Pretty;
 
+import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 
@@ -29,14 +30,14 @@ Result names1() = resolveNames(compiled1());
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
 void visualizeCompiled1() = renderNames(names1());
 
-bool check1() {
+set[Link] check1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
-  return isCompiledHygienically(resolveNames(m), resolveNames(p));
+  return unhygienicLinks(resolveNames(m), resolveNames(p));
 }
 
-bool check2() {
+set[Link] check2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
-  return isCompiledHygienically(resolveNames(m), resolveNames(p));
+  return unhygienicLinks(resolveNames(m), resolveNames(p));
 }

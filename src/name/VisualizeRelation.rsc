@@ -1,4 +1,4 @@
-module lang::simple::VisualizeNameRel
+module name::VisualizeRelation
 
 import name::Relation;
 import vis::Figure;

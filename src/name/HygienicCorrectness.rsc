@@ -2,40 +2,35 @@ module name::HygienicCorrectness
 
 import name::Relation;
 
-@doc{ 
-Checks whether the compilation of `ctl` to `p` was hygienic.
-}   
+import IO;
+
+set[&T] delta(set[&T] s1, set[&T] s2) =
+  { x | x <- s1, x notin s2 } + { y | y <- s2, y notin s1 };
 
 @doc {
 Uses from the source point to the same definition in the target.
+@return set of illegal links.
 }
-bool sourcePreservation(NameRel sNames, NameRel tNames) {
-  set[loc] defOf(NameRel names, loc l) = names<1,2>[l];
-  
-  bool check(loc u) = u in tNames<1> ? defOf(sNames, u) == defOf(tNames, u) : true;
-  
-  return ( true | it && check(u) | u <- sNames<1>);
+set[Link] sourcePreservation(NameRel sNames, NameRel tNames) {
+  sUses = sNames<1>;
+  sMap = sNames<1,2>;
+  return ( {} | it + <u,d> | <u,d> <- tNames<1,2>, u in sUses, d notin sMap[u]);
 }
 
 
 @doc {
 Synthesized names never point to source labels.
+@return set of illegal links.
 }
-bool synthesizedNotCaptured(NameRel sourceNames, NameRel targetNames) {
-  targetMap = targetNames<1,2>;
-  synDefsT = ( {} | it + targetMap[use]  | use <- targetNames<1>, use notin sourceLabels(sourceNames, targetNames) );
+set[Link] synthesizedNotCaptured(NameRel sNames, NameRel tNames) {
+  sLabels = sourceLabels(sNames, tNames);
   
-  return sourceLabels(sourceNames, targetNames) & synDefsT == {}; 
+  return ({} | it + <u,d> | <u,d> <- tNames<1,2>, u notin sLabels, d in sLabels);
 }
 
-
-bool isCompiledHygienically(NameRel (&S) resolveSource, &S sourceProg,
-                            NameRel (&T) resolveTarget, &T targetProg) {
-  sNames = resolveSource(sourceProg);
-  tNames = resolveTarget(targetProg);
-  return isCompiledHygienically(sNames, tNames);
-}
+set[Link] unhygienicLinks(NameRel sNames, NameRel tNames) = 
+  sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
 
 bool isCompiledHygienically(NameRel sNames, NameRel tNames) =
-  sourcePreservation(sNames, tNames) && synthesizedNotCaptured(sNames, tNames);
+  unhygienicLinks(sNames, tNames) == {};
 

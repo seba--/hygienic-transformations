@@ -1,6 +1,7 @@
 module name::Relation
 
 alias NameRel = rel[str,loc,loc];
+alias Link = tuple[loc,loc];
 
 set[loc] sourceLabels(rel[str, loc, loc] sourceNames, rel[str, loc, loc] targetNames) =
   sourceNames<1> + sourceNames<2>;
