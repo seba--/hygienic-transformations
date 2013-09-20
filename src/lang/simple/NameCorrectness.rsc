@@ -23,12 +23,12 @@ Checks whether the compilation of `ctl` to `p` was hygienic.
 @doc {
 Uses from the source point to the same definition in the target.
 }
-bool check1(NameRel sourceNames, NameRel targetNames) {
+bool check1(NameRel sNames, NameRel tNames) {
   set[loc] defOf(NameRel names, loc l) = names<1,2>[l];
   
-  bool check(loc u) = u in namesTarget<1> ? defOf(sourceNames, u) == defOf(targetNames, u) : true;
+  bool check(loc u) = u in tNames<1> ? defOf(sNames, u) == defOf(tNames, u) : true;
   
-  return ( true | it && check(u) | u <- sourceNames<1>);
+  return ( true | it && check(u) | u <- sNames<1>);
 }
 
 
