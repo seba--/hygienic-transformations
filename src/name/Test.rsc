@@ -1,4 +1,4 @@
-module lang::simple::Test
+module name::Test
 
 
 import lang::missgrant::base::AST;
@@ -9,9 +9,10 @@ import lang::simple::AST;
 import lang::simple::Compile;
 import lang::simple::Finishing;
 import lang::simple::NameRel;
-import lang::simple::NameCorrectness;
 import lang::simple::Pretty;
-import lang::simple::VisualizeNameRel;
+
+import name::HygienicCorrectness;
+import name::VisualizeRelation;
 
 import IO;
 
@@ -31,11 +32,11 @@ void visualizeCompiled1() = renderNames(names1());
 bool check1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
-  return isCompiledHygienic(m, p);
+  return isCompiledHygienically(resolveNames(m), resolveNames(p));
 }
 
 bool check2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
-  return isCompiledHygienic(m, p);
+  return isCompiledHygienically(resolveNames(m), resolveNames(p));
 }

@@ -1,13 +1,13 @@
 module lang::simple::VisualizeNameRel
 
-import lang::missgrant::base::NameRel;
+import name::Relation;
 import vis::Figure;
 import vis::KeySym;
 import vis::Render;
 import util::Editors;
 
 
-Figure toFigure(rel[str name, loc use, loc def] names) {
+Figure toFigure(NameRel names) {
   return graph(
      [box(text("<n>: <x.begin.line>, <x.begin.column>"), left(), top(), 
           id("<x.offset>"), 
@@ -22,5 +22,5 @@ Figure toFigure(rel[str name, loc use, loc def] names) {
      hint("layered"), width(900), height(1000), top(), gap(70));
 }
 
-void renderNames(rel[str name, loc use, loc def] names) = 
+void renderNames(NameRel names) = 
   render(toFigure(names));
