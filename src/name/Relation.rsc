@@ -5,10 +5,10 @@ alias Link = tuple[loc use,loc def];
 alias NameRel = set[Link];
 alias NameGraph = tuple[set[Name], NameRel];
 
-set[loc] sourceLabels(NameRel sourceNames, NameRel targetNames) =
-  sourceNames<1> + sourceNames<2>;
-set[loc] targetLabels(NameRel sourceNames, NameRel targetNames) =
-  targetNames<1> + targetNames<2>;
-set[loc] synthesizedLabels(NameRel sourceNames, NameRel targetNames) =
+set[loc] sourceLabels(NameGraph sourceNames, NameGraph targetNames) =
+  sourceNames[0]<1>;
+set[loc] targetLabels(NameGraph sourceNames, NameGraph targetNames) =
+  targetNames[0]<1>;
+set[loc] synthesizedLabels(NameGraph sourceNames, NameGraph targetNames) =
   targetLabels(sourceNames, targetNames) - sourceLabels(sourceNames, targetNames);
 

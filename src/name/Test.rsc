@@ -98,24 +98,27 @@ Prog renameProg3() {
   return rename(resolveNames(p), p, d0@location, new);
 }
 
-set[Link] fixHygiene1() {
+Prog fixHygiene1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  <p2,tNames> = fixHygiene(sNames, tNames, p, name2var);
-  return unhygienicLinks(sNames, tNames);
+  p2 = fixHygiene(sNames, tNames, p, name2var);
+  tNames2 = resolveNames(p2);
+  assert unhygienicLinks(sNames, tNames2) == {};
+  return p2;
 }
 
-set[Link] fixHygiene2() {
+Prog fixHygiene2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  <p2,tNames> = fixHygiene(sNames, tNames, p, name2var);
-  return tNames;
+  p2 = fixHygiene(sNames, tNames, p, name2var);
   //println(pretty(p2));
-  return unhygienicLinks(sNames, tNames);
+  tNames2 = resolveNames(p2);
+  assert unhygienicLinks(sNames, tNames2) == {};
+  return p2;
 }
 
 //set[Link] check2() {

@@ -13,53 +13,58 @@ import lang::missgrant::base::AST;
 import lang::simple::AST;
 
 
-&T rename(NameRel r, &T t, loc varLoc, &U new) {
-  m = (k:v | <k,v> <- r<1,2>);
+&T rename(NameGraph r, &T t, loc varLoc, &U new) {
+  <V,E> = r;
   
-  if (varLoc in m)
-    varLoc = m[varLoc];
+  //if (varLoc in m)
+  //  varLoc = m[varLoc];
 
   return visit (t) {
     case &U x => new[@location = x@location] 
       when x@location == varLoc
     case &U x => new[@location = x@location] 
-      when x@location in m && m[x@location] == varLoc
+      when <x@location, varLoc> in E
   };
 }
 
-&T rename(NameRel r, &T t, map[loc,&U] subst) {
-  m = (k:v | <k,v> <- r<1,2>);
+&T rename(NameGraph r, &T t, map[loc,&U] subst) {
+  <V,E> = r;
   
-  subst = ((k in m ? m[k] : k):v | <k,v> <- subst<0,1>);
+  //subst = ((k in m ? m[k] : k):v | <k,v> <- subst<0,1>);
 
   return visit (t) {
     case &U x => subst[x@location][@location = x@location] 
       when x@location in subst
-    case &U x => subst[m[x@location]][@location = x@location] 
-      when x@location in m && m[x@location] in subst
+    case &U x => v0[@location = x@location] 
+      when {v0} := {v | <d,v> <- subst<0,1>, <x@location,d> in E}
   };
 }
 
 
-tuple[&T, NameRel] fixHygiene(NameRel sNames, NameRel tNames, &T t, &U(str) name2var) {
-  badLinks = sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
+&T fixHygiene(NameGraph sNames, NameGraph tNames, &T t, &U(str) name2var) {
+  set[Link] badLinks = sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
   synth = synthesizedLabels(sNames, tNames);
-  rel[str,loc] renameVars 
-    = ({} | it + (l1 in synth ? {<n,l1>} : {}) + (l2 in synth ? {<n,l2>} : {}) 
-          | <n,l1,l2> <- badLinks );
+  set[loc] renameLocs 
+    = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
+          | <l1,l2> <- badLinks );
   
-  usedNames = tNames<0>;
+  rel[loc,str] tNameMap = tNames[0]<1,0>;
+  renameNames = {<n,l> | l <- renameLocs, {n} := tNameMap[l]};
+  
+  usedNames = tNames<0><0>;
+  newNames = {};
   map[loc, &U] subst = ();
-  for (<n,l> <- renameVars) {
+  for (<n,l> <- renameNames) {
     str fresh = freshName(usedNames, n);
-    usedNames += fresh;
-    freshVar = name2var(fresh);
-    subst += (l:freshVar);
+	usedNames += fresh;
+	freshVar = name2var(fresh);
+	subst += (l:freshVar);
+	newNames += <fresh,l>;
   };
   
-  fixedTNames = tNames - badLinks;
-  println(fixedTNames);
+  fixedTNames = <tNames[0] - renameNames + newNames,tNames[1] - badLinks>;
+  //println(fixedTNames);
   renamed = rename(fixedTNames, t, subst);
-  return <renamed, fixedTNames>;
+  return renamed;
 }
 

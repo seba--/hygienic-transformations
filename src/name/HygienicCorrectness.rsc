@@ -13,7 +13,7 @@ Uses from the source point to the same definition in the target.
 }
 set[Link] sourcePreservation(NameGraph sNames, NameGraph tNames) {
   sLabels = sNames[0]<1>;
-  return {<u,d> | <u,d> <- tNames[1], u in sLabels, <u,d> notin sNames[1]};
+  return {<u,d> | <u,d> <- tNames[1], u in sLabels, u != d, <u,d> notin sNames[1]};
 }
 
 
