@@ -62,9 +62,9 @@ import lang::simple::AST;
 	newNames += <fresh,l>;
   };
   
-  fixedTNames = <tNames[0] - renameNames + newNames,tNames[1] - badLinks>;
+  cutTNames = <tNames[0] - renameNames + newNames,tNames[1] - badLinks>;
   //println(fixedTNames);
-  renamed = rename(fixedTNames, t, subst);
+  renamed = rename(cutTNames, t, subst);
   return renamed;
 }
 
