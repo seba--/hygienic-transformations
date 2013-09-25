@@ -30,7 +30,7 @@ void printCompiled1() = println(pretty(compile(statemachine1())));
 Prog unfinishedCompiled1() = compile(statemachine1()); 
 Prog compiled1() = finishGenProg(unfinishedCompiled1());
 
-Result names1() = resolveNames(compiled1());
+NameRel names1() = resolveNames(compiled1());
 
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
 void visualizeCompiled1() = renderNames(names1());
@@ -93,3 +93,28 @@ Prog renameProg3() {
   new = var("<d0.name>-renamed");
   return rename(resolveNames(p), p, d0@location, new);
 }
+
+set[Link] fixHygiene1() {
+  m = statemachine1();
+  p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  <p2,tNames> = fixHygiene(sNames, tNames, p, name2var);
+  return unhygienicLinks(sNames, tNames);
+}
+
+set[Link] fixHygiene2() {
+  m = statemachine1illcompiled();
+  p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  <p2,tNames> = fixHygiene(sNames, tNames, p, name2var);
+  println(pretty(p2));
+  return unhygienicLinks(sNames, tNames);
+}
+
+//set[Link] check2() {
+//  m = statemachine1illcompiled();
+//  p = finishGenProg(compile(m));
+//  return unhygienicLinks(resolveNames(m), resolveNames(p));
+//}

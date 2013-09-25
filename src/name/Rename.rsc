@@ -1,5 +1,7 @@
 module name::Rename
 
+import name::Gensym;
+import name::HygienicCorrectness;
 import name::Relation;
 import IO;
 
@@ -28,7 +30,7 @@ import lang::simple::AST;
 &T rename(NameRel r, &T t, map[loc,&U] subst) {
   m = (k:v | <k,v> <- r<1,2>);
   
-  subst = ((k in m ? m[k] : k):v | <k,v> <- subst);
+  subst = ((k in m ? m[k] : k):v | <k,v> <- subst<0,1>);
 
   return visit (t) {
     case &U x => subst[x@location][@location = x@location] 
@@ -39,9 +41,25 @@ import lang::simple::AST;
 }
 
 
-NameRel fixHygiene(NameRel sNames, NameRel tNames) {
+tuple[&T, NameRel] fixHygiene(NameRel sNames, NameRel tNames, &T t, &U(str) name2var) {
   badLinks = sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
-  synth = 0;
-  rename = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
-               | <l1,l2> <- badLinks );
+  synth = synthesizedLabels(sNames, tNames);
+  rel[str,loc] renameVars 
+    = ({} | it + (l1 in synth ? {<n,l1>} : {}) + (l2 in synth ? {<n,l2>} : {}) 
+          | <n,l1,l2> <- badLinks );
+  
+  usedNames = tNames<0>;
+  map[loc, &U] subst = ();
+  for (<n,l> <- renameVars) {
+    str fresh = freshName(usedNames, n);
+    usedNames += fresh;
+    freshVar = name2var(fresh);
+    subst += (l:freshVar);
+  };
+  
+  fixedTNames = tNames - badLinks;
+  println(fixedTNames);
+  renamed = rename(fixedTNames, t, subst);
+  return <renamed, fixedTNames>;
 }
+

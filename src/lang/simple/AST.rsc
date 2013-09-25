@@ -19,3 +19,5 @@ data Var = var(str name);
 data Val = nat(int n) | string(str s) | error(str name);
 
 anno loc Var@location; 
+
+Var name2var(str name) = var(name);

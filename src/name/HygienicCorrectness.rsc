@@ -14,7 +14,7 @@ Uses from the source point to the same definition in the target.
 set[Link] sourcePreservation(NameRel sNames, NameRel tNames) {
   sUses = sNames<1>;
   sMap = sNames<1,2>;
-  return ( {} | it + <u,d> | <u,d> <- tNames<1,2>, u in sUses, d notin sMap[u]);
+  return {<n,u,d> | <n,u,d> <- tNames, u in sUses, d notin sMap[u]};
 }
 
 
@@ -25,7 +25,7 @@ Synthesized names never point to source labels.
 set[Link] synthesizedNotCaptured(NameRel sNames, NameRel tNames) {
   sLabels = sourceLabels(sNames, tNames);
   
-  return ({} | it + <u,d> | <u,d> <- tNames<1,2>, u notin sLabels, d in sLabels);
+  return {<n,u,d> | <n,u,d> <- tNames, u notin sLabels, d in sLabels};
 }
 
 set[Link] unhygienicLinks(NameRel sNames, NameRel tNames) = 

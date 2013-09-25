@@ -16,7 +16,7 @@ str pretty(Prog p) =
   
 str pretty(Def d) =
   "define <d.name.name>(<intercalate(", ", [p.name|p<-d.params])>) =
-  '  <pretty(d.body)>";
+  '  <pretty(d.body)>;";
   
 str pretty(val(nat(n))) = "<n>";
 str pretty(val(string(s))) = quoted(s);
