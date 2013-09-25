@@ -30,6 +30,10 @@ void printCompiled1() = println(pretty(compile(statemachine1())));
 Prog unfinishedCompiled1() = compile(statemachine1()); 
 Prog compiled1() = finishGenProg(unfinishedCompiled1());
 
+Prog unfinishedCompiled1ill() = compile(statemachine1illcompiled()); 
+Prog compiled1ill() = finishGenProg(unfinishedCompiled1ill());
+
+
 NameRel names1() = resolveNames(compiled1());
 
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
@@ -109,7 +113,8 @@ set[Link] fixHygiene2() {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   <p2,tNames> = fixHygiene(sNames, tNames, p, name2var);
-  println(pretty(p2));
+  return tNames;
+  //println(pretty(p2));
   return unhygienicLinks(sNames, tNames);
 }
 

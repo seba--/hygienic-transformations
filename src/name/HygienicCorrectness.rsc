@@ -11,10 +11,9 @@ set[&T] delta(set[&T] s1, set[&T] s2) =
 Uses from the source point to the same definition in the target.
 @return set of illegal links.
 }
-set[Link] sourcePreservation(NameRel sNames, NameRel tNames) {
-  sUses = sNames<1>;
-  sMap = sNames<1,2>;
-  return {<n,u,d> | <n,u,d> <- tNames, u in sUses, d notin sMap[u]};
+set[Link] sourcePreservation(NameGraph sNames, NameGraph tNames) {
+  sLabels = sNames[0]<1>;
+  return {<u,d> | <u,d> <- tNames[1], u in sLabels, <u,d> notin sNames[1]};
 }
 
 
@@ -22,15 +21,14 @@ set[Link] sourcePreservation(NameRel sNames, NameRel tNames) {
 Synthesized names never point to source labels.
 @return set of illegal links.
 }
-set[Link] synthesizedNotCaptured(NameRel sNames, NameRel tNames) {
-  sLabels = sourceLabels(sNames, tNames);
-  
-  return {<n,u,d> | <n,u,d> <- tNames, u notin sLabels, d in sLabels};
+set[Link] synthesizedNotCaptured(NameGraph sNames, NameGraph tNames) {
+  sLabels = sNames[0]<1>;
+  return {<u,d> | <u,d> <- tNames[1], u notin sLabels, d in sLabels};
 }
 
-set[Link] unhygienicLinks(NameRel sNames, NameRel tNames) = 
+set[Link] unhygienicLinks(NameGraph sNames, NameGraph tNames) = 
   sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
 
-bool isCompiledHygienically(NameRel sNames, NameRel tNames) =
+bool isCompiledHygienically(NameGraph sNames, NameGraph tNames) =
   unhygienicLinks(sNames, tNames) == {};
 

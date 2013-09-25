@@ -2,11 +2,17 @@ module lang::missgrant::base::NameRel
 
 import lang::missgrant::base::AST;
 
+import name::Relation;
+
 map[str,loc] collectStates(Controller ctl) =
   ( s.name:s@location | /State s := ctl );
 
-rel[str name, loc use, loc def] relateStates(Controller ctl, map[str,loc] stateDefs) =
-  { <t.state, t@location, stateDefs[t.state]> | /Transition t := ctl };
+NameGraph relateStates(Controller ctl, map[str,loc] stateDefs) {
+  states = stateDefs<0,1>;
+  transitionNames = { <t.state, t@location> | /Transition t := ctl };
+  rels = { <t@location, stateDefs[t.state]> | /Transition t := ctl };
+  return <states + transitionNames,rels>;
+}
 
-rel[str name, loc use, loc def] resolveNames(Controller ctl) =
+NameGraph resolveNames(Controller ctl) =
   relateStates(ctl, collectStates(ctl));

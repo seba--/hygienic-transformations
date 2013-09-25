@@ -7,7 +7,7 @@ import vis::Render;
 import util::Editors;
 
 
-Figure toFigure(NameRel names) {
+Figure toFigure(NameGraph names) {
   return graph(
      [box(text("<n>: <x.begin.line>, <x.begin.column>"), left(), top(), 
           id("<x.offset>"), 
@@ -16,11 +16,11 @@ Figure toFigure(NameRel names) {
              edit(x);
           }))
           
-           | <n, x> <- names<0,1> + names<0,2> ],
+           | <n, x> <- names[0] ],
           
-     [edge("<u.offset>", "<d.offset>", triangle(10,fillColor("black"))) | <n, u, d> <- names ], 
+     [edge("<u.offset>", "<d.offset>", triangle(10,fillColor("black"))) | <u, d> <- names[1] ], 
      hint("layered"), width(900), height(1000), top(), gap(70));
 }
 
-void renderNames(NameRel names) = 
+void renderNames(NameGraph names) = 
   render(toFigure(names));

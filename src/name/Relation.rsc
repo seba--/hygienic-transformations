@@ -1,7 +1,9 @@
 module name::Relation
 
-alias NameRel = rel[str name,loc use,loc def];
-alias Link = tuple[str,loc,loc];
+alias Name = tuple[str name, loc l];
+alias Link = tuple[loc use,loc def];
+alias NameRel = set[Link];
+alias NameGraph = tuple[set[Name], NameRel];
 
 set[loc] sourceLabels(NameRel sourceNames, NameRel targetNames) =
   sourceNames<1> + sourceNames<2>;
