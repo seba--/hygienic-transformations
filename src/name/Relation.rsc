@@ -3,7 +3,7 @@ module name::Relation
 alias Name = tuple[str name, loc l];
 alias Link = tuple[loc use,loc def];
 alias NameRel = set[Link];
-alias NameGraph = tuple[set[Name], NameRel];
+alias NameGraph = tuple[set[Name], set[Link]];
 
 set[loc] sourceLabels(NameGraph sourceNames, NameGraph targetNames) =
   sourceNames[0]<1>;
