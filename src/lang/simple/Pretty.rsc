@@ -6,6 +6,8 @@ import lang::simple::Implode;
 
 import List;
 
+import String;
+
 str pretty(Prog p) = 
   "<for (d <- p.defs){>
   '<pretty(d)>
@@ -30,7 +32,12 @@ str pretty(seq(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
 str pretty(eq(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
 str pretty(block(locals, e)) = "{<intercalate(", ", [l.name|l<-locals])> : <pretty(e)>}";
 
-str quoted(s) = "\"<s>\"";
+str quoted(s) = {
+  if (size(s) > 0 && s[0] == "\"")
+    return s;
+  else
+    return "\"<s>\"";
+};
 
 //test bool prettyParse(Prog p) = p == implode(parse(pretty(p)));
 
