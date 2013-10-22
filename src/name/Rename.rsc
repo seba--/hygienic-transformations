@@ -42,7 +42,7 @@ import lang::simple::AST;
 
 
 &T fixHygiene(NameGraph sNames, NameGraph tNames, &T t, &U(str) name2var) {
-  set[Link] badLinks = sourcePreservation(sNames, tNames) + synthesizedNotCaptured(sNames, tNames);
+  set[Link] badLinks = sourceNotPreserved(sNames, tNames) + synthesizedCaptured(sNames, tNames);
   synth = synthesizedLabels(sNames, tNames);
   set[loc] renameLocs 
     = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
