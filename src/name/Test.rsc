@@ -127,7 +127,7 @@ Prog fixHygiene_clean1() {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   p2 = fixHygiene_clean(m, p, resolveNames, resolveNames, name2var);
-  assert isCompiledHygienically(sNames, resolveNames(p2));
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
 
