@@ -1,40 +1,40 @@
 
 define idle() =
-  0
+  0;
 
-define trans-dispatch() =
-  1
+define active() =
+  1;
 
 define waitingForLight() =
-  2
+  2;
 
 define waitingForDrawer() =
-  3
+  3;
 
 define unlockedPanel() =
-  4
+  4;
 
 define lockedOut() =
-  5
+  5;
 
 define idle-trans(event) =
-  if ((event == "doorClosed")) then trans-dispatch() else error("UnsupportedEvent") end
+  if ((event == "doorClosed")) then active() else error("UnsupportedEvent") end;
 
-define trans-dispatch-trans(event) =
-  if ((event == "drawerOpened")) then waitingForLight() else if ((event == "lightOn")) then waitingForDrawer() else error("UnsupportedEvent") end end
+define active-trans(event) =
+  if ((event == "drawerOpened")) then waitingForLight() else if ((event == "lightOn")) then waitingForDrawer() else error("UnsupportedEvent") end end;
 
 define waitingForLight-trans(event) =
-  if ((event == "lightOn")) then unlockedPanel() else error("UnsupportedEvent") end
+  if ((event == "lightOn")) then unlockedPanel() else error("UnsupportedEvent") end;
 
 define waitingForDrawer-trans(event) =
-  if ((event == "drawerOpened")) then unlockedPanel() else error("UnsupportedEvent") end
+  if ((event == "drawerOpened")) then unlockedPanel() else error("UnsupportedEvent") end;
 
 define unlockedPanel-trans(event) =
-  if ((event == "panelClosed")) then idle() else error("UnsupportedEvent") end
+  if ((event == "panelClosed")) then idle() else error("UnsupportedEvent") end;
 
 define lockedOut-trans(event) =
-  error("UnsupportedEvent")
+  error("UnsupportedEvent");
 
 define trans-dispatch(state, event) =
-  if ((state == idle())) then idle-trans(event) else if ((state == trans-dispatch())) then trans-dispatch-trans(event) else if ((state == waitingForLight())) then waitingForLight-trans(event) else if ((state == waitingForDrawer())) then waitingForDrawer-trans(event) else if ((state == unlockedPanel())) then unlockedPanel-trans(event) else if ((state == lockedOut())) then lockedOut-trans(event) else error("UnsupportedState") end end end end end end
+  if ((state == idle())) then idle-trans(event) else if ((state == active())) then active-trans(event) else if ((state == waitingForLight())) then waitingForLight-trans(event) else if ((state == waitingForDrawer())) then waitingForDrawer-trans(event) else if ((state == unlockedPanel())) then unlockedPanel-trans(event) else if ((state == lockedOut())) then lockedOut-trans(event) else error("UnsupportedState") end end end end end end;
 
