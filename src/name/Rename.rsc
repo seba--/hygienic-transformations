@@ -68,3 +68,35 @@ import lang::simple::AST;
   return renamed;
 }
 
+@doc {
+  Cleaner paper version of fixHygiene that produces exactly the same result.
+}
+// TODO return and argument type should be &T, but this leads to an error 'Expected Prog, but got node'
+Prog fixHygiene_clean(&S s, Prog t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
+  <Vs,Es> = resolveS(s);
+  <Vt,Et> = resolveT(t);
+  Ls = Vs<1>;
+  namesT = Vt<1,0>;
+  
+  badDefLinks = { <u,d> | <u,d> <- Et, u in Ls, u != d, <u,d> notin Es};
+  badUseLinks = { <u,d> | <u,d> <- Et, u notin Ls, d in Ls};
+  badNodes = { <n,l> | l <- badDefLinks<1> + badUseLinks<0>, {n} := namesT[l] };
+  
+  if (badNodes == {})
+    return t;
+  
+  Vt_new = Vt;
+  subst = ();
+  
+  for (Name v <- badNodes) {
+    fresh = freshName(Vt_new, v);
+    Vt_new += fresh;
+	freshVar = name2var(fresh.name);
+    subst += (v.l : freshVar);
+  };
+  
+  Et_new = Et - (badDefLinks + badUseLinks);
+  
+  Prog t_new = rename(<Vt_new, Et_new>, t, subst);
+  return fixHygiene_clean(s, t_new, resolveS, resolveT, name2var);
+}

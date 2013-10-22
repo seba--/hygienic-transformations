@@ -121,6 +121,26 @@ Prog fixHygiene2() {
   return p2;
 }
 
+Prog fixHygiene_clean1() {
+  m = statemachine1();
+  Prog p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  p2 = fixHygiene_clean(m, p, resolveNames, resolveNames, name2var);
+  assert isCompiledHygienically(sNames, resolveNames(p2));
+  return p2;
+}
+
+Prog fixHygiene_clean2() {
+  m = statemachine1illcompiled();
+  p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  p2 = fixHygiene_clean(m, p, resolveNames, resolveNames, name2var);
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  return p2;
+}
+
 //set[Link] check2() {
 //  m = statemachine1illcompiled();
 //  p = finishGenProg(compile(m));
