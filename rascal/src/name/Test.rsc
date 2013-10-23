@@ -34,18 +34,18 @@ Prog unfinishedCompiled1ill() = compile(statemachine1illcompiled());
 Prog compiled1ill() = finishGenProg(unfinishedCompiled1ill());
 
 
-NameRel names1() = resolveNames(compiled1());
+NameGraph names1() = resolveNames(compiled1());
 
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
 void visualizeCompiled1() = renderNames(names1());
 
-set[Link] check1() {
+set[Reference] check1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
   return unhygienicLinks(resolveNames(m), resolveNames(p));
 }
 
-set[Link] check2() {
+set[Reference] check2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
   return unhygienicLinks(resolveNames(m), resolveNames(p));

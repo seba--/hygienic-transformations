@@ -2,8 +2,6 @@ module name::Gensym
 
 import name::Relation;
 
-Name freshName(set[Name] used, Name base) = <freshName(used<0>, base.name), base.l>;
-
 str freshName(set[str] used, str base) = freshName(used, base, 0);
 
 str freshName(set[str] used, str base, int n) {

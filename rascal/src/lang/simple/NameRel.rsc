@@ -20,65 +20,77 @@ map[str,loc] collectDefinitions(Prog p) =
   ( def.name.name:def.name@location | /Def def := p );
 
 NameGraph resolveNames(Def def, map[str,loc] scope) {
-  <V, E> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
-  return <V + <def.name.name,def.name@location> + {<p.name,p@location> | p <- def.params}, E>;
+  <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
+  return <V + def.name@location + {p@location | p <- def.params}, 
+          E,
+          N + <def.name@location, def.name.name> + {<p@location, p.name> | p <- def.params}>;
 }
 
 NameGraph resolveNames(evar(v), map[str,loc] scope) = 
-  <{<v.name,v@location>}, {<v@location,scope[v.name]>}>
+  <{v@location}, {<v@location,scope[v.name]>}, {}>
   when v.name in scope;
 //NameRel resolveNames(evar(v), map[str,loc] scope) = 
 //  {<v.name, UNBOUND>}
 //  when v.name notin scope;
 
 
-NameGraph resolveNames(assign(v, e), map[str,loc] scope) =
-  <{<v.name,v@location>}, resolveNames(e, scope) + {<v@location, scope[v.name]>}>
-  when v.name in scope;
-
-NameGraph resolveNames(assign(v, e), map[str,loc] scope) =
-  <{<v.name,v@location>}, resolveNames(e, scope + (v.name:v@location))>
-  when v.name notin scope;
+NameGraph resolveNames(assign(v, e), map[str,loc] scope) {
+  if (v.name in scope)
+    scope2 = scope;
+  else
+    scope2 = scope + (v.name:v@location);
+  
+  <V,E,N> = resolveNames(e, scope2);
+  
+  if (v.name in scope)
+    return <V + {v@location}, E + {<v@location, scope[v.name]>}, N>;
+  else
+    return <V + {v@location}, E, N + {<v@location, v.name>}>;
+}
 
 NameGraph resolveNames(call(v, args), map[str,loc] scope) {
-  <V,E> = <{<v.name,v@location>}, {<v@location, scope[v.name]>}>;
-  for (a <- args) {
-    <V2,E2> = resolveNames(a, scope);
-    <V,E> = <V + V2,E + E2>;
+  V = {v@location};
+  E = {<v@location, scope[v.name]>};
+  N = {};
+  for (e <- args) {
+    <V2,E2,N2> = resolveNames(e, scope);
+    V += V2;
+    E += E2;
+    N += N2;
   }
-  return <V,E>;
+  return <V,E,N>;
 }
 
 NameGraph resolveNames(block(vars, e), map[str,loc] scope) {
   scope = scope + (v.name:v@location | v <- vars);
-  <V,E> = resolveNames(e, scope);
-  return <V + {<v.name,v@location> | v <- vars}, E>;
+  <V,E,N> = resolveNames(e, scope);
+  return <V + {v@location | v <- vars}, E, N + {<v@location,v.name> | v <- vars}>;
 }
 
 default NameGraph resolveNames(Exp e, map[str,loc] scope) {
-  <V,E> = <{},{}>;
+  <V,E,N> = <{},{},{}>;
   for (Exp e2 <- e) {
-    <V2,E2> = resolveNames(e2, scope);
-    <V,E> = <V + V2,E + E2>;
+    <V2,E2,N2> = resolveNames(e2, scope);
+    <V,E> = <V + V2,E + E2, N + N2>;
   }
-  return <V,E>;
+  return <V,E,N>;
 }
   
 
 NameGraph resolveNames(Prog p) {
   topScope = collectDefinitions(p);
   
-  <dV,dE> = <{},{}>;
+  <dV,dE,dN> = <{},{},{}>;
   for (d <- p.defs) {
-    <V2,E2> = resolveNames(d, topScope);
-    <dV,dE> = <dV + V2,dE + E2>;
+    <V2,E2,N2> = resolveNames(d, topScope);
+    <dV,dE,dN> = <dV + V2,dE + E2,dN + N2>;
   }
-  <mV,mE> = <{},{}>;
+  <mV,mE,mN> = <{},{},{}>;
   for (e <- p.main) {
-    <V2,E2> = resolveNames(e, topScope);
-    <mV,mE> = <mV + V2,mE + E2>;
+    <V2,E2,N2> = resolveNames(e, topScope);
+    <mV,mE,mN> = <mV + V2,mE + E2,mN + N2>;
   }
   
-  return <dV + mV,dE + mE>;
+  return <dV + mV,dE + mE, dN + mN>;
 }
 

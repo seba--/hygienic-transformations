@@ -11,7 +11,7 @@ NameGraph relateStates(Controller ctl, map[str,loc] stateDefs) {
   states = stateDefs<0,1>;
   transitionNames = { <t.state, t@location> | /Transition t := ctl };
   rels = { <t@location, stateDefs[t.state]> | /Transition t := ctl };
-  return <states + transitionNames,rels>;
+  return makeGraph(states + transitionNames, rels);
 }
 
 NameGraph resolveNames(Controller ctl) =

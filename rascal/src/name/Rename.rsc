@@ -13,48 +13,40 @@ import lang::missgrant::base::AST;
 import lang::simple::AST;
 
 
-&T rename(NameGraph r, &T t, loc varLoc, &U new) {
-  <V,E> = r;
-  
-  //if (varLoc in m)
-  //  varLoc = m[varLoc];
-
+&T rename(set[Reference] refs, &T t, loc varLoc, &U new) {
   return visit (t) {
     case &U x => new[@location = x@location] 
       when x@location == varLoc
     case &U x => new[@location = x@location] 
-      when <x@location, varLoc> in E
+      when varLoc == ref(x@location, G)
   };
 }
 
-&T rename(NameGraph r, &T t, map[loc,&U] subst) {
-  <V,E> = r;
-  
-  //subst = ((k in m ? m[k] : k):v | <k,v> <- subst<0,1>);
-
+&T rename(set[Reference] refs, &T t, map[loc,&U] subst) {
   return visit (t) {
     case &U x => subst[x@location][@location = x@location] 
       when x@location in subst
-    case &U x => v0[@location = x@location] 
-      when {v0} := {v | <d,v> <- subst<0,1>, <x@location,d> in E}
+    case &U x => subst[def][@location = x@location] 
+      // XXX: fails to call `refOf`
+      // when def := refOf(x@location, refs) && def in subst
+      when {def} := refs[x@location] && def in subst 
   };
 }
 
 
-&T fixHygiene(NameGraph sNames, NameGraph tNames, &T t, &U(str) name2var) {
-  set[Link] badLinks = sourceNotPreserved(sNames, tNames) + synthesizedCaptured(sNames, tNames);
-  synth = synthesizedLabels(sNames, tNames);
+&T fixHygiene(NameGraph Gs, NameGraph Gt, &T t, &U(str) name2var) {
+  set[Reference] badRefs = sourceNotPreserved(Gs, Gt) + synthesizedCaptured(Gs, Gt);
+  synth = synthesizedLabels(Gs, Gt);
   set[loc] renameLocs 
     = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
-          | <l1,l2> <- badLinks );
+          | <l1,l2> <- badRefs );
   
-  rel[loc,str] tNameMap = tNames[0]<1,0>;
-  renameNames = {<n,l> | l <- renameLocs, {n} := tNameMap[l]};
+  renameNames = {<l,nameOf(l, Gt)> | l <- renameLocs};
   
-  usedNames = tNames<0><0>;
+  usedNames = names(Gt);
   newNames = {};
   map[loc, &U] subst = ();
-  for (<n,l> <- renameNames) {
+  for (<l,n> <- renameNames) {
     str fresh = freshName(usedNames, n);
 	usedNames += fresh;
 	freshVar = name2var(fresh);
@@ -62,41 +54,36 @@ import lang::simple::AST;
 	newNames += <fresh,l>;
   };
   
-  cutTNames = <tNames[0] - renameNames + newNames,tNames[1] - badLinks>;
-  //println(fixedTNames);
-  renamed = rename(cutTNames, t, subst);
+  renamed = rename(Gt[1] - badRefs, t, subst);
   return renamed;
 }
 
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-// TODO return and argument type should be &T, but this leads to an error 'Expected Prog, but got node'
-Prog fixHygiene_clean(&S s, Prog t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
-  <Vs,Es> = resolveS(s);
-  <Vt,Et> = resolveT(t);
-  Ls = Vs<1>;
-  namesT = Vt<1,0>;
+&T fixHygiene_clean(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
+  Gs = <Vs,Es,Ns> = resolveS(s);
+  Gt = <Vt,Et,Nt> = resolveT(t);
   
-  badDefLinks = { <u,d> | <u,d> <- Et, u in Ls, u != d, <u,d> notin Es};
-  badUseLinks = { <u,d> | <u,d> <- Et, u notin Ls, d in Ls};
-  badNodes = { <n,l> | l <- badDefLinks<1> + badUseLinks<0>, {n} := namesT[l] };
+  badDefRefs = { <u,d> | <u,d> <- Et, u in Vs, u != d, <u,d> notin Es};
+  badUseRefs = { <u,d> | <u,d> <- Et, u notin Vs, d in Vs};
+  badNodes = badDefRefs<1> + badUseRefs<0>;
   
   if (badNodes == {})
     return t;
   
-  Vt_new = Vt;
+  usedNames = Nt<1>;
   subst = ();
   
-  for (Name v <- badNodes) {
-    fresh = freshName(Vt_new, v);
-    Vt_new += fresh;
-	freshVar = name2var(fresh.name);
-    subst += (v.l : freshVar);
+  for (l <- badNodes) {
+    fresh = freshName(usedNames, nameOf(l, Gt));
+    usedNames += fresh;
+	freshVar = name2var(fresh);
+    subst += (l : freshVar);
   };
   
-  Et_new = Et - (badDefLinks + badUseLinks);
+  Et_new = Et - (badDefRefs + badUseRefs);
   
-  Prog t_new = rename(<Vt_new, Et_new>, t, subst);
+  Prog t_new = rename(Et_new, t, subst);
   return fixHygiene_clean(s, t_new, resolveS, resolveT, name2var);
 }

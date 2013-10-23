@@ -11,13 +11,12 @@ set[&T] delta(set[&T] s1, set[&T] s2) =
 Uses from the source point to the same definition in the target.
 @return set of illegal links.
 }
-set[Link] sourceNotPreserved(NameGraph sNames, NameGraph tNames) {
-  sLabels = sNames[0]<1>;
+set[Reference] sourceNotPreserved(NameGraph Gs, NameGraph Gt) {
   // Reason for condition: u != d
   //   A transformation can always duplicate a source name to modularize
   //   the resulting program by splitting the corresponding source-language
   //   concept into a definition and one or more references to this definition.
-  return {<u,d> | <u,d> <- tNames[1], u in sLabels, u != d, <u,d> notin sNames[1]};
+  return {<u,d> | <u,d> <- Gt[1], u in Gs.V, u != d, <u,d> notin Gs[1]};
 }
 
 
@@ -25,14 +24,13 @@ set[Link] sourceNotPreserved(NameGraph sNames, NameGraph tNames) {
 Synthesized names never point to source labels.
 @return set of illegal links.
 }
-set[Link] synthesizedCaptured(NameGraph sNames, NameGraph tNames) {
-  sLabels = sNames[0]<1>;
-  return {<u,d> | <u,d> <- tNames[1], u notin sLabels, d in sLabels};
+set[Reference] synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
+  return {<u,d> | <u,d> <- Gt[1], u notin Gs.V, d in Gs.V};
 }
 
-set[Link] unhygienicLinks(NameGraph sNames, NameGraph tNames) = 
-  sourceNotPreserved(sNames, tNames) + synthesizedCaptured(sNames, tNames);
+set[Reference] unhygienicLinks(NameGraph Gs, NameGraph Gt) = 
+  sourceNotPreserved(Gs, Gt) + synthesizedCaptured(Gs, Gt);
 
-bool isCompiledHygienically(NameGraph sNames, NameGraph tNames) =
-  unhygienicLinks(sNames, tNames) == {};
+bool isCompiledHygienically(NameGraph Gs, NameGraph Gt) =
+  unhygienicLinks(Gs, Gt) == {};
 
