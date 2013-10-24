@@ -5,7 +5,7 @@ import Set;
 
 //alias Node = loc;
 alias Reference = tuple[loc use, loc def];
-alias NameGraph = tuple[set[loc] V, set[Reference] E, rel[loc, str] N];
+alias NameGraph = tuple[set[loc] V, map[loc use, loc def] E, rel[loc, str] N];
 
 set[loc] synthesizedLabels(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
 
