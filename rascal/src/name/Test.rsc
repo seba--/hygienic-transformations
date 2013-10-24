@@ -20,8 +20,8 @@ import name::Rename;
 
 import IO;
 
-Controller statemachine1() = load(|project://MissGrant/input/missgrant.ctl|);
-Controller statemachine1illcompiled() = load(|project://MissGrant/input/missgrant-illcompiled.ctl|);
+Controller statemachine1() = load(|project://Rascal-Hygiene/input/missgrant.ctl|);
+Controller statemachine1illcompiled() = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);
 
 loc initStateLoc() = statemachine1().states[0]@location;
 
@@ -39,13 +39,13 @@ NameGraph names1() = resolveNames(compiled1());
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
 void visualizeCompiled1() = renderNames(names1());
 
-set[Reference] check1() {
+set[Edge] check1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
   return unhygienicLinks(resolveNames(m), resolveNames(p));
 }
 
-set[Reference] check2() {
+set[Edge] check2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
   return unhygienicLinks(resolveNames(m), resolveNames(p));
@@ -104,8 +104,7 @@ Prog fixHygiene1() {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   p2 = fixHygiene(sNames, tNames, p, name2var);
-  tNames2 = resolveNames(p2);
-  assert unhygienicLinks(sNames, tNames2) == {};
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
 
@@ -116,12 +115,11 @@ Prog fixHygiene2() {
   tNames = resolveNames(p);
   p2 = fixHygiene(sNames, tNames, p, name2var);
   //println(pretty(p2));
-  tNames2 = resolveNames(p2);
-  assert unhygienicLinks(sNames, tNames2) == {};
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
 
-Prog fixHygiene_clean1() {
+&T fixHygiene_clean1() {
   m = statemachine1();
   Prog p = finishGenProg(compile(m));
   sNames = resolveNames(m);
@@ -131,7 +129,7 @@ Prog fixHygiene_clean1() {
   return p2;
 }
 
-Prog fixHygiene_clean2() {
+&T fixHygiene_clean2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
   sNames = resolveNames(m);

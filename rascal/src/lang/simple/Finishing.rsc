@@ -9,10 +9,15 @@ import IO;
 import util::Maybe;
 import List;
 
-Prog finishGenProg(Prog p) {
-  location = |project://MissGrant/output/debug.sim|;
+loc writeDebugFile(Prog p) {
+  location = |project://Rascal-Hygiene/output/debug.sim|;
   text = pretty(p);
   writeFile(location, text);
+  return location;
+}
+
+Prog finishGenProg(Prog p) {
+  location = writeDebugFile(p);
   q = implode(parse(pretty(p), location));
   
   lst = [];
