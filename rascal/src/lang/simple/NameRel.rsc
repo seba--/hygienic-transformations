@@ -3,6 +3,8 @@ module lang::simple::NameRel
 import lang::simple::AST;
 import name::Relation;
 
+import IO; 
+
 //anno int Def@location;
 //anno int Var@location;
 //
@@ -71,7 +73,7 @@ default NameGraph resolveNames(Exp e, map[str,loc] scope) {
   <V,E,N> = <{},(),()>;
   for (Exp e2 <- e) {
     <V2,E2,N2> = resolveNames(e2, scope);
-    <V,E> = <V + V2,E + E2, N + N2>;
+    <V,E,N> = <V + V2,E + E2, N + N2>;
   }
   return <V,E,N>;
 }
