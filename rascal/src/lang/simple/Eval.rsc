@@ -11,16 +11,16 @@ Result eval(Prog p) = eval(p.defs, head(p.main), ())
 
 Result eval(list[Def] defs, val(v), Store store) = <store, v>;
 
-Result eval(list[Def] defs, var(v), Store store) {
-  if (v in store)
-    return <store, store[v]>;
+Result eval(list[Def] defs, evar(var(nom)), Store store) {
+  if (nom in store)
+    return <store, store[nom]>;
   else
     return error("UnboundVariable");
 }
 
-Result eval(list[Def] defs, assign(v, e), Store store) {
+Result eval(list[Def] defs, assign(var(nom), e), Store store) {
   <store, val> = eval(defs, e, store);
-  return <store + (v:val), val>;
+  return <store + (nom:val), val>;
 }
 
 
