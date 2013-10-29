@@ -1,6 +1,8 @@
 module lang::simple::AST
 
-data Prog = prog(list[Def] defs, list[Exp] main)
+alias Sig = list[Def];
+
+data Prog = prog(Sig sig, list[Exp] main)
           ;
 data Def = define(Var name, list[Var] params, Exp body)
          //| var(str name, Exp e)
