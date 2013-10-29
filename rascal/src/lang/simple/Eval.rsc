@@ -15,7 +15,7 @@ Result eval(list[Def] defs, evar(var(nom)), Store store) {
   if (nom in store)
     return <store, store[nom]>;
   else
-    return error("UnboundVariable");
+    return error("Unbound variable: " + nom);
 }
 
 Result eval(list[Def] defs, assign(var(nom), e), Store store) {
