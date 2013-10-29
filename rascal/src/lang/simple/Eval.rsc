@@ -1,6 +1,6 @@
 module lang::simple::Eval
 
-import lang::simple::Syntax;
+import lang::simple::AST;
 import List;
 
 alias Store = map[str, Val];
