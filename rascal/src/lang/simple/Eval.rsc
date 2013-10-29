@@ -3,25 +3,26 @@ module lang::simple::Eval
 import lang::simple::AST;
 import List;
 
-alias Store = map[str, Val];
-alias Result = tuple[Store store, Val val];
+alias Env = map[str, Val];
+alias Result = tuple[Env env, Val val];
 
 Result eval(Prog p) = eval(p.sig, head(p.main), ())
   when !isEmpty(p.main);
 
-Result eval(Sig sig, val(v), Store store) = <store, v>;
+Result eval(Sig sig, val(v), Env env) = <env, v>;
 
-Result eval(Sig sig, evar(var(nom)), Store store) {
-  if (nom in store)
-    return <store, store[nom]>;
+Result eval(Sig sig, evar(var(nom)), Env env) {
+  if (nom in env)
+    return <env, env[nom]>;
   else
     return error("Unbound variable: " + nom);
 }
 
-Result eval(Sig sig, assign(var(nom), e), Store store) {
-  <store, val> = eval(sig, e, store);
-  return <store + (nom:val), val>;
+Result eval(Sig sig, assign(var(nom), e), Env env) {
+  <env, val> = eval(sig, e, env);
+  return <env + (nom:val), val>;
 }
+
 
 
 
