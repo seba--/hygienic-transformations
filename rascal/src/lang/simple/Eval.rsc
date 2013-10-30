@@ -3,6 +3,7 @@ module lang::simple::Eval
 
 import lang::simple::AST;
 import List;
+import util::Maybe;
 
 
 alias Env = map[str, Val];
@@ -10,64 +11,82 @@ alias Env = map[str, Val];
 alias Result = tuple[Env env, Val val];
 
 
-Result eval(Prog p) = eval(p.sig, head(p.main), ())
-  when !isEmpty(p.main);
+Result eval(Prog prg) = eval(prg.sig, head(prg.main), ())
+  when !isEmpty(prg.main);
 
-Result eval(Sig sig, val(v), Env env) = <env, v>;
+Result eval(Sig sig, val(Val v), Env env) = <env, v>;
 
-Result eval(Sig sig, evar(var(nom)), Env env) {
-  if (nom in env)
-    return <env, env[nom]>;
+Result eval(Sig sig, evar(var(str s)), Env env) {
+  if (s in env)
+    return <env, env[s]>;
   else
-    return error("Unbound variable: " + nom);
+    return <env, error("Unbound variable: " + s)>;
 }
 
-Result eval(Sig sig, assign(var(nom), e), Env env) {
-  <env, val> = eval(sig, e, env);
-  return <env + (nom:val), val>;
+Result eval(Sig sig, assign(var(str s), exp), Env env) {
+  <env, v> = eval(sig, exp, env);
+  return <env + (s : v), v>;
 }
 
-Result eval(Sig sig, call(var(nom), list[Exp] opds), Env env) {
-  if (nom in env) {
-    define(_, pars, bod) = env[nom];
-    nopds = size(opds);
-    npars = size(pars);
-    if (nopds == npars) {
-      /* We extend the empty environment with parameter-argument bindings.
-       * In other words, we forbit global variables and force every global
-       * fuction to be a supercombinator! */
-      lenv = (par : eval(sig, opd, env).val | par <- pars, opd <- opds);
-      return eval(sig, bod, lenv);
+Result eval(Sig sig, call(var(str s), list[Exp] opds), Env env) {
+  switch (lookup(s, sig)) {
+    case nothing(): return <env, error("Undefined function: " + s)>;
+    case just(define(_, pars, bod)): {
+      nopds = size(opds);
+      npars = size(pars);
+      if (nopds == npars) {
+        /* We extend the empty environment with parameter-argument bindings.
+         * In other words, we forbid global variables and require every
+         * top-level fuction to be a supercombinator. */
+        lenv = (s : eval(sig, opd, env).val | <var(str s), opd> <- zip(pars, opds));
+        return eval(sig, bod, lenv);
+      }
+      else
+        return <env, error("Wrong number of arguments: <nopds> instead of <npars>")>;
     }
-    else
-      return error("Wrong number of arguments: <nopds> instead of <npars>");
   }
-  else
-    return error("Undefined function: " + nom);
 }
 
 Result eval(Sig sig, cond(Exp cnd, Exp csq, Exp alt), Env env) {
   // Side effects by evaluating the condition is supported.
-  <env, val> = eval(sig, cnd, env);
-  return eval(sig, val != nat(0) ? csq : alt, env);
+  <env, nat(n)> = eval(sig, cnd, env);
+  return eval(sig, n != 0 ? csq : alt, env);
 }
 
-Result eval(Sig sig, plus(Exp lhs, Exp rhs), Env env) =
+Result eval(Sig sig, plus(Exp exp1, Exp exp2), Env env) {
   // Side effects by evaluating operands of `plus` is disallowed.
-  <env, eval(sig, lhs, env).val + eval(sig, rhs, env).val>;
+  nat(n1) = eval(sig, exp1, env).val;
+  nat(n2) = eval(sig, exp2, env).val;
+  return <env, nat(n1 + n2)>;
+}
 
 Result eval(Sig sig, seq(Exp exp1, Exp exp2), Env env) {
   <env, _> = eval(sig, exp1, env);
   return eval(sig, exp2, env);
 }
 
-Result eval(Sig sig, eq(Exp lhs, Exp rhs), Env env) =
+Result eval(Sig sig, eq(Exp exp1, Exp exp2), Env env) {
   // Side effects by evaluating operands of `eq` is disallowed.
-  <env, nat(eval(sig, lhs, env) == eval(sig, rhs, env) ? 1 : 0)>;
+  nat(n1) = eval(sig, exp1, env).val;
+  nat(n2) = eval(sig, exp2, env).val;
+  return <env, nat(n1 == n2? 1 : 0)>;
+}
 
 Result eval(Sig sig, block(list[Var] vars, Exp exp), Env env) {
-  // Local variables are automatically initialized to 0.
-  env = env + (nom : nat(0) | var(nom) <- vars);
+  // Local variables are initialized to `0` by default.
+  env = env + (s : nat(0) | var(str s) <- vars);
   return eval(sig, exp, env);
 }
 
+
+Maybe[Def] lookup(str s, Sig sig) {
+  switch (sig) {
+    case []: return nothing();
+    case [def:define(var(t), _, _), *defs]: {
+      if (t == s)
+        return just(def);
+      else
+        return lookup(s, defs);
+    }
+  }
+}
