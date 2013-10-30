@@ -35,36 +35,41 @@ import lang::simple::AST;
 }
 
 
-&T fixHygiene(NameGraph Gs, NameGraph Gt, &T t, &U(str) name2var) {
-  Edges badRefs = sourceNotPreserved(Gs, Gt) + synthesizedCaptured(Gs, Gt);
-  synth = synthesizedNodes(Gs, Gt);
-  set[loc] renameLocs 
-    = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
-          | <l1,l2> <- badRefs<0,1> );
-  
-  usedNames = namesOf(Gt);
-  map[loc, &U] subst = ();
-  for (l <- renameLocs) {
-    str fresh = freshName(usedNames, Gt.N[l]);
-	usedNames += fresh;
-	freshVar = name2var(fresh);
-	subst += (l:freshVar);
-  };
-  
-  renamed = rename(Gt[1] - badRefs, t, subst);
-  return renamed;
-}
+//&T fixHygiene(NameGraph Gs, NameGraph Gt, &T t, &U(str) name2var) {
+//  Edges badRefs = sourceNotPreserved(Gs, Gt) + synthesizedCaptured(Gs, Gt);
+//  synth = synthesizedNodes(Gs, Gt);
+//  set[loc] renameLocs 
+//    = ({} | it + (l1 in synth ? {l1} : {}) + (l2 in synth ? {l2} : {}) 
+//          | <l1,l2> <- badRefs<0,1> );
+//  
+//  usedNames = namesOf(Gt);
+//  map[loc, &U] subst = ();
+//  for (l <- renameLocs) {
+//    str fresh = freshName(usedNames, Gt.N[l]);
+//	usedNames += fresh;
+//	freshVar = name2var(fresh);
+//	subst += (l:freshVar);
+//  };
+//  
+//  renamed = rename(Gt[1] - badRefs, t, subst);
+//  return renamed;
+//}
 
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene_clean(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
+&T fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
   Gs = <Vs,Es,Ns> = resolveS(s);
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   badDefRefs = ( u:d | <u,d> <- Et<0,1>, u in Vs, u != d, u in Es ? Es[u] != d : true);
   badUseRefs = ( u:d | <u,d> <- Et<0,1>, u notin Vs, d in Vs);
-  badNodes = badDefRefs<1> + badUseRefs<0>;
+  badNodes = badDefRefs<1> + badUseRefs<1>;
+  goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
+  
+  //iprintln(badDefRefs);
+  //iprintln(badUseRefs);
+  //iprintln(goodDefRefs);
   
   if (badNodes == {})
     return t;
@@ -75,12 +80,12 @@ import lang::simple::AST;
   for (l <- badNodes) {
     fresh = freshName(usedNames, nameOf(l, Gt));
     usedNames += fresh;
-	freshVar = name2var(fresh);
+	    freshVar = name2var(fresh);
     subst += (l : freshVar);
   };
   
-  Et_new = Et - (badDefRefs + badUseRefs);
+  Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
   
   Prog t_new = rename(Et_new, t, subst);
-  return fixHygiene_clean(s, t_new, resolveS, resolveT, name2var);
+  return fixHygiene(s, t_new, resolveS, resolveT, name2var);
 }

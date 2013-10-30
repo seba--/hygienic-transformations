@@ -98,43 +98,43 @@ Prog renameProg3() {
   return rename(resolveNames(p), p, d0@location, new);
 }
 
-Prog fixHygiene1() {
-  m = statemachine1();
-  p = finishGenProg(compile(m));
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
-  p2 = fixHygiene(sNames, tNames, p, name2var);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
-  return p2;
-}
+//Prog fixHygiene1() {
+//  m = statemachine1();
+//  p = finishGenProg(compile(m));
+//  sNames = resolveNames(m);
+//  tNames = resolveNames(p);
+//  p2 = fixHygiene(sNames, tNames, p, name2var);
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  return p2;
+//}
+//
+//Prog fixHygiene2() {
+//  m = statemachine1illcompiled();
+//  p = finishGenProg(compile(m));
+//  sNames = resolveNames(m);
+//  tNames = resolveNames(p);
+//  p2 = fixHygiene(sNames, tNames, p, name2var);
+//  //println(pretty(p2));
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  return p2;
+//}
 
-Prog fixHygiene2() {
-  m = statemachine1illcompiled();
-  p = finishGenProg(compile(m));
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
-  p2 = fixHygiene(sNames, tNames, p, name2var);
-  //println(pretty(p2));
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
-  return p2;
-}
-
-&T fixHygiene_clean1() {
+&T fixHygiene1() {
   m = statemachine1();
   Prog p = finishGenProg(compile(m));
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene_clean(m, p, resolveNames, resolveNames, name2var);
+  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
   assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
 
-&T fixHygiene_clean2() {
+&T fixHygiene2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene_clean(m, p, resolveNames, resolveNames, name2var);
+  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
   assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
