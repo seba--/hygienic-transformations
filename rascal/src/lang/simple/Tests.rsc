@@ -4,12 +4,13 @@ module lang::simple::Tests
 import lang::simple::Syntax;
 import lang::simple::Parse;
 import lang::simple::AST;
+import lang::simple::Implode;
 import lang::simple::Eval;
 
 
 Result eval(Exp exp) = eval([], exp, ());
 
-Result eval(str inp) = eval([], parseExp(inp), ());
+Result eval(str inp) = eval([], implodeExp(parseExp(inp)), ());
 
 
 test bool test01() = eval(val(nat(1))).val == nat(1);
@@ -41,3 +42,5 @@ test bool test11() = eval(block([var("x")], seq(assign(var("x"), val(nat(1))), e
 test bool test12() = eval([define(var("f"), [var("x")], val(nat(2)))], call(var("f"), [val(nat(1))]), ()).val == nat(2);
 
 test bool test12() = eval([define(var("f"), [var("x")], evar(var("x")))], call(var("f"), [val(nat(1))]), ()).val == nat(1);
+
+test bool test13() = eval("1 + 2").val == nat(3);
