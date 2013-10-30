@@ -64,7 +64,12 @@ import lang::simple::AST;
   
   badDefRefs = ( u:d | <u,d> <- Et<0,1>, u in Vs, u != d, u in Es ? Es[u] != d : true);
   badUseRefs = ( u:d | <u,d> <- Et<0,1>, u notin Vs, d in Vs);
-  badNodes = badDefRefs<1> + badUseRefs<0>;
+  badNodes = badDefRefs<1> + badUseRefs<1>;
+  goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
+  
+  //iprintln(badDefRefs);
+  //iprintln(badUseRefs);
+  //iprintln(goodDefRefs);
   
   if (badNodes == {})
     return t;
@@ -75,11 +80,11 @@ import lang::simple::AST;
   for (l <- badNodes) {
     fresh = freshName(usedNames, nameOf(l, Gt));
     usedNames += fresh;
-	freshVar = name2var(fresh);
+	    freshVar = name2var(fresh);
     subst += (l : freshVar);
   };
   
-  Et_new = Et - (badDefRefs + badUseRefs);
+  Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
   
   Prog t_new = rename(Et_new, t, subst);
   return fixHygiene_clean(s, t_new, resolveS, resolveT, name2var);
