@@ -144,3 +144,11 @@ Prog renameProg3() {
 //  p = finishGenProg(compile(m));
 //  return unhygienicLinks(resolveNames(m), resolveNames(p));
 //}
+
+test bool rand(Controller m) {
+  p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
+  return isCompiledHygienically(sNames, resolveNames(p2));
+} 

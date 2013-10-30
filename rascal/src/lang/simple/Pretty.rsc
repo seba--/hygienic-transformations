@@ -9,7 +9,7 @@ import List;
 import String;
 
 str pretty(Prog p) = 
-  "<for (d <- p.defs){>
+  "<for (d <- p.sig){>
   '<pretty(d)>
   '<}>
   '<for (e <- p.main){>

@@ -83,7 +83,7 @@ NameGraph resolveNames(Prog p) {
   topScope = collectDefinitions(p);
   
   <dV,dE,dN> = <{},(),()>;
-  for (d <- p.defs) {
+  for (d <- p.sig) {
     <V2,E2,N2> = resolveNames(d, topScope);
     <dV,dE,dN> = <dV + V2,dE + E2,dN + N2>;
   }
