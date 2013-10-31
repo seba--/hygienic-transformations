@@ -1,8 +1,8 @@
 module lang::simple::AST
 
-alias Sig = list[FDef];
+alias FDefs = list[FDef];
 
-data Prog = prog(Sig sig, list[Exp] main)
+data Prog = prog(FDefs fdefs, list[Exp] main)
           ;
 data FDef = fdef(Var name, list[Var] params, Exp body)
          //| var(str name, Exp e)
