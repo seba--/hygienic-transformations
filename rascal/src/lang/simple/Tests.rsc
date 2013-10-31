@@ -39,8 +39,8 @@ test bool test10() = eval([], assign(var("x"), val(nat(1))), ("x" : nat(0))).val
 
 test bool test11() = eval(block([var("x")], seq(assign(var("x"), val(nat(1))), evar(var("x"))))).val == nat(1);
 
-test bool test12() = eval([define(var("f"), [var("x")], val(nat(2)))], call(var("f"), [val(nat(1))]), ()).val == nat(2);
+test bool test12() = eval([fdef(var("f"), [var("x")], val(nat(2)))], call(var("f"), [val(nat(1))]), ()).val == nat(2);
 
-test bool test12() = eval([define(var("f"), [var("x")], evar(var("x")))], call(var("f"), [val(nat(1))]), ()).val == nat(1);
+test bool test12() = eval([fdef(var("f"), [var("x")], evar(var("x")))], call(var("f"), [val(nat(1))]), ()).val == nat(1);
 
 test bool test13() = eval("1 + 2").val == nat(3);

@@ -31,7 +31,7 @@ Result eval(Sig sig, assign(var(str s), exp), Env env) {
 Result eval(Sig sig, call(var(str s), list[Exp] opds), Env env) {
   switch (lookup(s, sig)) {
     case nothing(): return <env, error("Undefined function: " + s)>;
-    case just(define(_, pars, bod)): {
+    case just(fdef(_, pars, bod)): {
       nopds = size(opds);
       npars = size(pars);
       if (nopds == npars) {
@@ -82,7 +82,7 @@ Result eval(Sig sig, block(list[Var] vars, Exp exp), Env env) {
 Maybe[Def] lookup(str s, Sig sig) {
   switch (sig) {
     case []: return nothing();
-    case [def:define(var(t), _, _), *defs]: {
+    case [def:fdef(var(t), _, _), *defs]: {
       if (t == s)
         return just(def);
       else

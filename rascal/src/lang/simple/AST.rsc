@@ -4,7 +4,7 @@ alias Sig = list[Def];
 
 data Prog = prog(Sig sig, list[Exp] main)
           ;
-data Def = define(Var name, list[Var] params, Exp body)
+data Def = fdef(Var name, list[Var] params, Exp body)
          //| var(str name, Exp e)
          ;
 data Exp = val(Val v)
