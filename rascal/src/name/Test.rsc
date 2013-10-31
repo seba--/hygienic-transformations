@@ -62,7 +62,7 @@ Controller renameS1() {
 Prog renameP1() {
   p = compiled1();
   d0 = p.defs[0].name;
-  new = var("<d0.name>-renamed");
+  new = sym("<d0.name>-renamed");
   return rename(resolveNames(p), p, d0@location, new);
 }
 
@@ -80,21 +80,21 @@ loc testProg1() {
 Prog renameProg1() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[0].name;
-  new = var("<d0.name>-renamed");
+  new = sym("<d0.name>-renamed");
   return rename(resolveNames(p), p, d0@location, new);
 }
 
 Prog renameProg2() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[0].body.e1.x;
-  new = var("<d0.name>-renamed");
+  new = sym("<d0.name>-renamed");
   return rename(resolveNames(p), p, d0@location, new);
 }
 
 Prog renameProg3() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[1].name;
-  new = var("<d0.name>-renamed");
+  new = sym("<d0.name>-renamed");
   return rename(resolveNames(p), p, d0@location, new);
 }
 

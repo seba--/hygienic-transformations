@@ -19,19 +19,19 @@ import IO;
 //}
 
 map[str,loc] collectDefinitions(Prog p) =
-  ( def.name.name:def.name@location | /FDef def := p );
+  ( def.fsym.name:def.name@location | /FDef def := p );
 
 NameGraph resolveNames(FDef def, map[str,loc] scope) {
   <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
-  return <V + def.name@location + {p@location | p <- def.params}, 
+  return <V + def.fsym@location + {p@location | p <- def.params},
           E,
-          N + (def.name@location:def.name.name) + (p@location:p.name | p <- def.params)>;
+          N + (def.fsym@location:def.fsym.name) + (p@location:p.name | p <- def.params)>;
 }
 
-NameGraph resolveNames(evar(v), map[str,loc] scope) = 
+NameGraph resolveNames(var(v), map[str,loc] scope) =
   <{v@location}, (v@location:scope[v.name]), ()>
   when v.name in scope;
-//NameRel resolveNames(evar(v), map[str,loc] scope) = 
+//NameRel resolveNames(var(v), map[str,loc] scope) =
 //  {<v.name, UNBOUND>}
 //  when v.name notin scope;
 

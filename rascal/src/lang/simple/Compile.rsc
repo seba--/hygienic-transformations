@@ -26,7 +26,7 @@ Prog compile(list[State] states, list[str] events) {
 
 
 FDef state2constdef(State s, int i) {
-  return fdef(var(s.name)[@location = s@location], [], val(nat(i)));
+  return fdef(sym(s.name)[@location = s@location], [], val(nat(i)));
 }
 
 list[FDef] states2constdefs(list[State] states) {
@@ -34,38 +34,38 @@ list[FDef] states2constdefs(list[State] states) {
 }
 
 FDef state2def(State s) {
-  return fdef(var("<s.name>-trans"),
-                [var("event")], 
+  return fdef(sym("<s.name>-trans"),
+                [sym("event")],
                 transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
 }
 
 // Maybe we will have to parse in the variable symbol "event" to enable hygiene.
 Exp transitions2condexp([], Exp deflt) = deflt;
 
-Exp mkvar(str name) = evar(var(name));
-Exp mkvar(str name, loc l) = evar(var(name)[@location = l]);
+Exp mkvar(str name) = var(sym(name));
+Exp mkvar(str name, loc l) = var(sym(name)[@location = l]);
 
-Exp transitions2condexp([t, *ts], Exp deflt) = 
+Exp transitions2condexp([t, *ts], Exp deflt) =
   cond( eq(mkvar("event"), val(string(t.event))) 
-      , call(var(t.state)[@location = t@location], []) 
+      , call(sym(t.state)[@location = t@location], [])
       , transitions2condexp(ts, deflt));
 
 FDef stateDispatch(list[State] states) =
-  fdef(var("trans-dispatch"),
-         [var("state"), var("event")], 
+  fdef(sym("trans-dispatch"),
+         [sym("state"), sym("event")],
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
 
 Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
-  cond( eq(mkvar("state"), call(var(s.name)[@location = s@location], []))
-       , call(var("<s.name>-trans"), [mkvar("event")])
+  cond( eq(mkvar("state"), call(sym(s.name)[@location = s@location], []))
+       , call(sym("<s.name>-trans"), [mkvar("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
   return 
-    ( assign(var("current"), call(var(init.name)[@location = init@location], [])) 
-    | seq(it, assign(var("current"), call(var("trans-dispatch"), [mkvar("current"), val(string(e))])))
+    ( assign(sym("current"), call(sym(init.name)[@location = init@location], []))
+    | seq(it, assign(sym("current"), call(sym("trans-dispatch"), [mkvar("current"), val(string(e))])))
     | e <- es);
 }

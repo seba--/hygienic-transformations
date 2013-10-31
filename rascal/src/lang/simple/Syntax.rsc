@@ -2,11 +2,11 @@ module lang::simple::Syntax
 
 start syntax Prog = prog: FDef* defs Exp? main;
 
-syntax FDef = fdef: "define" Var name "(" {Var ","}* params ")" "=" Exp body ";"
+syntax FDef = fdef: "define" Var fsym "(" {Var ","}* params ")" "=" Exp body ";"
             ;
 
 syntax Exp = val: Val v
-           | evar: Var x
+           | var: Var x
            | assign: Var "=" Exp
            | call: Var "(" {Exp ","}* args ")"
            | cond: "if" Exp "then" Exp "else" Exp "end"
@@ -17,7 +17,7 @@ syntax Exp = val: Val v
            | bracket "(" Exp ")"
            ;
 
-syntax Var = var: Id;
+syntax Var = sym: Id;
 syntax Val = nat: Nat | string: String | error: "error" "(" String ")";
 
 
@@ -25,7 +25,7 @@ lexical Nat = [0-9][0-9]* !>> [0-9];
 
 lexical Id = ([a-zA-Z][a-zA-Z0-9_\-]* !>> [a-zA-Z0-9_\-]) \ Reserved ;
 lexical String = "\"" ![\"]* "\""; 
-keyword Reserved = "define" | "var" | "error" | "if";
+keyword Reserved = "define" | "sym" | "error" | "if";
 
 lexical Comment = @category="Comment" "//" ![\n\r]* $;
 

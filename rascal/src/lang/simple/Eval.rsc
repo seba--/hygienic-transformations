@@ -16,19 +16,19 @@ Result eval(Prog prg) = eval(prg.fdefs, head(prg.main), ())
 
 Result eval(FDefs fdefs, val(Val v), Env env) = <env, v>;
 
-Result eval(FDefs fdefs, evar(var(str s)), Env env) {
+Result eval(FDefs fdefs, var(sym(str s)), Env env) {
   if (s in env)
     return <env, env[s]>;
   else
     return <env, error("Unbound variable: " + s)>;
 }
 
-Result eval(FDefs fdefs, assign(var(str s), exp), Env env) {
+Result eval(FDefs fdefs, assign(sym(str s), exp), Env env) {
   <env, v> = eval(fdefs, exp, env);
   return <env + (s : v), v>;
 }
 
-Result eval(FDefs fdefs, call(var(str s), list[Exp] opds), Env env) {
+Result eval(FDefs fdefs, call(sym(str s), list[Exp] opds), Env env) {
   switch (lookup(s, fdefs)) {
     case nothing(): return <env, error("Undefined function: " + s)>;
     case just(fdef(_, pars, bod)): {
@@ -38,7 +38,7 @@ Result eval(FDefs fdefs, call(var(str s), list[Exp] opds), Env env) {
         /* We extend the empty environment with parameter-argument bindings.
          * In other words, we forbid global variables and require every
          * top-level fuction to be a supercombinator. */
-        lenv = (s : eval(fdefs, opd, env).val | <var(str s), opd> <- zip(pars, opds));
+        lenv = (s : eval(fdefs, opd, env).val | <sym(str s), opd> <- zip(pars, opds));
         return eval(fdefs, bod, lenv);
       }
       else
@@ -74,7 +74,7 @@ Result eval(FDefs fdefs, eq(Exp exp1, Exp exp2), Env env) {
 
 Result eval(FDefs fdefs, block(list[Var] vars, Exp exp), Env env) {
   // Local variables are initialized to `0` by default.
-  env = env + (s : nat(0) | var(str s) <- vars);
+  env = env + (s : nat(0) | sym(str s) <- vars);
   return eval(fdefs, exp, env);
 }
 
@@ -82,7 +82,7 @@ Result eval(FDefs fdefs, block(list[Var] vars, Exp exp), Env env) {
 Maybe[FDef] lookup(str s, FDefs fdefs) {
   switch (fdefs) {
     case []: return nothing();
-    case [def:fdef(var(t), _, _), *defs]: {
+    case [def:fdef(sym(t), _, _), *defs]: {
       if (t == s)
         return just(def);
       else

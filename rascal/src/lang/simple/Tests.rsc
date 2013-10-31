@@ -19,7 +19,7 @@ test bool test01() = eval(val(string("i"))).val == string("i");
 
 test bool test02() = eval(val(error("bang!"))).val == error("bang!");
 
-test bool test03() = eval([], evar(var("x")), ("x" : nat(1))).val == nat(1);
+test bool test03() = eval([], var(sym("x")), ("x" : nat(1))).val == nat(1);
 
 test bool test04() = eval(plus(val(nat(1)), val(nat(2)))).val == nat(3);
 
@@ -33,14 +33,14 @@ test bool test08() = eval(cond(eq(val(nat(1)), val(nat(1))), val(nat(1)), val(na
 
 test bool test08() = eval(cond(eq(val(nat(1)), val(nat(2))), val(nat(1)), val(nat(0)))).val == nat(0);
 
-test bool test09() = eval(block([var("x")], val(nat(1)))).val == nat(1);
+test bool test09() = eval(block([sym("x")], val(nat(1)))).val == nat(1);
 
-test bool test10() = eval([], assign(var("x"), val(nat(1))), ("x" : nat(0))).val == nat(1);
+test bool test10() = eval([], assign(sym("x"), val(nat(1))), ("x" : nat(0))).val == nat(1);
 
-test bool test11() = eval(block([var("x")], seq(assign(var("x"), val(nat(1))), evar(var("x"))))).val == nat(1);
+test bool test11() = eval(block([sym("x")], seq(assign(sym("x"), val(nat(1))), var(sym("x"))))).val == nat(1);
 
-test bool test12() = eval([fdef(var("f"), [var("x")], val(nat(2)))], call(var("f"), [val(nat(1))]), ()).val == nat(2);
+test bool test12() = eval([fdef(sym("f"), [sym("x")], val(nat(2)))], call(sym("f"), [val(nat(1))]), ()).val == nat(2);
 
-test bool test12() = eval([fdef(var("f"), [var("x")], evar(var("x")))], call(var("f"), [val(nat(1))]), ()).val == nat(1);
+test bool test12() = eval([fdef(sym("f"), [sym("x")], var(sym("x")))], call(sym("f"), [val(nat(1))]), ()).val == nat(1);
 
 test bool test13() = eval("1 + 2").val == nat(3);
