@@ -1,10 +1,10 @@
 module lang::simple::AST
 
-alias Sig = list[Def];
+alias Sig = list[FDef];
 
 data Prog = prog(Sig sig, list[Exp] main)
           ;
-data Def = fdef(Var name, list[Var] params, Exp body)
+data FDef = fdef(Var name, list[Var] params, Exp body)
          //| var(str name, Exp e)
          ;
 data Exp = val(Val v)

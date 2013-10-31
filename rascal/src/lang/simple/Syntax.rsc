@@ -1,9 +1,9 @@
 module lang::simple::Syntax
 
-start syntax Prog = prog: Def* defs Exp? main;
+start syntax Prog = prog: FDef* defs Exp? main;
 
-syntax Def = fdef: "define" Var name "(" {Var ","}* params ")" "=" Exp body ";"
-           ;
+syntax FDef = fdef: "define" Var name "(" {Var ","}* params ")" "=" Exp body ";"
+            ;
 
 syntax Exp = val: Val v
            | evar: Var x

@@ -25,15 +25,15 @@ Prog compile(list[State] states, list[str] events) {
 }
 
 
-Def state2constdef(State s, int i) {
+FDef state2constdef(State s, int i) {
   return fdef(var(s.name)[@location = s@location], [], val(nat(i)));
 }
 
-list[Def] states2constdefs(list[State] states) {
+list[FDef] states2constdefs(list[State] states) {
   return [state2constdef(s,i) | <s,i> <- zip(states, [0..size(states)]) ];
 }
 
-Def state2def(State s) {
+FDef state2def(State s) {
   return fdef(var("<s.name>-trans"),
                 [var("event")], 
                 transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
@@ -50,7 +50,7 @@ Exp transitions2condexp([t, *ts], Exp deflt) =
       , call(var(t.state)[@location = t@location], []) 
       , transitions2condexp(ts, deflt));
 
-Def stateDispatch(list[State] states) = 
+FDef stateDispatch(list[State] states) =
   fdef(var("trans-dispatch"),
          [var("state"), var("event")], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));

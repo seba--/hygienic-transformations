@@ -16,7 +16,7 @@ str pretty(Prog p) =
   '<pretty(e)>
   '<}>";
   
-str pretty(Def d) =
+str pretty(FDef d) =
   "define <d.name.name>(<intercalate(", ", [p.name|p<-d.params])>) =
   '  <pretty(d.body)>;";
   

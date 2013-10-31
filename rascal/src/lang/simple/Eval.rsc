@@ -79,7 +79,7 @@ Result eval(Sig sig, block(list[Var] vars, Exp exp), Env env) {
 }
 
 
-Maybe[Def] lookup(str s, Sig sig) {
+Maybe[FDef] lookup(str s, Sig sig) {
   switch (sig) {
     case []: return nothing();
     case [def:fdef(var(t), _, _), *defs]: {

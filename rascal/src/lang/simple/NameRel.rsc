@@ -5,7 +5,7 @@ import name::Relation;
 
 import IO; 
 
-//anno int Def@location;
+//anno int FDef@location;
 //anno int Var@location;
 //
 //Prog makeUniqueIds(Prog p) {
@@ -19,9 +19,9 @@ import IO;
 //}
 
 map[str,loc] collectDefinitions(Prog p) =
-  ( def.name.name:def.name@location | /Def def := p );
+  ( def.name.name:def.name@location | /FDef def := p );
 
-NameGraph resolveNames(Def def, map[str,loc] scope) {
+NameGraph resolveNames(FDef def, map[str,loc] scope) {
   <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
   return <V + def.name@location + {p@location | p <- def.params}, 
           E,
