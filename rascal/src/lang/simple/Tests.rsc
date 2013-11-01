@@ -45,4 +45,4 @@ test bool test12() = eval([fdef(sym("f"), [sym("x")], var(sym("x")))], call(sym(
 
 test bool test13() = eval("1 + 2").val == nat(3);
 
-test bool test14() = eval("{ x = 1; y = x + 1 }").val == nat(2);
+test bool test14() = eval("{ x = 1; y = x + 1; x + y }").val == nat(3);

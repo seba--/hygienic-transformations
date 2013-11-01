@@ -6,11 +6,11 @@ syntax FDef = fdef: Var fsym "(" {Var ","}* params ")" "=" Exp body;
 
 syntax Exp = val: Val v
            | var: Var x
-           | assign: Var "=" Exp
            | call: Var "(" {Exp ","}* args ")"
            | cond: "if" Exp "then" Exp "else" Exp
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
+           > assign: Var "=" Exp
            > right seq: Exp ";" Exp
            | block: "{" Exp e "}"
            | bracket "(" Exp ")"
