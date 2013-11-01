@@ -19,7 +19,7 @@ data Exp = val(Val v)
          | block(list[VDef] vdefs, Exp e)
          ;
 data Var = sym(str name);
-data Val = nat(int n) | string(str s) | error(str name);
+data Val = nat(int n) | string(str s) | error(str msg);
 
 anno loc Var@location; 
 
