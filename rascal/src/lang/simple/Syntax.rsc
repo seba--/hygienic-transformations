@@ -26,7 +26,7 @@ lexical Nat = [0-9][0-9]* !>> [0-9];
 
 lexical Id = ([a-zA-Z][a-zA-Z0-9_\-]* !>> [a-zA-Z0-9_\-]) \ Reserved ;
 lexical String = "\"" ![\"]* "\""; 
-keyword Reserved = "sym" | "error" | "if";
+keyword Reserved = "error" | "if" | "then" | "else";
 
 lexical Comment = @category="Comment" "//" ![\n\r]* $;
 
