@@ -28,6 +28,11 @@ NameGraph resolveNames(FDef def, map[str,loc] scope) {
           N + (def.fsym@location:def.fsym.name) + (p@location:p.name | p <- def.params)>;
 }
 
+NameGraph resolveNames(VDef vdef(Var var, Exp exp), map[str, loc] scope) {
+  <V, E, N> = resolveNames(exp, scope);
+  return <V + {var@location}, E, N + (v@location : v.name)>;
+}
+
 NameGraph resolveNames(var(v), map[str,loc] scope) =
   <{v@location}, (v@location:scope[v.name]), ()>
   when v.name in scope;
@@ -63,10 +68,15 @@ NameGraph resolveNames(call(v, args), map[str,loc] scope) {
   return <V,E,N>;
 }
 
-NameGraph resolveNames(block(vars, e), map[str,loc] scope) {
-  scope = scope + (v.name:v@location | v <- vars);
-  <V,E,N> = resolveNames(e, scope);
-  return <V + {v@location | v <- vars}, E, N + (v@location:v.name | v <- vars)>;
+NameGraph resolveNames(block(vdefs, e), map[str,loc] scope) {
+  <V, E, N> = <{}, (), ()>;
+  for (vdef(Var var, Exp exp) <- vdefs) {
+    <dV, dE, dN> = resolveNames(exp, scope);
+    <V, E, N> = <V + dV, E + dE, N + dN>;
+    scope = scope + (var.name : var@location);
+  }
+  <dV, dE, dN> = resolveNames(e, scope);
+  return <V + dV, E + dE, N + dN>;
 }
 
 default NameGraph resolveNames(Exp e, map[str,loc] scope) {
@@ -77,7 +87,6 @@ default NameGraph resolveNames(Exp e, map[str,loc] scope) {
   }
   return <V,E,N>;
 }
-  
 
 NameGraph resolveNames(Prog p) {
   topScope = collectDefinitions(p);

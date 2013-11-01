@@ -72,9 +72,9 @@ Result eval(FDefs fdefs, eq(Exp exp1, Exp exp2), Env env) {
   return <env, nat(n1 == n2? 1 : 0)>;
 }
 
-Result eval(FDefs fdefs, block(list[Var] vars, Exp exp), Env env) {
-  // Local variables are initialized to `0` by default.
-  env = env + (s : nat(0) | sym(str s) <- vars);
+Result eval(FDefs fdefs, block(list[VDef] vdefs, Exp exp), Env env) {
+  for (vdef(sym(str s), Exp exp) <- vdefs)
+    env = env + (s : eval(fdefs, exp, env).val);
   return eval(fdefs, exp, env);
 }
 
@@ -82,11 +82,11 @@ Result eval(FDefs fdefs, block(list[Var] vars, Exp exp), Env env) {
 Maybe[FDef] lookup(str s, FDefs fdefs) {
   switch (fdefs) {
     case []: return nothing();
-    case [def:fdef(sym(t), _, _), *defs]: {
+    case [fd:fdef(sym(t), _, _), *fds]: {
       if (t == s)
-        return just(def);
+        return just(fd);
       else
-        return lookup(s, defs);
+        return lookup(s, fds);
     }
   }
 }

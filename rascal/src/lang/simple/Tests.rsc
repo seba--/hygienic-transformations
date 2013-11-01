@@ -33,14 +33,16 @@ test bool test08() = eval(cond(eq(val(nat(1)), val(nat(1))), val(nat(1)), val(na
 
 test bool test08() = eval(cond(eq(val(nat(1)), val(nat(2))), val(nat(1)), val(nat(0)))).val == nat(0);
 
-test bool test09() = eval(block([sym("x")], val(nat(1)))).val == nat(1);
+test bool test09() = eval(block([vdef(sym("x"), val(nat(1)))], val(nat(2)))).val == nat(2);
 
 test bool test10() = eval([], assign(sym("x"), val(nat(1))), ("x" : nat(0))).val == nat(1);
 
-test bool test11() = eval(block([sym("x")], seq(assign(sym("x"), val(nat(1))), var(sym("x"))))).val == nat(1);
+test bool test11() = eval(block([vdef(sym("x"), val(nat(1)))], seq(assign(sym("x"), val(nat(2))), var(sym("x"))))).val == nat(2);
 
 test bool test12() = eval([fdef(sym("f"), [sym("x")], val(nat(2)))], call(sym("f"), [val(nat(1))]), ()).val == nat(2);
 
 test bool test12() = eval([fdef(sym("f"), [sym("x")], var(sym("x")))], call(sym("f"), [val(nat(1))]), ()).val == nat(1);
 
 test bool test13() = eval("1 + 2").val == nat(3);
+
+test bool test14() = eval("{x = 1, y = x + 1; x + y}").val == nat(3);

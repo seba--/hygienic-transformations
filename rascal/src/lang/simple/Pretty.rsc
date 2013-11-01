@@ -19,6 +19,8 @@ str pretty(Prog p) =
 str pretty(FDef d) =
   "define <d.fsym.name>(<intercalate(", ", [p.name|p<-d.params])>) =
   '  <pretty(d.body)>;";
+
+str pretty(vdef(sym(str nom)), Exp exp) = nom + " = " + pretty(exp);
   
 str pretty(val(nat(n))) = "<n>";
 str pretty(val(string(s))) = quoted(s);
@@ -30,7 +32,7 @@ str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)> 
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
 str pretty(seq(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
 str pretty(eq(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
-str pretty(block(locals, e)) = "{<intercalate(", ", [l.name|l<-locals])> : <pretty(e)>}";
+str pretty(block(vdefs, e)) = "{<intercalate(", ", [pretty(vdef)|vdef<-vdefs])>; <pretty(e)>}";
 
 str quoted(s) = {
   if (size(s) > 0 && s[0] == "\"")

@@ -2,8 +2,9 @@ module lang::simple::Syntax
 
 start syntax Prog = prog: FDef* defs Exp? main;
 
-syntax FDef = fdef: "define" Var fsym "(" {Var ","}* params ")" "=" Exp body ";"
-            ;
+syntax FDef = fdef: "define" Var fsym "(" {Var ","}* params ")" "=" Exp body ";";
+
+syntax VDef = vdef: Var "=" Exp;
 
 syntax Exp = val: Val v
            | var: Var x
@@ -13,7 +14,7 @@ syntax Exp = val: Val v
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
            > right seq: Exp ";" Exp
-           | block: "{" {Var ","}+ locals ":" Exp e "}"
+           | block: "{" {VDef ","}+ vdefs ";" Exp e "}"
            | bracket "(" Exp ")"
            ;
 
