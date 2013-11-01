@@ -27,7 +27,7 @@ str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)>"
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
 str pretty(seq(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
 str pretty(eq(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
-str pretty(block(vdefs, e)) = "{<intercalate("; ", [pretty(vdef)|vdef<-vdefs])>; <pretty(e)>}";
+str pretty(block(e)) = "{ <pretty(e)> }";
 
 str quoted(s) = {
   if (size(s) > 0 && s[0] == "\"")

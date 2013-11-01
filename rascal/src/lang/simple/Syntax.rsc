@@ -4,8 +4,6 @@ start syntax Prog = prog: {FDef ";"}* defs (";" Exp main)?;
 
 syntax FDef = fdef: Var fsym "(" {Var ","}* params ")" "=" Exp body;
 
-syntax VDef = vdef: Var "=" Exp;
-
 syntax Exp = val: Val v
            | var: Var x
            | assign: Var "=" Exp
@@ -14,7 +12,7 @@ syntax Exp = val: Val v
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
            > right seq: Exp ";" Exp
-           | block: "{" (VDef ";")+ vdefs Exp e "}"
+           | block: "{" Exp e "}"
            | bracket "(" Exp ")"
            ;
 

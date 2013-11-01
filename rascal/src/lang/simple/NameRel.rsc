@@ -68,16 +68,7 @@ NameGraph resolveNames(call(v, args), map[str,loc] scope) {
   return <V,E,N>;
 }
 
-NameGraph resolveNames(block(vdefs, e), map[str,loc] scope) {
-  <V, E, N> = <{}, (), ()>;
-  for (vdef(Var var, Exp exp) <- vdefs) {
-    <dV, dE, dN> = resolveNames(exp, scope);
-    <V, E, N> = <V + dV, E + dE, N + dN>;
-    scope = scope + (var.name : var@location);
-  }
-  <dV, dE, dN> = resolveNames(e, scope);
-  return <V + dV, E + dE, N + dN>;
-}
+NameGraph resolveNames(block(Exp exp), map[str,loc] scope) = resolveNames(exp, scope);
 
 default NameGraph resolveNames(Exp e, map[str,loc] scope) {
   <V,E,N> = <{},(),()>;

@@ -72,11 +72,7 @@ Result eval(FDefs fdefs, eq(Exp exp1, Exp exp2), Env env) {
   return <env, nat(n1 == n2? 1 : 0)>;
 }
 
-Result eval(FDefs fdefs, block(list[VDef] vdefs, Exp exp), Env env) {
-  for (vdef(sym(str s), Exp exp) <- vdefs)
-    env = env + (s : eval(fdefs, exp, env).val);
-  return eval(fdefs, exp, env);
-}
+Result eval(FDefs fdefs, block(Exp exp), Env env) = eval(fdefs, exp, env);
 
 
 Maybe[FDef] lookup(str s, FDefs fdefs) {
