@@ -14,8 +14,6 @@ str pretty(prog(FDefs fdefs, list[Exp] main)) =
 str pretty(FDef d) =
   "<d.fsym.name>(<intercalate(", ", [p.name|p<-d.params])>) =
   '  <pretty(d.body)>";
-
-str pretty(vdef(sym(str nom)), Exp exp) = nom + " = " + pretty(exp);
   
 str pretty(val(nat(n))) = "<n>";
 str pretty(val(string(s))) = quoted(s);

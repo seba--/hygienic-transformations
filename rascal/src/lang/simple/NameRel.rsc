@@ -28,11 +28,6 @@ NameGraph resolveNames(FDef def, map[str,loc] scope) {
           N + (def.fsym@location:def.fsym.name) + (p@location:p.name | p <- def.params)>;
 }
 
-NameGraph resolveNames(vdef(Var var, Exp exp), map[str, loc] scope) {
-  <V, E, N> = resolveNames(exp, scope);
-  return <V + {var@location}, E, N + (v@location : v.name)>;
-}
-
 NameGraph resolveNames(var(v), map[str,loc] scope) =
   <{v@location}, (v@location:scope[v.name]), ()>
   when v.name in scope;
