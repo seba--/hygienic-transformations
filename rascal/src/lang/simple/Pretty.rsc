@@ -20,6 +20,7 @@ str pretty(val(string(s))) = quoted(s);
 str pretty(val(error(s))) = "error(<quoted(s)>)";
 str pretty(var(sym(x))) = x;
 str pretty(assign(sym(x), e)) = "<x> = <pretty(e)>";
+str pretty(vardecl(sym(x), e)) = "var <x> = <pretty(e)>";
 str pretty(call(sym(x), es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
 str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)>";
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";

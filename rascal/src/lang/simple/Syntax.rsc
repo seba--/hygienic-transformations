@@ -11,6 +11,7 @@ syntax Exp = val: Val v
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
            > assign: Var "=" Exp
+           | vardecl: "var" Var "=" Exp
            > right seq: Exp ";" Exp
            | block: "{" Exp e "}"
            | bracket "(" Exp ")"

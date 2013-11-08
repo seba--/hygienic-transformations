@@ -9,6 +9,7 @@ data FDef = fdef(Var fsym, list[Var] params, Exp body);
 data Exp = val(Val v)
          | var(Var x)
          | assign(Var var, Exp e)
+         | vardecl(Var var, Exp e)
          | call(Var fsym, list[Exp] args)
          | cond(Exp c, Exp t, Exp e)
          | plus(Exp e1, Exp e2)
