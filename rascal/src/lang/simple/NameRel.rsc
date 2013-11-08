@@ -38,15 +38,15 @@ Answer resolveNamesExp(var(v), Scope scope) =
 
 
 Answer resolveNamesExp(vardecl(v, e), Scope scope) {
-  scope = scope + (v.name:v@location);
   <<V,E,N>, scope> = resolveNamesExp(e, scope);
+  scope = scope + (v.name:v@location);
   return <<V + {v@location}, E, N + (v@location:v.name)>, scope>;
 }
 
 Answer resolveNamesExp(assign(v, e), Scope scope) {
-  <<V,E,N>, scope2> = resolveNamesExp(e, scope);
   if (v.name notin scope)
     throw "Unbound variable <v.name> at <v@location>.";
+  <<V,E,N>, scope2> = resolveNamesExp(e, scope);
   return <<V + {v@location}, E + (v@location:scope[v.name]), N>, scope2>;
 }
 
