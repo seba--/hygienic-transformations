@@ -28,7 +28,7 @@ loc x3def = |project://Rascal-Hygiene/input/testnested.sim|(17,1,<1,17>,<1,18>);
 loc x3use = |project://Rascal-Hygiene/input/testnested.sim|(20,1,<1,20>,<1,21>);
 
 Prog prog() {
-  writeFile(progloc, "{x: x + {x: x + {x: x}}}");
+  writeFile(progloc, "{x=1; x + {x=1; x + {x=1; x}}}");
   return load(progloc);
 }
 
