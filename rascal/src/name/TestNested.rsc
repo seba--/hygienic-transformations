@@ -40,12 +40,13 @@ NameGraph sNames1(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix1() {
+Prog fix1() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames1, resolveNames, name2var);
-  assert isCompiledHygienically(sNames1(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames1(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames1, resolveNames, name2var);
+}
+test bool test1() {
+  return isCompiledHygienically(sNames1(0), resolveNames(fix1()));
 }
 
 NameGraph sNames2(n) {
@@ -54,13 +55,15 @@ NameGraph sNames2(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix2() {
+Prog fix2() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames2, resolveNames, name2var);
-  assert isCompiledHygienically(sNames2(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames2(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames2, resolveNames, name2var);
 }
+test bool test2() {
+  return isCompiledHygienically(sNames2(0), resolveNames(fix2()));
+}
+
 
 NameGraph sNames3(n) {
   Vs = {x1def, x3use};
@@ -68,12 +71,13 @@ NameGraph sNames3(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix3() {
+Prog fix3() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames3, resolveNames, name2var);
-  assert isCompiledHygienically(sNames3(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames3(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames3, resolveNames, name2var);
+}
+test bool test3() {
+  return isCompiledHygienically(sNames3(0), resolveNames(fix3()));
 }
 
 NameGraph sNames4(n) {
@@ -82,13 +86,15 @@ NameGraph sNames4(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix4() {
+Prog fix4() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames4, resolveNames, name2var);
-  assert isCompiledHygienically(sNames4(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames4(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames4, resolveNames, name2var);
 }
+test bool test4() {
+  return isCompiledHygienically(sNames4(0), resolveNames(fix4()));
+}
+
 
 NameGraph sNames5(n) {
   Vs = {x2def};
@@ -96,12 +102,13 @@ NameGraph sNames5(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix5() {
+Prog fix5() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames5, resolveNames, name2var);
-  assert isCompiledHygienically(sNames5(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames5(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames5, resolveNames, name2var);
+}
+test bool test5() {
+  return isCompiledHygienically(sNames5(0), resolveNames(fix5()));
 }
 
 NameGraph sNames6(n) {
@@ -110,12 +117,13 @@ NameGraph sNames6(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix6() {
+Prog fix6() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames6, resolveNames, name2var);
-  assert isCompiledHygienically(sNames6(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames6(0), resolveNames(p2))>";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames6, resolveNames, name2var);
+}
+test bool test6() {
+  return isCompiledHygienically(sNames6(0), resolveNames(fix6()));
 }
 
 NameGraph sNames7(n) {
@@ -124,11 +132,58 @@ NameGraph sNames7(n) {
   Ns = ();
   return <Vs,Es,Ns>;
 }
-str fix7() {
+Prog fix7() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(0, p, sNames7, resolveNames, name2var);
-  assert isCompiledHygienically(sNames7(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames7(0), resolveNames(p2))>";
-  assert false : "x3use should be bound by x2def";
-  return pretty(p2);
+  return fixHygiene(0, p, sNames7, resolveNames, name2var);
 }
+test bool test7() {
+  return isCompiledHygienically(sNames7(0), resolveNames(fix7()));
+}
+
+
+NameGraph sNames8(n) {
+  Vs = {x2use,x3def,x1def};
+  Es = (x2use:x3def);
+  Ns = ();
+  return <Vs,Es,Ns>;
+}
+Prog fix8() {
+  Prog p = prog();
+  tNames = resolveNames(p);
+  return fixHygiene(0, p, sNames8, resolveNames, name2var);
+}
+test bool test8() {
+  return isCompiledHygienically(sNames8(0), resolveNames(fix8()));
+}
+
+NameGraph sNames9(n) {
+  Vs = {x2use,x3def,x1def,x3use};
+  Es = (x2use:x3def);
+  Ns = ();
+  return <Vs,Es,Ns>;
+}
+Prog fix9() {
+  Prog p = prog();
+  tNames = resolveNames(p);
+  return fixHygiene(0, p, sNames9, resolveNames, name2var);
+}
+test bool test9() {
+  return isCompiledHygienically(sNames9(0), resolveNames(fix9()));
+}
+
+NameGraph sNames10(n) {
+  Vs = {x1use,x3def};
+  Es = (x1use:x3def);
+  Ns = ();
+  return <Vs,Es,Ns>;
+}
+Prog fix10() {
+  Prog p = prog();
+  tNames = resolveNames(p);
+  return fixHygiene(0, p, sNames10, resolveNames, name2var);
+}
+test bool test10() {
+  return isCompiledHygienically(sNames10(0), resolveNames(fix10()));
+}
+
