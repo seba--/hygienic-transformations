@@ -34,21 +34,21 @@ Prog unfinishedCompiled1ill() = compile(statemachine1illcompiled());
 Prog compiled1ill() = finishGenProg(unfinishedCompiled1ill());
 
 
-NameGraph names1() = resolveNames(compiled1());
+NameGraph names1() = resolveNames(compiled1()).ng;
 
-void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
-void visualizeCompiled1() = renderNames(names1());
+void visualizeOriginal1() = renderNames(resolveNames(statemachine1()).ng);
+void visualizeCompiled1() = renderNames(names1()).ng;
 
 set[Edge] check1() {
   m = statemachine1();
   p = finishGenProg(compile(m));
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return unhygienicLinks(resolveNames(m).ng, resolveNames(p).ng);
 }
 
 set[Edge] check2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return unhygienicLinks(resolveNames(m).ng, resolveNames(p).ng);
 }
 
 
@@ -56,14 +56,14 @@ Controller renameS1() {
   m = statemachine1();
   init = m.states[0];
   new = state("<init.name>-renamed", init.actions, init.transitions);
-  return rename(resolveNames(m), m, init@location, new);
+  return rename(resolveNames(m).ng, m, init@location, new);
 }
 
 Prog renameP1() {
   p = compiled1();
   d0 = p.defs[0].name;
   new = sym("<d0.name>-renamed");
-  return rename(resolveNames(p), p, d0@location, new);
+  return rename(resolveNames(p).ng, p, d0@location, new);
 }
 
 str testProg1code() = "
@@ -81,74 +81,74 @@ Prog renameProg1() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[0].name;
   new = sym("<d0.name>-renamed");
-  return rename(resolveNames(p), p, d0@location, new);
+  return rename(resolveNames(p).ng, p, d0@location, new);
 }
 
 Prog renameProg2() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[0].body.e1.x;
   new = sym("<d0.name>-renamed");
-  return rename(resolveNames(p), p, d0@location, new);
+  return rename(resolveNames(p).ng, p, d0@location, new);
 }
 
 Prog renameProg3() {
   p = implodeProg(parse(testProg1()));
   d0 = p.defs[1].name;
   new = sym("<d0.name>-renamed");
-  return rename(resolveNames(p), p, d0@location, new);
+  return rename(resolveNames(p).ng, p, d0@location, new);
 }
 
 //Prog fixHygiene1() {
 //  m = statemachine1();
 //  p = finishGenProg(compile(m));
-//  sNames = resolveNames(m);
-//  tNames = resolveNames(p);
+//  sNames = resolveNames(m).ng;
+//  tNames = resolveNames(p).ng;
 //  p2 = fixHygiene(sNames, tNames, p, name2var);
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  assert isCompiledHygienically(sNames, resolveNames(p2).ng) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2).ng)>";
 //  return p2;
 //}
 //
 //Prog fixHygiene2() {
 //  m = statemachine1illcompiled();
 //  p = finishGenProg(compile(m));
-//  sNames = resolveNames(m);
-//  tNames = resolveNames(p);
+//  sNames = resolveNames(m).ng;
+//  tNames = resolveNames(p).ng;
 //  p2 = fixHygiene(sNames, tNames, p, name2var);
 //  //println(pretty(p2));
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  assert isCompiledHygienically(sNames, resolveNames(p2).ng) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2).ng)>";
 //  return p2;
 //}
 
 &T fixHygiene1() {
   m = statemachine1();
   Prog p = finishGenProg(compile(m));
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
+  sNames = resolveNames(m).ng;
+  tNames = resolveNames(p).ng;
   p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  assert isCompiledHygienically(sNames, resolveNames(p2).ng) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2).ng)>";
   return p2;
 }
 
 &T fixHygiene2() {
   m = statemachine1illcompiled();
   p = finishGenProg(compile(m));
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
+  sNames = resolveNames(m).ng;
+  tNames = resolveNames(p).ng;
   p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  assert isCompiledHygienically(sNames, resolveNames(p2).ng) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2).ng)>";
   return p2;
 }
 
 //set[Link] check2() {
 //  m = statemachine1illcompiled();
 //  p = finishGenProg(compile(m));
-//  return unhygienicLinks(resolveNames(m), resolveNames(p));
+//  return unhygienicLinks(resolveNames(m).ng, resolveNames(p).ng);
 //}
 
 test bool rand(Controller m) {
   p = finishGenProg(compile(m));
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
+  sNames = resolveNames(m).ng;
+  tNames = resolveNames(p).ng;
   p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
-  return isCompiledHygienically(sNames, resolveNames(p2));
+  return isCompiledHygienically(sNames, resolveNames(p2).ng);
 } 

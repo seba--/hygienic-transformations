@@ -18,77 +18,83 @@ import IO;
 //  }
 //}
 
-map[str,loc] collectDefinitions(Prog p) =
-  ( def.fsym.name:def.fsym@location | /FDef def := p );
+alias Scope = map[str, loc];
+alias Answer = tuple[NameGraph ng, Scope sc];
 
-NameGraph resolveNames(FDef def, map[str,loc] scope) {
-  <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
-  return <V + def.fsym@location + {p@location | p <- def.params},
-          E,
-          N + (def.fsym@location:def.fsym.name) + (p@location:p.name | p <- def.params)>;
+Answer resolveNames(FDef def, Scope scope) {
+  <<V, E, N>, _> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
+  return <<V + def.fsym@location + {p@location | p <- def.params},
+           E,
+           N + (def.fsym@location:def.fsym.name) + (p@location:p.name | p <- def.params)>,
+          scope + (def.fsym.name : def.fsym@location)>;
 }
 
-NameGraph resolveNames(var(v), map[str,loc] scope) =
-  <{v@location}, (v@location:scope[v.name]), ()>
+Answer resolveNames(var(v), Scope scope) =
+  <<{v@location}, (v@location:scope[v.name]), ()>, scope>   
   when v.name in scope;
-//NameRel resolveNames(var(v), map[str,loc] scope) =
+//NameRel resolveNames(var(v), Scope scope) =
 //  {<v.name, UNBOUND>}
 //  when v.name notin scope;
 
 
-NameGraph resolveNames(assign(v, e), map[str,loc] scope) {
+Answer resolveNames(assign(v, e), Scope scope) {
+  scope2 = ();
+  
   if (v.name in scope)
     scope2 = scope;
   else
     scope2 = scope + (v.name:v@location);
   
-  <V,E,N> = resolveNames(e, scope2);
+  <<V,E,N>, scope2> = resolveNames(e, scope2);
   
   if (v.name in scope)
-    return <V + {v@location}, E + (v@location:scope[v.name]), N>;
+    return <<V + {v@location}, E + (v@location:scope[v.name]), N>, scope2>;
   else
-    return <V + {v@location}, E, N + (v@location:v.name)>;
+    return <<V + {v@location}, E, N + (v@location:v.name)>, scope2>;
 }
 
-NameGraph resolveNames(call(v, args), map[str,loc] scope) {
+Answer resolveNames(call(v, args), Scope scope) {
   V = {v@location};
   E = (v@location:scope[v.name]);
   N = ();
   for (e <- args) {
-    <V2,E2,N2> = resolveNames(e, scope);
+    <<V2,E2,N2>, _> = resolveNames(e, scope);
     V += V2;
     E += E2;
     N += N2;
   }
-  return <V,E,N>;
+  return <<V,E,N>, scope>;
 }
 
 // TODO: block scoping
-NameGraph resolveNames(block(Exp exp), map[str,loc] scope) = resolveNames(exp, scope);
-
-default NameGraph resolveNames(Exp e, map[str,loc] scope) {
-  <V,E,N> = <{},(),()>;
-  for (Exp e2 <- e) {
-    <V2,E2,N2> = resolveNames(e2, scope);
-    <V,E,N> = <V + V2,E + E2, N + N2>;
-  }
-  return <V,E,N>;
+Answer resolveNames(block(Exp exp), Scope scope) {
+  <ng, _> = resolveNames(exp, scope);
+  return <ng, scope>;
 }
 
-NameGraph resolveNames(Prog p) {
-  topScope = collectDefinitions(p);
+default Answer resolveNames(Exp e, Scope scope) {
+  <V,E,N> = <{},(),()>;
+  for (Exp e2 <- e) {
+    <<V2,E2,N2>, scope> = resolveNames(e2, scope);
+    <V,E,N> = <V + V2,E + E2, N + N2>;
+  }
+  return <<V,E,N>, scope>;
+}
+
+Answer resolveNames(Prog p) {
+  scope = ();
   
   <dV,dE,dN> = <{},(),()>;
   for (d <- p.fdefs) {
-    <V2,E2,N2> = resolveNames(d, topScope);
+    <<V2,E2,N2>, scope> = resolveNames(d, scope);
     <dV,dE,dN> = <dV + V2,dE + E2,dN + N2>;
   }
   <mV,mE,mN> = <{},(),()>;
   for (e <- p.main) {
-    <V2,E2,N2> = resolveNames(e, topScope);
+    <<V2,E2,N2>, scope> = resolveNames(e, scope);
     <mV,mE,mN> = <mV + V2,mE + E2,mN + N2>;
   }
   
-  return <dV + mV,dE + mE, dN + mN>;
+  return <<dV + mV,dE + mE, dN + mN>, scope>;
 }
 
