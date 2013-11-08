@@ -63,6 +63,7 @@ NameGraph resolveNames(call(v, args), map[str,loc] scope) {
   return <V,E,N>;
 }
 
+// TODO: block scoping
 NameGraph resolveNames(block(Exp exp), map[str,loc] scope) = resolveNames(exp, scope);
 
 default NameGraph resolveNames(Exp e, map[str,loc] scope) {
