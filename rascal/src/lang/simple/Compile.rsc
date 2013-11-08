@@ -65,7 +65,7 @@ Exp stateDispatchCondexp([s, *ss], Exp deflt) =
 
 Exp triggerEvents(State init, list[str] es) {
   return 
-    ( assign(sym("current"), call(sym(init.name)[@location = init@location], []))
+    ( vardecl(sym("current"), call(sym(init.name)[@location = init@location], []))
     | seq(it, assign(sym("current"), call(sym("trans-dispatch"), [mkvar("current"), val(string(e))])))
     | e <- es);
 }
