@@ -187,3 +187,18 @@ test bool test10() {
   return isCompiledHygienically(sNames10(0), resolveNames(fix10()));
 }
 
+// requires three consecutive renamings (recursive calls of fix)
+NameGraph sNames11(n) {
+  Vs = {x2def,x2use,x3def,x3use};
+  Es = (x2use:x2def);
+  Ns = ();
+  return <Vs,Es,Ns>;
+}
+Prog fix11() {
+  Prog p = prog();
+  tNames = resolveNames(p);
+  return fixHygiene(0, p, sNames11, resolveNames, name2var);
+}
+test bool test11() {
+  return isCompiledHygienically(sNames11(0), resolveNames(fix11()));
+}
