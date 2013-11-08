@@ -58,7 +58,7 @@ import lang::simple::AST;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
+Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
   Gs = <Vs,Es,Ns> = resolveS(s);
   Gt = <Vt,Et,Nt> = resolveT(t);
   
