@@ -19,7 +19,7 @@ import IO;
 //}
 
 map[str,loc] collectDefinitions(Prog p) =
-  ( def.fsym.name:def.name@location | /FDef def := p );
+  ( def.fsym.name:def.fsym@location | /FDef def := p );
 
 NameGraph resolveNames(FDef def, map[str,loc] scope) {
   <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
