@@ -62,13 +62,19 @@ Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(s
   Gs = <Vs,Es,Ns> = resolveS(s);
   Gt = <Vt,Et,Nt> = resolveT(t);
   
-  badDefRefs = ( u:d | <u,d> <- Et<0,1>, u in Vs, u != d, u in Es ? Es[u] != d : true);
-  badUseRefs = ( u:d | <u,d> <- Et<0,1>, u notin Vs, d in Vs);
-  badNodes = badDefRefs<1> + badUseRefs<1>;
+  //iprintln(Es);
+  //iprintln(Et);
+  
+  badDefRefs  = (u:Et[u] | u <- Vs & Vt, u in Es, u in Et, Es[u] != Et[u]);
+  badUseRefs  = (u:d     | d <- Vs & Vt, u <- Es & Et, Et[u] == d, Es[u] != d);
+  badSelfRefs = (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
+
+  badNodes = badDefRefs<1> + badUseRefs<1> + badSelfRefs<1>;
   goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
   
-  //iprintln(badDefRefs);
-  //iprintln(badUseRefs);
+  iprintln(badDefRefs);
+  iprintln(badUseRefs);
+  //iprintln(badSelfRefs);
   //iprintln(goodDefRefs);
   
   if (badNodes == {})
@@ -84,7 +90,7 @@ Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(s
     subst += (l : freshVar);
   };
   
-  Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
+  Et_new = Et - (badDefRefs + badUseRefs + badSelfRefs) + goodDefRefs;
   
   Prog t_new = rename(Et_new, t, subst);
   return fixHygiene(s, t_new, resolveS, resolveT, name2var);
