@@ -58,8 +58,7 @@ import lang::simple::AST;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
-  Gs = <Vs,Es,Ns> = resolveS(s);
+Prog fixHygiene(&S s, &T t, <Vs,Es,Ns>, NameGraph(&T) resolveT, &U(str) name2var) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   //iprintln(Es);
@@ -70,7 +69,7 @@ Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(s
   badSelfRefs = (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
 
   badNodes = badDefRefs<1> + badUseRefs<1> + badSelfRefs<1>;
-  goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
+  goodDefRefs = ( u:Es[u] | u <- badDefRefs<0>);
   
   iprintln(badDefRefs);
   iprintln(badUseRefs);
@@ -93,5 +92,5 @@ Prog fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(s
   Et_new = Et - (badDefRefs + badUseRefs + badSelfRefs) + goodDefRefs;
   
   Prog t_new = rename(Et_new, t, subst);
-  return fixHygiene(s, t_new, resolveS, resolveT, name2var);
+  return fixHygiene(s, t_new, <Vs,Es,Ns>, resolveT, name2var);
 }
