@@ -9,6 +9,7 @@ import Map;
 import String;
 
 
+// TODO: rewrite in terms of concatRename with substs.
 &T concatRename(NameGraph G, &T t, ID varLoc, str new) {
   return visit (t) {
        
@@ -44,31 +45,23 @@ import String;
         // x is a use of some decl in subst varLoc
         suff = subst[refOf(getID(X), G)];
       }
-      else if (id <- subst, refOf(id, G) == refOf(getID(x), G)) {
+      else if (ID id <- subst, refOf(id, G) == refOf(getID(x), G)) {
         // there is a use in subst the decl of which is the decl of x
         suff = subst[id];
       }
-      else if (id <- subst, getID(x) == refOf(id, G)) {
-        // the is a use in subst x is the declaration.
+      else if (ID id <- subst, refOf(id, G) == getID(x)) {
+        // there is a use in subst x is the declaration.
         suff = subst[id];
       }
       else {
         fail;
       }
+      
+      // !!! IMPORTANT DETAIL
+      // deleteOrigins ensures that the label/origins of the new name will
+      // be the same as the label/origins of x
       insert x + deleteOrigin(suff);
     }
-  };
-}
-
-
-&T concatRename(Edges refs, &T t, map[ID,str] subst) {
-  return visit (t) {
-    case str x => x + deleteOrigin(subst[getID(x)]) 
-      when getID(x) in subst
-    case str x => x + deleteOrigin(subst[def]) 
-      // XXX: fails to call `refOf`
-      // when def := refOf(x@location, refs) && def in subst
-      when getID(x) in refs, def := refs[getID(x)], def in subst 
   };
 }
 
