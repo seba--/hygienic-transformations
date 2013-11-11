@@ -11,26 +11,55 @@ import String;
 
 &T concatRename(NameGraph G, &T t, ID varLoc, str new) {
   return visit (t) {
-       // x is varLoc itself (either decl or use)
+       
     case str x => x + deleteOrigin(new) 
       // this means the label/origins of the new name will
       // be the same as the label/origins of x
-      when getID(x) == varLoc
-    
-    // x is a use of decl varLoc
-    case str x => x + deleteOrigin(new) 
-      when varLoc == refOf(getID(x), G)
+      
+      when
 
-	// x and varLoc are uses of the same decl
-    case str x => x + deleteOrigin(new) 
-      when refOf(varLoc, G) == refOf(getID(x), G)
-
-	// x is the declaration of varLoc
-    case str x => x + deleteOrigin(new) 
-      when getID(x) == refOf(varLoc, G)
+        // x is varLoc itself (either decl or use)
+        getID(x) == varLoc
     
+        // x is a use of decl varLoc
+        || varLoc == refOf(getID(x), G)
+        
+        // x and varLoc are uses of the same decl
+        || refOf(varLoc, G) == refOf(getID(x), G)
+        
+        // x is the declaration of varLoc
+        || getID(x) == refOf(varLoc, G)
   };
 }
+
+&T concatRename(NameGraph G, &T t, map[ID, str] subst) {
+  return visit (t) {
+    case str x: {
+      str suff;
+      if (getID(x) in subst) {
+        // x is the thing in subst itself (either decl or use)
+        suff = subst[getID(x)];
+      }
+      else if (refOf(getID(x), G) in subst) {
+        // x is a use of some decl in subst varLoc
+        suff = subst[refOf(getID(X), G)];
+      }
+      else if (id <- subst, refOf(id, G) == refOf(getID(x), G)) {
+        // there is a use in subst the decl of which is the decl of x
+        suff = subst[id];
+      }
+      else if (id <- subst, getID(x) == refOf(id, G)) {
+        // the is a use in subst x is the declaration.
+        suff = subst[id];
+      }
+      else {
+        fail;
+      }
+      insert x + deleteOrigin(suff);
+    }
+  };
+}
+
 
 &T concatRename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
@@ -100,9 +129,9 @@ import String;
   badNodes = badDefRefs<1> + badUseRefs<1>;
   goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
   
-  iprintln(badDefRefs);
-  iprintln(badUseRefs);
-  iprintln(goodDefRefs);
+  //iprintln(badDefRefs);
+  //iprintln(badUseRefs);
+  //iprintln(goodDefRefs);
   
   if (badNodes == {})
     return t;
@@ -111,13 +140,13 @@ import String;
   subst = ();
   
   for (l <- badNodes) {
-    fresh = freshName(usedNames, nameOf(l, Gt));
+    <fresh, suff> = freshSuffix(usedNames, nameOf(l, Gt));
     usedNames += fresh;
-    subst += (l : fresh);
+    subst += (l : suff);
   };
   
   Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
   
-  t_new = rename(Et_new, t, subst);
+  t_new = concatRename(Et_new, t, subst);
   return fixHygiene(s, t_new, resolveS, resolveT);
 }
