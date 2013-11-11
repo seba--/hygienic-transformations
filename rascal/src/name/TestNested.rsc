@@ -43,7 +43,7 @@ NameGraph sNames1() {
 Prog fix1() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames1(), resolveNames, name2var);
+  return fixHygiene(p, sNames1(), resolveNames, name2var);
 }
 test bool test1() {
   return isCompiledHygienically(sNames1(), resolveNames(fix1()));
@@ -58,7 +58,7 @@ NameGraph sNames2() {
 Prog fix2() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames2(), resolveNames, name2var);
+  return fixHygiene(p, sNames2(), resolveNames, name2var);
 }
 test bool test2() {
   return isCompiledHygienically(sNames2(), resolveNames(fix2()));
@@ -74,7 +74,7 @@ NameGraph sNames3() {
 Prog fix3() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames3(), resolveNames, name2var);
+  return fixHygiene(p, sNames3(), resolveNames, name2var);
 }
 test bool test3() {
   return isCompiledHygienically(sNames3(), resolveNames(fix3()));
@@ -89,7 +89,7 @@ NameGraph sNames4() {
 Prog fix4() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames4(), resolveNames, name2var);
+  return fixHygiene(p, sNames4(), resolveNames, name2var);
 }
 test bool test4() {
   return isCompiledHygienically(sNames4(), resolveNames(fix4()));
@@ -105,7 +105,7 @@ NameGraph sNames5() {
 Prog fix5() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames5(), resolveNames, name2var);
+  return fixHygiene(p, sNames5(), resolveNames, name2var);
 }
 test bool test5() {
   return isCompiledHygienically(sNames5(), resolveNames(fix5()));
@@ -120,7 +120,7 @@ NameGraph sNames6() {
 Prog fix6() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames6(), resolveNames, name2var);
+  return fixHygiene(p, sNames6(), resolveNames, name2var);
 }
 test bool test6() {
   return isCompiledHygienically(sNames6(), resolveNames(fix6()));
@@ -135,7 +135,7 @@ NameGraph sNames7() {
 Prog fix7() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames7(), resolveNames, name2var);
+  return fixHygiene(p, sNames7(), resolveNames, name2var);
 }
 test bool test7() {
   return isCompiledHygienically(sNames7(), resolveNames(fix7()));
@@ -151,7 +151,7 @@ NameGraph sNames8() {
 Prog fix8() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames8(), resolveNames, name2var);
+  return fixHygiene(p, sNames8(), resolveNames, name2var);
 }
 test bool test8() {
   return isCompiledHygienically(sNames8(), resolveNames(fix8()));
@@ -166,7 +166,7 @@ NameGraph sNames9() {
 Prog fix9() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames9(), resolveNames, name2var);
+  return fixHygiene(p, sNames9(), resolveNames, name2var);
 }
 test bool test9() {
   return isCompiledHygienically(sNames9(), resolveNames(fix9()));
@@ -181,7 +181,7 @@ NameGraph sNames10() {
 Prog fix10() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames10(), resolveNames, name2var);
+  return fixHygiene(p, sNames10(), resolveNames, name2var);
 }
 test bool test10() {
   return isCompiledHygienically(sNames10(), resolveNames(fix10()));
@@ -197,7 +197,7 @@ NameGraph sNames11() {
 Prog fix11() {
   Prog p = prog();
   tNames = resolveNames(p);
-  return fixHygiene(0, p, sNames11(), resolveNames, name2var);
+  return fixHygiene(p, sNames11(), resolveNames, name2var);
 }
 test bool test11() {
   return isCompiledHygienically(sNames11(), resolveNames(fix11()));

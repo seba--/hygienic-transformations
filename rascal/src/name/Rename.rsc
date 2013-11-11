@@ -58,7 +58,7 @@ import lang::simple::AST;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-Prog fixHygiene(&S s, &T t, <Vs,Es,Ns>, NameGraph(&T) resolveT, &U(str) name2var) {
+Prog fixHygiene(&T t, <Vs,Es,Ns>, NameGraph(&T) resolveT, &U(str) name2var) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   //iprintln(Es);
@@ -92,5 +92,5 @@ Prog fixHygiene(&S s, &T t, <Vs,Es,Ns>, NameGraph(&T) resolveT, &U(str) name2var
   Et_new = Et - (badDefRefs + badUseRefs + badSelfRefs) + goodDefRefs;
   
   Prog t_new = rename(Et_new, t, subst);
-  return fixHygiene(s, t_new, <Vs,Es,Ns>, resolveT, name2var);
+  return fixHygiene(t_new, <Vs,Es,Ns>, resolveT, name2var);
 }
