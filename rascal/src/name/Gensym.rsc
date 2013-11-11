@@ -2,15 +2,16 @@ module name::Gensym
 
 import name::Relation;
 
-tuple[str name, str suffix] freshSuffix(set[str] used, str base) = freshSuffix(used, base, 0);
-
 str suffix(int n) = "_<n>";
+
+
+tuple[str name, str suffix] freshSuffix(set[str] used, str base) = freshSuffix(used, base, 0);
 
 tuple[str name, str suffix] freshSuffix(set[str] used, str base, int n) {
   name = base + suffix(n);
   if (name notin used)
     return <name, suffix(n)>;
-  return freshName(used, base, n+1);
+  return freshSuffix(used, base, n+1);
 }
 
 str freshName(set[str] used, str base) = freshName(used, base, 0);
