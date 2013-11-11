@@ -4,13 +4,15 @@ import lang::missgrant::base::AST;
 
 import name::Relation;
 
-map[str,loc] collectStates(Controller ctl) =
-  ( s.name:s@location | /State s := ctl );
+ID getID(Id x) = {x@location};
 
-NameGraph relateStates(Controller ctl, map[str,loc] stateDefs) {
+map[str,ID] collectStates(Controller ctl) =
+  ( s.name.name: getID(s.name) | /State s := ctl );
+
+NameGraph relateStates(Controller ctl, map[str,ID] stateDefs) {
   states = stateDefs<0,1>;
-  transitionNames = { <t.state, t@location> | /Transition t := ctl };
-  rels = { <t@location, stateDefs[t.state]> | /Transition t := ctl };
+  transitionNames = { <t.state.name, getID(t.state)> | /Transition t := ctl };
+  rels = { <getID(t.state), stateDefs[t.state.name]> | /Transition t := ctl };
   return makeGraph(states + transitionNames, rels);
 }
 
