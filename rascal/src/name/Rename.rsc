@@ -6,28 +6,66 @@ import name::Relation;
 import name::Names;
 import IO;
 import Map;
-import Set;
+import String;
 
 
-&T rename(NameGraph G, &T t, ID varLoc, str new) {
+&T concatRename(NameGraph G, &T t, ID varLoc, str new) {
   return visit (t) {
-    case str x => setID(new, getOneFrom(getID(x))) // TODO: think about this getOneFrom!!! 
+       // x is varLoc itself (either decl or use)
+    case str x => x + deleteOrigin(new) 
+      // this means the label/origins of the new name will
+      // be the same as the label/origins of x
       when getID(x) == varLoc
-    case str x => setID(new, getOneFrom(getID(x))) 
+    
+    // x is a use of decl varLoc
+    case str x => x + deleteOrigin(new) 
       when varLoc == refOf(getID(x), G)
+
+	// x and varLoc are uses of the same decl
+    case str x => x + deleteOrigin(new) 
+      when refOf(varLoc, G) == refOf(getID(x), G)
+
+	// x is the declaration of varLoc
+    case str x => x + deleteOrigin(new) 
+      when getID(x) == refOf(varLoc, G)
+    
   };
 }
 
-&T rename(Edges refs, &T t, map[ID,str] subst) {
+&T concatRename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
-    case str x => subst[getID(x)] 
+    case str x => x + deleteOrigin(subst[getID(x)]) 
       when getID(x) in subst
-    case str x => subst[def] 
+    case str x => x + deleteOrigin(subst[def]) 
       // XXX: fails to call `refOf`
       // when def := refOf(x@location, refs) && def in subst
       when getID(x) in refs, def := refs[getID(x)], def in subst 
   };
 }
+
+// The functions below are *wrong*. But updating
+// origins needs to respect the invariants of origins.
+
+//&T rename(NameGraph G, &T t, ID varLoc, str new) {
+//  return visit (t) {
+//    case str x => setID(new, getOneFrom(getID(x)))
+//     // TODO: getOneFrom is WRONG!!! 
+//      when getID(x) == varLoc
+//    case str x => setID(new, getOneFrom(getID(x))) 
+//      when varLoc == refOf(getID(x), G)
+//  };
+//}
+//
+//&T rename(Edges refs, &T t, map[ID,str] subst) {
+//  return visit (t) {
+//    case str x => subst[getID(x)] 
+//      when getID(x) in subst
+//    case str x => subst[def] 
+//      // XXX: fails to call `refOf`
+//      // when def := refOf(x@location, refs) && def in subst
+//      when getID(x) in refs, def := refs[getID(x)], def in subst 
+//  };
+//}
 
 
 //&T fixHygiene(NameGraph Gs, NameGraph Gt, &T t, &U(str) name2var) {

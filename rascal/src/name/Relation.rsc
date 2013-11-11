@@ -11,6 +11,7 @@ alias NameGraph = tuple[set[ID] V, Edges E, map[ID v, str name] N];
 
 set[ID] synthesizedNodes(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
 
+
 ID refOf(ID n, Edges refs) = refs[n] ? {};
 
 ID refOf(ID n, NameGraph G) = refOf(n, G.E); 
