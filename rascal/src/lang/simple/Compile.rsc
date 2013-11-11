@@ -26,7 +26,7 @@ Prog compile(list[State] states, list[str] events) {
 
 
 Def state2constdef(State s, int i) {
-  return define(var(s.name), [], val(nat(i)));
+  return define(s.name, [], val(nat(i)));
 }
 
 list[Def] states2constdefs(list[State] states) {
@@ -34,38 +34,38 @@ list[Def] states2constdefs(list[State] states) {
 }
 
 Def state2def(State s) {
-  return define(var("<s.name>-trans"), 
-                [var("event")], 
+  return define("<s.name>-trans", 
+                ["event"], 
                 transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
 }
 
 // Maybe we will have to parse in the variable symbol "event" to enable hygiene.
 Exp transitions2condexp([], Exp deflt) = deflt;
 
-Exp mkvar(str name) = evar(var(name));
-Exp mkvar(str name, loc l) = evar(var(name));
+Exp mkvar(str name) = evar(name);
+Exp mkvar(str name, loc l) = evar(name);
 
 Exp transitions2condexp([t, *ts], Exp deflt) = 
   cond( eq(mkvar("event"), val(string(t.event))) 
-      , call(var(t.state), []) 
+      , call(t.state, []) 
       , transitions2condexp(ts, deflt));
 
 Def stateDispatch(list[State] states) = 
-  define(var("trans-dispatch"),
-         [var("state"), var("event")], 
+  define("trans-dispatch",
+         ["state", "event"], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
 
 Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
-  cond( eq(mkvar("state"), call(var(s.name), []))
-       , call(var("<s.name>-trans"), [mkvar("event")])
+  cond( eq(mkvar("state"), call(s.name, []))
+       , call("<s.name>-trans", [mkvar("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
   return 
-    ( assign(var("current"), call(var(init.name), [])) 
-    | seq(it, assign(var("current"), call(var("trans-dispatch"), [mkvar("current"), val(string(e))])))
+    ( assign("current", call(init.name, [])) 
+    | seq(it, assign("current", call("trans-dispatch", [mkvar("current"), val(string(e))])))
     | e <- es);
 }

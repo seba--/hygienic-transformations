@@ -3,17 +3,19 @@ module name::Relation
 import IO;
 import Set;
 
-//alias Node = loc;
-alias Edge = tuple[loc use, loc def];
-alias Edges = map[loc use, loc def];
-alias NameGraph = tuple[set[loc] V, Edges E, map[loc v, str name] N];
+import name::Names;
 
-set[loc] synthesizedNodes(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
+alias Edge = tuple[ID use, ID def];
+alias Edges = map[ID use, ID def];
+alias NameGraph = tuple[set[ID] V, Edges E, map[ID v, str name] N];
 
-loc refOf(loc n, Edges refs) = refs[n];
-loc refOf(loc n, NameGraph G) = refOf(n, G.E); 
+set[ID] synthesizedNodes(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
 
-str nameOf(loc n, NameGraph G) {
+ID refOf(ID n, Edges refs) = refs[n] ? {};
+
+ID refOf(ID n, NameGraph G) = refOf(n, G.E); 
+
+str nameOf(ID n, NameGraph G) {
   if (n in G.N)
     return G.N[n];
   if (refOf(n, G.E) in G.N)
@@ -23,7 +25,7 @@ str nameOf(loc n, NameGraph G) {
 
 set[str] namesOf(NameGraph G) = G.N<1>;
 
-NameGraph makeGraph(rel[str name,loc l] names, rel[loc use, loc def] refs) {
+NameGraph makeGraph(rel[str name,ID l] names, rel[ID use, ID def] refs) {
   nodes = names<1>;
   N = names<1,0>;
   

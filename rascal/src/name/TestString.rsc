@@ -1,5 +1,6 @@
 module name::TestString
 
+
 import lang::missgrant::base::AST;
 import lang::missgrant::base::Implode;
 import lang::missgrant::base::NameRel;
@@ -15,31 +16,99 @@ import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 import name::Rename;
+import name::Names;
 
 import IO;
-import String;
-import util::Maybe;
+import Set;
 
-loc statemachine1Loc() = |project://Rascal-Hygiene/input/missgrant.ctl|;
-loc statemachine1illcompiledLoc() = |project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|;
-
-Controller statemachine1() = load(statemachine1Loc());
-Controller statemachine1illcompiled() = load(statemachine1illcompiledLoc());
+Controller statemachine1() = load(|project://Rascal-Hygiene/input/missgrant.ctl|);
+Controller statemachine1illcompiled() = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);
 
 loc initStateLoc() = statemachine1().states[0]@location;
 
-void printCompiled1() = println(pretty(compile(statemachine1())));
+void printCompiled1() = println(srcCompiled1());
+
+str srcCompiled1() = pretty(compile(statemachine1()));
+
+str srcIllCompiled1() = pretty(compile(statemachine1illcompiled()));
 
 Prog compiled1() = compile(statemachine1()); 
 
 Prog compiled1ill() = compile(statemachine1illcompiled()); 
 
-set[str] strings(&T t) = { s | /str s := t};
-set[tuple[str,lrel[Maybe[loc],str]]] stringsOrigins(&T t) = { <s,origins(s)> | /str s := t};
+NameGraph names1() = resolveNames(compiled1());
 
-set[tuple[str,lrel[Maybe[loc],str]]] sourceStrings(loc source, &T t) =
-  { result | result:<s,[<just(sloc),_>]> <- stringsOrigins(t), sloc.path == source.path};
+Edges check1() {
+  m = statemachine1();
+  p = compiled1();
+  return unhygienicLinks(resolveNames(m), resolveNames(p));
+}
 
-set[tuple[str,lrel[Maybe[loc],str]]] synthesizedStrings(loc source, &T t) =
-  stringsOrigins(t) - sourceStrings(source, t); 
+Edges check2() {
+  m = statemachine1illcompiled();
+  p = compiled1ill();
+  return unhygienicLinks(resolveNames(m), resolveNames(p));
+}
 
+Controller renameS1() {
+  m = statemachine1();
+  init = m.states[0];
+  new = "<init.name>-renamed";
+  println("GETID init = <getID(init.name)>");
+  return rename(resolveNames(m), m, getID(init.name), new);
+}
+
+Prog renameP1() {
+  p = compiled1();
+  d0 = p.sig[0].name;
+  new = "<d0>-renamed";
+  return rename(resolveNames(p), p, getID(d0), new);
+}
+
+str testProg1code() = "
+'define foo(x) = x + x;
+'define bar(foo) = bar(foo);
+'x = foo(bar(2))
+";
+loc testProg1loc() = |project://Rascal-Hygiene/input/testProg1.sim|;
+loc testProg1() {
+  writeFile(testProg1loc(), testProg1code());
+  return testProg1loc();
+}
+
+Prog renameTestProg1(str(Prog) from) {
+  p = implodeProg(parse(testProg1()));
+  x = from(p);
+  y = "<x>-renamed";
+  return rename(resolveNames(p), p, getID(x), y);
+}
+ 
+Prog renameProg1()  = renameTestProg1(
+   str(Prog p)   { return p.sig[0].name; });
+
+Prog renameProg2()  = renameTestProg1(
+   str(Prog p)   { return p.sig[0].body.e1.x; });
+
+Prog renameProg3()  = renameTestProg1(
+   str(Prog p)   { return p.sig[1].name; });
+
+
+Prog fixTheHygiene(Controller m) {
+  Prog p = compile(m);
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  p2 = fixHygiene(m, p, resolveNames, resolveNames);
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  return p2;
+}
+
+Prog fixHygiene1() = fixTheHygiene(statemachine1());
+Prog fixHygiene2() = fixTheHygiene(statemachine1illcompiled());
+
+test bool rand(Controller m) {
+  p = finishGenProg(compile(m));
+  sNames = resolveNames(m);
+  tNames = resolveNames(p);
+  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
+  return isCompiledHygienically(sNames, resolveNames(p2));
+} 

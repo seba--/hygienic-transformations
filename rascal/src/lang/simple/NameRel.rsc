@@ -2,6 +2,7 @@ module lang::simple::NameRel
 
 import lang::simple::AST;
 import name::Relation;
+import name::Names;
 
 import IO; 
 
@@ -18,41 +19,38 @@ import IO;
 //  }
 //}
 
-map[str,loc] collectDefinitions(Prog p) =
-  ( def.name.name:def.name@location | /Def def := p );
 
-NameGraph resolveNames(Def def, map[str,loc] scope) {
-  <V, E, N> = resolveNames(def.body, scope + (p.name:p@location | p <- def.params));
-  return <V + def.name@location + {p@location | p <- def.params}, 
+map[str,ID] collectDefinitions(Prog p) =
+  ( def.name: getID(def.name) | /Def def := p );
+
+NameGraph resolveNames(Def def, map[str,ID] scope) {
+  <V, E, N> = resolveNames(def.body, scope + (p: getID(p) | p <- def.params));
+  return <V + {getID(def.name)} + {getID(p) | p <- def.params}, 
           E,
-          N + (def.name@location:def.name.name) + (p@location:p.name | p <- def.params)>;
+          N + (getID(def.name): def.name) + (getID(p) :p | p <- def.params)>;
 }
 
-NameGraph resolveNames(evar(v), map[str,loc] scope) = 
-  <{v@location}, (v@location:scope[v.name]), ()>
-  when v.name in scope;
-//NameRel resolveNames(evar(v), map[str,loc] scope) = 
-//  {<v.name, UNBOUND>}
-//  when v.name notin scope;
+NameGraph resolveNames(evar(v), map[str,ID] scope) = 
+  <{getID(v)}, (getID(v): scope[v]), ()>
+  when v in scope;
 
-
-NameGraph resolveNames(assign(v, e), map[str,loc] scope) {
-  if (v.name in scope)
+NameGraph resolveNames(assign(v, e), map[str,ID] scope) {
+  if (v in scope)
     scope2 = scope;
   else
-    scope2 = scope + (v.name:v@location);
+    scope2 = scope + (v: getID(v));
   
   <V,E,N> = resolveNames(e, scope2);
   
-  if (v.name in scope)
-    return <V + {v@location}, E + (v@location:scope[v.name]), N>;
+  if (v in scope)
+    return <V + {getID(v)}, E + (getID(v): scope[v]), N>;
   else
-    return <V + {v@location}, E, N + (v@location:v.name)>;
+    return <V + {getID(v)}, E, N + (getID(v): v)>;
 }
 
-NameGraph resolveNames(call(v, args), map[str,loc] scope) {
-  V = {v@location};
-  E = (v@location:scope[v.name]);
+NameGraph resolveNames(call(v, args), map[str,ID] scope) {
+  V = {getID(v)};
+  E = (getID(v): scope[v]);
   N = ();
   for (e <- args) {
     <V2,E2,N2> = resolveNames(e, scope);
@@ -63,13 +61,13 @@ NameGraph resolveNames(call(v, args), map[str,loc] scope) {
   return <V,E,N>;
 }
 
-NameGraph resolveNames(block(vars, e), map[str,loc] scope) {
-  scope = scope + (v.name:v@location | v <- vars);
+NameGraph resolveNames(block(vars, e), map[str,ID] scope) {
+  scope = scope + (v: getID(v) | v <- vars);
   <V,E,N> = resolveNames(e, scope);
-  return <V + {v@location | v <- vars}, E, N + (v@location:v.name | v <- vars)>;
+  return <V + {getID(v) | v <- vars}, E, N + (getID(v): v | v <- vars)>;
 }
 
-default NameGraph resolveNames(Exp e, map[str,loc] scope) {
+default NameGraph resolveNames(Exp e, map[str,ID] scope) {
   <V,E,N> = <{},(),()>;
   for (Exp e2 <- e) {
     <V2,E2,N2> = resolveNames(e2, scope);

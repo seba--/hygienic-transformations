@@ -17,6 +17,7 @@ import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 import name::Rename;
+import name::Relabel;
 
 import IO;
 
@@ -25,7 +26,14 @@ Controller statemachine1illcompiled() = load(|project://Rascal-Hygiene/input/mis
 
 loc initStateLoc() = statemachine1().states[0]@location;
 
-void printCompiled1() = println(pretty(compile(statemachine1())));
+void printCompiled1() = println(srcCompiled1());
+
+str srcCompiled1() = pretty(compile(statemachine1()));
+
+Prog srcCompiledReset1() = lang::simple::Implode::implode(
+							lang::simple::Parse::parse(srcCompiled1(), |file:///dummy|));
+
+str srcIllCompiled1() = pretty(compile(statemachine1illcompiled()));
 
 Prog unfinishedCompiled1() = compile(statemachine1()); 
 Prog compiled1() = finishGenProg(unfinishedCompiled1());
@@ -34,20 +42,20 @@ Prog unfinishedCompiled1ill() = compile(statemachine1illcompiled());
 Prog compiled1ill() = finishGenProg(unfinishedCompiled1ill());
 
 
-NameGraph names1() = resolveNames(compiled1());
+NameGraph names1() = resolveNames(relabel(#Prog, unfinishedCompiled1(), {"var"}));
 
 void visualizeOriginal1() = renderNames(resolveNames(statemachine1()));
 void visualizeCompiled1() = renderNames(names1());
 
-set[Edge] check1() {
+Edges check1() {
   m = statemachine1();
-  p = finishGenProg(compile(m));
+  p = relabel(#Prog, unfinishedCompiled1(), {"var"});
   return unhygienicLinks(resolveNames(m), resolveNames(p));
 }
 
-set[Edge] check2() {
+Edges check2() {
   m = statemachine1illcompiled();
-  p = finishGenProg(compile(m));
+  p = relabel(#Prog, unfinishedCompiled1ill(), {"var"});
   return unhygienicLinks(resolveNames(m), resolveNames(p));
 }
 

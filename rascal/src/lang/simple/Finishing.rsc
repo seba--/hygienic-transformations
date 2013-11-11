@@ -8,6 +8,7 @@ import lang::simple::Pretty;
 import IO;
 import util::Maybe;
 import List;
+import String;
 
 loc writeDebugFile(Prog p) {
   location = |project://Rascal-Hygiene/output/debug.sim|;
@@ -15,6 +16,7 @@ loc writeDebugFile(Prog p) {
   writeFile(location, text);
   return location;
 }
+
 
 Prog finishGenProg(Prog p) {
   location = writeDebugFile(p);

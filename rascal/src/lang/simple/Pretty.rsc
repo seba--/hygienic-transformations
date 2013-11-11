@@ -17,15 +17,15 @@ str pretty(Prog p) =
   '<}>";
   
 str pretty(Def d) =
-  "define <d.name.name>(<intercalate(", ", [p.name|p<-d.params])>) =
+  "define <d.name>(<intercalate(", ", [p | p<-d.params])>) =
   '  <pretty(d.body)>;";
   
 str pretty(val(nat(n))) = "<n>";
 str pretty(val(string(s))) = quoted(s);
 str pretty(val(error(s))) = "error(<quoted(s)>)";
-str pretty(evar(var(x))) = x;
-str pretty(assign(var(x), e)) = "<x> = <pretty(e)>";
-str pretty(call(var(x), es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
+str pretty(evar(x)) = x;
+str pretty(assign(x, e)) = "<x> = <pretty(e)>";
+str pretty(call(x, es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
 str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)> end";
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
 str pretty(seq(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";

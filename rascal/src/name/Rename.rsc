@@ -3,34 +3,29 @@ module name::Rename
 import name::Gensym;
 import name::HygienicCorrectness;
 import name::Relation;
+import name::Names;
 import IO;
 import Map;
+import Set;
 
 
-// BUG: this import should not be necessary, 
-//      but without name::Test::renameS1() yields
-//      "Undeclared annotation: location on State"
-import lang::missgrant::base::AST;
-import lang::simple::AST;
-
-
-&T rename(Edges refs, &T t, loc varLoc, &U new) {
+&T rename(NameGraph G, &T t, ID varLoc, str new) {
   return visit (t) {
-    case &U x => new[@location = x@location] 
-      when x@location == varLoc
-    case &U x => new[@location = x@location] 
-      when varLoc == refOf(x@location, G)
+    case str x => setID(new, getOneFrom(getID(x))) // TODO: think about this getOneFrom!!! 
+      when getID(x) == varLoc
+    case str x => setID(new, getOneFrom(getID(x))) 
+      when varLoc == refOf(getID(x), G)
   };
 }
 
-&T rename(Edges refs, &T t, map[loc,&U] subst) {
+&T rename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
-    case &U x => subst[x@location][@location = x@location] 
-      when x@location in subst
-    case &U x => subst[def][@location = x@location] 
+    case str x => subst[getID(x)] 
+      when getID(x) in subst
+    case str x => subst[def] 
       // XXX: fails to call `refOf`
       // when def := refOf(x@location, refs) && def in subst
-      when x@location in refs && def := refs[x@location] && def in subst 
+      when getID(x) in refs, def := refs[getID(x)], def in subst 
   };
 }
 
@@ -58,7 +53,7 @@ import lang::simple::AST;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT, &U(str) name2var) {
+&T fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT) {
   Gs = <Vs,Es,Ns> = resolveS(s);
   Gt = <Vt,Et,Nt> = resolveT(t);
   
@@ -80,12 +75,11 @@ import lang::simple::AST;
   for (l <- badNodes) {
     fresh = freshName(usedNames, nameOf(l, Gt));
     usedNames += fresh;
-	    freshVar = name2var(fresh);
-    subst += (l : freshVar);
+    subst += (l : fresh);
   };
   
   Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
   
-  Prog t_new = rename(Et_new, t, subst);
-  return fixHygiene(s, t_new, resolveS, resolveT, name2var);
+  t_new = rename(Et_new, t, subst);
+  return fixHygiene(s, t_new, resolveS, resolveT);
 }

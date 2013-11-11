@@ -2,22 +2,21 @@ module lang::simple::Syntax
 
 start syntax Prog = prog: Def* defs Exp? main;
 
-syntax Def = define: "define" Var name "(" {Var ","}* params ")" "=" Exp body ";"
+syntax Def = define: "define" Id name "(" {Id ","}* params ")" "=" Exp body ";"
            ;
 
 syntax Exp = val: Val v
-           | evar: Var x
-           | assign: Var "=" Exp
-           | call: Var "(" {Exp ","}* args ")"
+           | evar: Id x
+           | assign: Id "=" Exp
+           | call: Id "(" {Exp ","}* args ")"
            | cond: "if" Exp "then" Exp "else" Exp "end"
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
            > right seq: Exp ";" Exp
-           | block: "{" {Var ","}+ locals ":" Exp e "}"
+           | block: "{" {Id ","}+ locals ":" Exp e "}"
            | bracket "(" Exp ")"
            ;
 
-syntax Var = var: Id;
 syntax Val = nat: Nat | string: String | error: "error" "(" String ")";
 
 
