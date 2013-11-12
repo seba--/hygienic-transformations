@@ -129,6 +129,7 @@ str fix7() {
   tNames = resolveNames(p);
   p2 = fixHygiene(0, p, sNames7, resolveNames);
   assert isCompiledHygienically(sNames7(0), resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames7(0), resolveNames(p2))>";
+  println("result: <pretty(p2)>");
   assert false : "x3use should be bound by x2def";
   return pretty(p2);
 }

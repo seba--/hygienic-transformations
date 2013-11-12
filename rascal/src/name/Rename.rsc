@@ -8,6 +8,40 @@ import IO;
 import Map;
 import String;
 
+&T rename(NameGraph G, &T t, ID varId, str new) {
+  return visit (t) {
+    case str x: {
+      xId = getID(x);
+      y = setID(new, xId);
+
+      // there might be strings that are not names
+      if (xId notin G.N) {
+        fail;
+      }
+      
+      if (xId == varId) {
+      	// same name occurrence (use or def)
+        insert y;
+      }
+      
+      if (xId in usesOf(G), varId == refOf(xId, G)) {
+      	// varId is the declaration of use xId
+        insert y;
+      }
+      if (varId in usesOf(G), xId in usesOf(G), refOf(varId, G) == refOf(xId, G)) {
+      	// varId and xId are both uses of the same declaration
+        insert y;
+      }
+      if (varId in usesOf(G), xId == refOf(varId, G)) {
+      	// xId is the declaration of varId
+        insert y;
+      }
+      fail;
+    }
+        
+  };
+}
+
 &T rename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
     case str x => subst[getID(x)] 
