@@ -5,7 +5,7 @@ import lang::simple::Parse;
 import lang::simple::Implode;
 
 import List;
-
+import IO;
 import String;
 
 str pretty(prog(FDefs fdefs, list[Exp] main)) =
@@ -20,7 +20,7 @@ str pretty(val(string(s))) = quoted(s);
 str pretty(val(error(s))) = "error(<quoted(s)>)";
 str pretty(var(x)) = x;
 str pretty(assign(x, e)) = "<x> = <pretty(e)>";
-str pretty(vardecl(sym(x), e)) = "var <x> = <pretty(e)>";
+str pretty(vardecl(x, e)) = "var <x> = <pretty(e)>";
 str pretty(call(x, es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
 str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)> end";
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
