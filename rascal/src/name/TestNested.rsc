@@ -202,9 +202,7 @@ NameGraph sNames10() {
 Prog fix10() {
   Prog p = prog();
   tNames = resolveNames(p);
-  p2 = fixHygiene(sNames10(), p, resolveNames);
-  println(pretty(p2));
-  return p2;
+  return fixHygiene(sNames10(), p, resolveNames);
 }
 test bool test10() {
   return isCompiledHygienically(sNames10(), resolveNames(fix10()));
@@ -220,10 +218,7 @@ NameGraph sNames11() {
 Prog fix11() {
   Prog p = prog();
   tNames = resolveNames(p);
-  iprintln(tNames);
-  p2 = fixHygiene(sNames11(), p, resolveNames);
-  println(pretty(p2));
-  return p2;
+  return fixHygiene(sNames11(), p, resolveNames);
 }
 test bool test11() {
   return isCompiledHygienically(sNames11(), resolveNames(fix11()));

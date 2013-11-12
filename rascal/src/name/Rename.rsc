@@ -11,10 +11,9 @@ import String;
 &T rename(NameGraph G, &T t, ID varId, str new) = rename(G.E, t, (varId:new));
 
 &T rename(Edges refs, &T t, map[ID,str] subst) {
-  println("RENAME");
   return visit (t) {
     case str x => subst[getID(x)] 
-      when getID(x) in subst, bprintln("Renaming <x> to <subst[getID(x)]>")
+      when getID(x) in subst
     case str x => setID(subst[def], getID(x)) 
       // XXX: fails to call `refOf`
       // when def := refOf(x@location, refs) && def in subst
@@ -49,16 +48,16 @@ import String;
 &T fixHygiene(<Vs,Es,Ns>, &T t, NameGraph(&T) resolveT) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
-  println("Source edges: <Es>");
-  println("Target edges: <Et>");
+  //println("Source edges: <Es>");
+  //println("Target edges: <Et>");
   
   badDefRefs  = (u:Et[u] | u <- Vs & Vt, u in Es, u in Et, Es[u] != Et[u]);
   badUseRefs  = (u:d     | d <- Vs & Vt, u <- Es & Et, Et[u] == d, Es[u] != d);
   badSelfRefs = (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
 
-  println("BadDefrefs: <badDefRefs>");
-  println("BadUseRefs: <badUseRefs>");
-  println("BadSelfRefs: <badSelfRefs>");
+  //println("BadDefrefs: <badDefRefs>");
+  //println("BadUseRefs: <badUseRefs>");
+  //println("BadSelfRefs: <badSelfRefs>");
   
 
   badDefinitionNodes = badDefRefs<1> + badUseRefs<1> + badSelfRefs<1>;
@@ -67,8 +66,8 @@ import String;
   // goodUseRefs required?
   goodUseRefs = ( u:d | d <- badUseRefs<1>, u <- Es, Es[u] == d);
   
-  iprintln(badDefRefs);
-  iprintln(badUseRefs);
+  //iprintln(badDefRefs);
+  //iprintln(badUseRefs);
   //iprintln(badSelfRefs);
   //iprintln(goodDefRefs);
   
