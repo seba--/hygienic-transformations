@@ -8,6 +8,8 @@ import IO;
 import Map;
 import String;
 
+&T rename(NameGraph G, &T t, ID varId, str new) = rename(G.E, t, (varId:new));
+
 &T rename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
     case str x => subst[getID(x)] 
