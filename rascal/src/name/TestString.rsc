@@ -102,9 +102,9 @@ Prog fixHygiene1() = fixTheHygiene(statemachine1());
 Prog fixHygiene2() = fixTheHygiene(statemachine1illcompiled());
 
 test bool rand(Controller m) {
-  p = finishGenProg(compile(m));
+  p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
+  p2 = fixHygiene(resolveNames(m), p, resolveNames);
   return isCompiledHygienically(sNames, resolveNames(p2));
 } 
