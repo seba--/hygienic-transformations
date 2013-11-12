@@ -53,13 +53,13 @@ Edges check2() {
 Controller renameS1() {
   m = statemachine1();
   init = m.states[0];
-  return concatRename(resolveNames(m), m, getID(init.name), "-renamed");
+  return rename(resolveNames(m), m, getID(init.name), "<init.name>-renamed");
 }
 
 Prog renameP1() {
   p = compiled1();
   d0 = p.sig[0].name;
-  return concatRename(resolveNames(p), p, getID(d0), "-renamed");
+  return rename(resolveNames(p), p, getID(d0), "<d0>-renamed");
 }
 
 str testProg1code() = "
@@ -76,7 +76,7 @@ loc testProg1() {
 Prog renameTestProg1(str(Prog) from) {
   p = implodeProg(parse(testProg1()));
   x = from(p);
-  return concatRename(resolveNames(p), p, getID(x), "-renamed");
+  return rename(resolveNames(p), p, getID(x), "<x>-renamed");
 }
  
 Prog renameProg1()  = renameTestProg1(
