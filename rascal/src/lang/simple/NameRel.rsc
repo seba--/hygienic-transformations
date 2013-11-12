@@ -6,88 +6,80 @@ import name::Names;
 
 import IO; 
 
-//anno int Def@location;
-//anno int Var@location;
-//
-//Prog makeUniqueIds(Prog p) {
-//  int n = 0;
-//  return visit (p) {
-//    case Var v : {
-//      n += 1;
-//      insert v[@location=n];
-//    }
-//  }
-//}
+alias Scope = map[str, ID];
+alias Answer = tuple[NameGraph ng, Scope sc];
+
+Scope collectDefinitions(Prog p) =
+  ( def.fsym: getID(def.fsym) | /FDef def := p );
 
 
-map[str,ID] collectDefinitions(Prog p) =
-  ( def.name: getID(def.name) | /Def def := p );
-
-NameGraph resolveNames(Def def, map[str,ID] scope) {
-  <V, E, N> = resolveNames(def.body, scope + (p: getID(p) | p <- def.params));
-  return <V + {getID(def.name)} + {getID(p) | p <- def.params}, 
-          E,
-          N + (getID(def.name): def.name) + (getID(p) :p | p <- def.params)>;
+Answer resolveNamesDef(FDef def, Scope scope) {
+  <<V, E, N>, _> = resolveNamesExp(def.body, scope + (p: getID(p) | p <- def.params));
+  return <<V + {getID(def.fsym)} + {getID(p) | p <- def.params},
+           E,
+           N + (getID(def.fsym):def.fsym) + (getID(p):p | p <- def.params)>,
+          scope + (def.fsym : getID(def.fsym))>;
 }
 
-NameGraph resolveNames(evar(v), map[str,ID] scope) = 
-  <{getID(v)}, (getID(v): scope[v]), ()>
+Answer resolveNamesExp(var(v), Scope scope) =
+  <<{getID(v)}, (getID(v):scope[v]), ()>, scope>   
   when v in scope;
 
-NameGraph resolveNames(assign(v, e), map[str,ID] scope) {
-  if (v in scope)
-    scope2 = scope;
-  else
-    scope2 = scope + (v: getID(v));
-  
-  <V,E,N> = resolveNames(e, scope2);
-  
-  if (v in scope)
-    return <V + {getID(v)}, E + (getID(v): scope[v]), N>;
-  else
-    return <V + {getID(v)}, E, N + (getID(v): v)>;
+
+Answer resolveNamesExp(vardecl(v, e), Scope scope) {
+  <<V,E,N>, scope> = resolveNamesExp(e, scope);
+  scope = scope + (v:getID(v));
+  return <<V + {getID(v)}, E, N + (getID(v):v)>, scope>;
 }
 
-NameGraph resolveNames(call(v, args), map[str,ID] scope) {
+Answer resolveNamesExp(assign(v, e), Scope scope) {
+  if (v notin scope)
+    throw "Unbound variable <v> at <getID(v)>.";
+  <<V,E,N>, scope2> = resolveNamesExp(e, scope);
+  return <<V + {getID(v)}, E + (getID(v):scope[v]), N>, scope2>;
+}
+
+Answer resolveNamesExp(call(v, args), Scope scope) {
+  if (v notin scope)
+    throw "Unbound variable <v> at <getID(v)>.";
+
   V = {getID(v)};
-  E = (getID(v): scope[v]);
+  E = (getID(v):scope[v]);
   N = ();
   for (e <- args) {
-    <V2,E2,N2> = resolveNames(e, scope);
+    <<V2,E2,N2>, _> = resolveNamesExp(e, scope);
     V += V2;
     E += E2;
     N += N2;
   }
-  return <V,E,N>;
+  return <<V,E,N>, scope>;
 }
 
-NameGraph resolveNames(block(vars, e), map[str,ID] scope) {
-  scope = scope + (v: getID(v) | v <- vars);
-  <V,E,N> = resolveNames(e, scope);
-  return <V + {getID(v) | v <- vars}, E, N + (getID(v): v | v <- vars)>;
+Answer resolveNamesExp(block(Exp exp), Scope scope) {
+  <ng, _> = resolveNamesExp(exp, scope);
+  return <ng, scope>;
 }
 
-default NameGraph resolveNames(Exp e, map[str,ID] scope) {
+default Answer resolveNamesExp(Exp e, Scope scope) {
   <V,E,N> = <{},(),()>;
   for (Exp e2 <- e) {
-    <V2,E2,N2> = resolveNames(e2, scope);
+    <<V2,E2,N2>, scope> = resolveNamesExp(e2, scope);
     <V,E,N> = <V + V2,E + E2, N + N2>;
   }
-  return <V,E,N>;
+  return <<V,E,N>, scope>;
 }
-  
 
 NameGraph resolveNames(Prog p) {
-  topScope = collectDefinitions(p);
+  scope = collectDefinitions(p);
   
   <dV,dE,dN> = <{},(),()>;
-  for (d <- p.sig) {
-    <V2,E2,N2> = resolveNames(d, topScope);
+  for (d <- p.fdefs) {
+    <<V2,E2,N2>, scope> = resolveNamesDef(d, scope);
     <dV,dE,dN> = <dV + V2,dE + E2,dN + N2>;
   }
   <mV,mE,mN> = <{},(),()>;
   for (e <- p.main) {
-    <V2,E2,N2> = resolveNames(e, topScope);
+    <<V2,E2,N2>, scope> = resolveNamesExp(e, scope);
     <mV,mE,mN> = <mV + V2,mE + E2,mN + N2>;
   }
   

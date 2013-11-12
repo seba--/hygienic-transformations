@@ -43,33 +43,41 @@ import String;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(&S s, &T t, NameGraph(&S) resolveS, NameGraph(&T) resolveT) {
-  Gs = <Vs,Es,Ns> = resolveS(s);
+&T fixHygiene(<Vs,Es,Ns>, &T t, NameGraph(&T) resolveT) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
-  badDefRefs = ( u:d | <u,d> <- Et<0,1>, u in Vs, u != d, u in Es ? Es[u] != d : true);
-  badUseRefs = ( u:d | <u,d> <- Et<0,1>, u notin Vs, d in Vs);
-  badNodes = badDefRefs<1> + badUseRefs<1>;
-  goodDefRefs = ( u:Es[u] | <u,d> <- badDefRefs<0,1>, u in Es );
+  //iprintln(Es);
+  //iprintln(Et);
   
-  //iprintln(badDefRefs);
-  //iprintln(badUseRefs);
+  badDefRefs  = (u:Et[u] | u <- Vs & Vt, u in Es, u in Et, Es[u] != Et[u]);
+  badUseRefs  = (u:d     | d <- Vs & Vt, u <- Es & Et, Et[u] == d, Es[u] != d);
+  badSelfRefs = (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
+
+  badDefinitionNodes = badDefRefs<1> + badUseRefs<1> + badSelfRefs<1>;
+  
+  goodDefRefs = ( u:Es[u] | u <- badDefRefs<0>);
+  // goodUseRefs required?
+  goodUseRefs = ( u:d | d <- badUseRefs<1>, u <- Es, Es[u] == d);
+  
+  iprintln(badDefRefs);
+  iprintln(badUseRefs);
+  //iprintln(badSelfRefs);
   //iprintln(goodDefRefs);
   
-  if (badNodes == {})
+  if (badDefinitionNodes == {})
     return t;
   
   usedNames = Nt<1>;
   subst = ();
   
-  for (l <- badNodes) {
+  for (l <- badDefinitionNodes) {
     fresh = freshName(usedNames, nameOf(l, Gt));
     usedNames += fresh;
     subst += (l : fresh);
   };
   
-  Et_new = Et - (badDefRefs + badUseRefs) + goodDefRefs;
+  Et_new = Et - (badDefRefs + badUseRefs + badSelfRefs) + goodDefRefs + goodUseRefs;
   
-  t_new = rename(Et_new, t, subst);
-  return fixHygiene(s, t_new, resolveS, resolveT);
+  &T t_new = rename(Et_new, t, subst);
+  return fixHygiene(<Vs,Es,Ns>, t_new, resolveT);
 }

@@ -25,16 +25,16 @@ Prog compile(list[State] states, list[str] events) {
 }
 
 
-Def state2constdef(State s, int i) {
-  return define(s.name, [], val(nat(i)));
+FDef state2constdef(State s, int i) {
+  return fdef(s.name, [], val(nat(i)));
 }
 
-list[Def] states2constdefs(list[State] states) {
+list[FDef] states2constdefs(list[State] states) {
   return [state2constdef(s,i) | <s,i> <- zip(states, [0..size(states)]) ];
 }
 
-Def state2def(State s) {
-  return define("<s.name>-trans", 
+FDef state2def(State s) {
+  return fdef("<s.name>-trans", 
                 ["event"], 
                 transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
 }
@@ -42,16 +42,14 @@ Def state2def(State s) {
 // Maybe we will have to parse in the variable symbol "event" to enable hygiene.
 Exp transitions2condexp([], Exp deflt) = deflt;
 
-Exp mkvar(str name) = evar(name);
-Exp mkvar(str name, loc l) = evar(name);
 
-Exp transitions2condexp([t, *ts], Exp deflt) = 
-  cond( eq(mkvar("event"), val(string(t.event))) 
+Exp transitions2condexp([t, *ts], Exp deflt) =
+  cond( eq(var("event"), val(string(t.event))) 
       , call(t.state, []) 
       , transitions2condexp(ts, deflt));
 
-Def stateDispatch(list[State] states) = 
-  define("trans-dispatch",
+FDef stateDispatch(list[State] states) = 
+  fdef("trans-dispatch",
          ["state", "event"], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
@@ -59,13 +57,13 @@ Def stateDispatch(list[State] states) =
 Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
-  cond( eq(mkvar("state"), call(s.name, []))
-       , call("<s.name>-trans", [mkvar("event")])
+  cond( eq(var("state"), call(s.name, []))
+       , call("<s.name>-trans", [var("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
   return 
-    ( assign("current", call(init.name, [])) 
-    | seq(it, assign("current", call("trans-dispatch", [mkvar("current"), val(string(e))])))
+    ( vardecl("current", call(init.name, [])) 
+    | seq(it, assign("current", call("trans-dispatch", [var("current"), val(string(e))])))
     | e <- es);
 }

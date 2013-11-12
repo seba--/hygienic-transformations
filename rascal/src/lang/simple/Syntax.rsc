@@ -1,19 +1,19 @@
 module lang::simple::Syntax
 
-start syntax Prog = prog: Def* defs Exp? main;
+start syntax Prog = prog: {FDef ";"}* defs Exp? main;
 
-syntax Def = define: "define" Id name "(" {Id ","}* params ")" "=" Exp body ";"
-           ;
+syntax FDef = fdef: Id fsym "(" {Id ","}* params ")" "=" Exp body;
 
 syntax Exp = val: Val v
-           | evar: Id x
-           | assign: Id "=" Exp
+           | var: Id x
            | call: Id "(" {Exp ","}* args ")"
-           | cond: "if" Exp "then" Exp "else" Exp "end"
+           | cond: "if" Exp "then" Exp "else" Exp
            | right plus: Exp "+" Exp 
            > non-assoc eq: Exp "==" Exp
+           > assign: Id "=" Exp
+           | vardecl: "var" Id "=" Exp
            > right seq: Exp ";" Exp
-           | block: "{" {Id ","}+ locals ":" Exp e "}"
+           | block: "{" Exp e "}"
            | bracket "(" Exp ")"
            ;
 
@@ -24,7 +24,7 @@ lexical Nat = [0-9][0-9]* !>> [0-9];
 
 lexical Id = ([a-zA-Z][a-zA-Z0-9_\-]* !>> [a-zA-Z0-9_\-]) \ Reserved ;
 lexical String = "\"" ![\"]* "\""; 
-keyword Reserved = "define" | "var" | "error" | "if";
+keyword Reserved = "error" | "if" | "then" | "else";
 
 lexical Comment = @category="Comment" "//" ![\n\r]* $;
 
