@@ -12,7 +12,7 @@ str pretty(prog(FDefs fdefs, list[Exp] main)) =
   intercalate(";\n\n", [pretty(fdef) | fdef <- fdefs] + [pretty(exp) | exp <- main]);
   
 str pretty(FDef d) =
-  "<d.name>(<intercalate(", ", [p | p<-d.params])>) =
+  "<d.fsym>(<intercalate(", ", [p | p<-d.params])>) =
   '  <pretty(d.body)>;";
   
 str pretty(val(nat(n))) = "<n>";
