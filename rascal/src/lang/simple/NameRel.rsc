@@ -21,6 +21,9 @@ Answer resolveNamesDef(FDef def, Scope scope) {
           scope + (def.fsym : getID(def.fsym))>;
 }
 
+NameGraph mainResolveNamesExp(Exp e) = 
+  resolveNamesExp(e, ())<0>;
+
 Answer resolveNamesExp(var(v), Scope scope) =
   <<{getID(v)}, (getID(v):scope[v]), ()>, scope>   
   when v in scope;
@@ -34,14 +37,17 @@ Answer resolveNamesExp(vardecl(v, e), Scope scope) {
 
 Answer resolveNamesExp(assign(v, e), Scope scope) {
   if (v notin scope)
-    throw "Unbound variable <v> at <getID(v)>.";
+    //throw "Unbound variable <v> at <getID(v)>.";
+    return <<{},(),()>, scope>;
+    
   <<V,E,N>, scope2> = resolveNamesExp(e, scope);
   return <<V + {getID(v)}, E + (getID(v):scope[v]), N>, scope2>;
 }
 
 Answer resolveNamesExp(call(v, args), Scope scope) {
   if (v notin scope)
-    throw "Unbound variable <v> at <getID(v)>.";
+    //throw "Unbound variable <v> at <getID(v)>.";
+    return <<{},(),()>, scope>;
 
   V = {getID(v)};
   E = (getID(v):scope[v]);

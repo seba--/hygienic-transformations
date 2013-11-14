@@ -9,7 +9,6 @@ import lang::simple::NameRel;
 
 import lang::simple::inline::Subst;
 
-import name::Rename;
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testsubst.sim|;
@@ -54,10 +53,7 @@ test bool testSubst3() {
 Prog subst4() {
   x = "free";
   e = var("n");
-  p = prog();
-  p2 = subst(prog(), x, e);
-  G = resolveNames(p);
-  return fixHygiene(G, p2, resolveNames);
+  return captureAvoidingSubst(prog(), x, e);
 }
 test bool testSubst4() {
   p = subst4();

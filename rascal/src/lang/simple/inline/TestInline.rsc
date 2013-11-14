@@ -10,7 +10,6 @@ import lang::simple::NameRel;
 
 import lang::simple::inline::Inline;
 
-import name::Rename;
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
@@ -43,10 +42,7 @@ test bool testInline2() {
 }
 
 Prog inline3() {
-  p = prog();
-  p2 = inline(prog(), "succ");
-  G = resolveNames(p);
-  return fixHygiene(G, p2, resolveNames);
+  return captureAvoidingInline(prog(), "succ");
 }
 test bool testInline3() {
   p = inline3();
@@ -73,10 +69,7 @@ test bool testInline4() {
 }
 
 Prog inline5() {
-  p = prog2();
-  p2 = inline(prog2(), "double");
-  G = resolveNames(p);
-  return fixHygiene(G, p2, resolveNames);
+  return captureAvoidingInline(prog2(), "double");
 }
 test bool testInline5() {
   p = inline5();
@@ -90,6 +83,40 @@ test bool testInline5() {
   allRenamedDefsHaveThreeRefs = (true | it && size(refs) == 3 | refs <- references);
   
   return nvars == 1 && nRenamed == 6 && hygienic && allRenamedDefsHaveThreeRefs;
+}
+
+Prog inline6() {
+  return captureAvoidingInline2(prog(), "succ");
+}
+test bool testInline6() {
+  p = inline6();
+  nvars = count(var("n"), p);
+  nRenamed = count(var("n_0_0"), p);
+  hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
+  
+  G = resolveNames(p);
+  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0_0"};
+  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
+  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
+  
+  return nvars == 2 && nRenamed == 2 && hygienic && allRenamedDefsHaveOneRef;
+}
+
+Prog inline7() {
+  return captureAvoidingInline2(prog2(), "double");
+}
+test bool testInline7() {
+  p = inline7();
+  nvars = count(var("n"), p);
+  nRenamed = count(var("n_0_0"), p);
+  hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
+  
+  G = resolveNames(p);
+  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0_0"};
+  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
+  allRenamedDefsHaveThreeRefs = (true | it && size(refs) == 3 | refs <- references);
+  
+  return nvars == 3 && nRenamed == 4 && hygienic && allRenamedDefsHaveThreeRefs;
 }
 
 

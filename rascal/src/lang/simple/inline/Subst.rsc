@@ -1,10 +1,25 @@
 module lang::simple::inline::Subst
 
 import lang::simple::AST;
+import lang::simple::NameRel;
+import lang::simple::Pretty;
 
 import IO;
 
-// import name::Rename;
+import name::Relation;
+import name::Rename;
+
+Prog captureAvoidingSubst(Prog p, str name, Exp e) {
+  Gs = resolveNames(p);
+  p2 = subst(p, name, e);
+  return fixHygiene(Gs, p2, resolveNames);
+}
+
+Exp captureAvoidingSubstExp(Exp exp, str name, Exp e) {
+  Gs = mainResolveNamesExp(exp);
+  exp2 = substExp(exp, name, e);
+  return fixHygiene(Gs, exp2, mainResolveNamesExp);
+}
 
 Prog subst(Prog p, str name, Exp e) {
   fdefs = [ substFDef(fdef, name, e) | fdef <- p.fdefs ];
