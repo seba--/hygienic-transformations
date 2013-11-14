@@ -13,7 +13,7 @@ str pretty(prog(FDefs fdefs, list[Exp] main)) =
   
 str pretty(FDef d) =
   "<d.fsym>(<intercalate(", ", [p | p<-d.params])>) =
-  '  <pretty(d.body)>;";
+  '  <pretty(d.body)>;\n";
   
 str pretty(val(nat(n))) = "<n>";
 str pretty(val(string(s))) = quoted(s);
