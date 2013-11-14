@@ -8,11 +8,12 @@ import IO;
 import Map;
 import String;
 
+
 &T rename(NameGraph G, &T t, ID varId, str new) = rename(G.E, t, (varId:new));
 
 &T rename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
-    case str x => subst[getID(x)] 
+    case str x => setID(subst[getID(x)], getID(x)) 
       when getID(x) in subst
     case str x => setID(subst[def], getID(x)) 
       // XXX: fails to call `refOf`
@@ -51,24 +52,23 @@ import String;
   //println("Source edges: <Es>");
   //println("Target edges: <Et>");
   
-  badDefRefs  = (u:Et[u] | u <- Vs & Vt, u in Es, u in Et, Es[u] != Et[u]);
-  badUseRefs  = (u:d     | d <- Vs & Vt, u <- Es & Et, Et[u] == d, Es[u] != d);
-  badSelfRefs = (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
-
-  //println("BadDefrefs: <badDefRefs>");
-  //println("BadUseRefs: <badUseRefs>");
-  //println("BadSelfRefs: <badSelfRefs>");
+  notPreserveSourceBinding =    (u:Et[u] | u <- Vs & Vt, u in Es, u in Et && Es[u] != Et[u]);
+  notPreserveDefinitionScope =  (u:Et[u] | d <- Vs & Vt, u <- Et, Et[u] == d, u in Es ? Es[u] != d : true);
+  notSafeDefinitionReferences = (u:Et[u] | u <- Vs & Vt, u notin Es, u in Et, Et[u] != u);
   
+  //println("not preserve source binding: <notPreserveSourceBinding>");
+  //println("not preserve definition scope: <notPreserveDefinitionScope>");
+  //println("not safe definition references: <notSafeDefinitionReferences>");
 
-  badDefinitionNodes = badDefRefs<1> + badUseRefs<1> + badSelfRefs<1>;
+  allBadRefs = notPreserveSourceBinding + notPreserveDefinitionScope + notSafeDefinitionReferences;
+  badDefinitionNodes = allBadRefs<1>;
   
-  goodDefRefs = ( u:Es[u] | u <- badDefRefs<0>);
+  goodDefRefs = ( u:Es[u] | u <- notPreserveSourceBinding<0>, u in Es);
   // goodUseRefs required?
-  goodUseRefs = ( u:d | d <- badUseRefs<1>, u <- Es, Es[u] == d);
+  goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Es, Es[u] == d);
   
   //iprintln(badDefRefs);
   //iprintln(badUseRefs);
-  //iprintln(badSelfRefs);
   //iprintln(goodDefRefs);
   
   if (badDefinitionNodes == {})
@@ -83,8 +83,9 @@ import String;
     subst += (l : fresh);
   };
   
-  Et_new = Et - (badDefRefs + badUseRefs + badSelfRefs) + goodDefRefs + goodUseRefs;
+  Et_new = Et - allBadRefs + goodDefRefs + goodUseRefs;
   
   &T t_new = rename(Et_new, t, subst);
+  
   return fixHygiene(<Vs,Es,Ns>, t_new, resolveT);
 }
