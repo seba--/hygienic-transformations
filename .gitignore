@@ -1,3 +1,4 @@
-rascal/bin
-rascal/input
-rascal/output
+/rascal/bin/
+/rascal/input/*
+!/rascal/input/*.ctl
+/rascal/output/
