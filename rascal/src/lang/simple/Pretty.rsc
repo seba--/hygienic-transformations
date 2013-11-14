@@ -15,7 +15,7 @@ str pretty(prog(FDefs fdefs, list[Exp] main)) =
 str pretty(vdef(str name, Exp exp)) = "var <name> = <pretty(exp)>;";
 
 str pretty(FDef d) =
-  "fun <d.fsym>(<intercalate(", ", [p | p<-d.params])>) =
+  "fun <d.fsym>(<intercalate(", ", [p | p<-d.pnames])>) =
   '  <pretty(d.body)>;";
   
 str pretty(val(nat(n))) = "<n>";
@@ -26,8 +26,8 @@ str pretty(assign(x, e)) = "<x> = <pretty(e)>";
 str pretty(call(x, es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
 str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)>";
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
-str pretty(seq(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
-str pretty(eq(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
+str pretty(sequ(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
+str pretty(equ(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
 str pretty(block(list[VDef] vini, Exp body)) {
   switch (vini) {
     case [VDef vdef]: return "{ <pretty(vdef)> <pretty(body)> }";

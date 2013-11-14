@@ -4,17 +4,17 @@ start syntax Prog = prog: FDef* defs Exp? main;
 
 syntax VDef = vdef: "var" Id name Exp exp ";";
 
-syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
+syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* pnames ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
            | var: Id x
            | call: Id "(" {Exp ","}* args ")"
            | cond: "if" Exp "then" Exp "else" Exp
            | right plus: Exp "+" Exp 
-           > non-assoc eq: Exp "==" Exp
+           > non-assoc equ: Exp "==" Exp
            > assign: Id "=" Exp
            | vardecl: "var" Id "=" Exp
-           > right seq: Exp ";" Exp
+           > right sequ: Exp ";" Exp
            | block: "{" VDef? vini Exp body "}"
            | bracket "(" Exp ")"
            ;

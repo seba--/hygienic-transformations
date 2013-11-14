@@ -19,10 +19,10 @@ Answer resolveNamesVDef(vdef(str name, Exp exp), Scope scope) {
 }
 
 Answer resolveNamesFDef(FDef def, Scope scope) {
-  <<V, E, N>, _> = resolveNamesExp(def.body, scope + (p: getID(p) | p <- def.params));
-  return <<V + {getID(def.fsym)} + {getID(p) | p <- def.params},
+  <<V, E, N>, _> = resolveNamesExp(def.body, scope + (p: getID(p) | p <- def.pnames));
+  return <<V + {getID(def.fsym)} + {getID(p) | p <- def.pnames},
            E,
-           N + (getID(def.fsym):def.fsym) + (getID(p):p | p <- def.params)>,
+           N + (getID(def.fsym):def.fsym) + (getID(p):p | p <- def.pnames)>,
           scope + (def.fsym : getID(def.fsym))>;
 }
 
