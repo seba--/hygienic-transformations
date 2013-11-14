@@ -64,8 +64,8 @@ Prog renameP1() {
 }
 
 str testProg1code() = "
-'define foo(x) = x + x;
-'define bar(foo) = bar(foo);
+'fun foo(x) = x + x;
+'fun bar(foo) = bar(foo);
 'x = foo(bar(2))
 ";
 loc testProg1loc() = |project://MissGrant/input/testProg1.sim|;

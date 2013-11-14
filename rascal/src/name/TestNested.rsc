@@ -27,29 +27,18 @@ str x2def = "x";
 str x2use = "x";
 str x3def = "x";
 str x3use = "x";
-str testprog = "(var <x1def> = 1; <x1use> + (var <x2def> = 1; <x2use> + (var <x3def> = 1; <x3use>)))";
 
-// AST, because parsing resets origins.
+str testprog =
+  "{var <x1def> = 1; <x1use> + {var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}}";
+
 Prog theProg =
-prog(
-  [],
-  [seq(
-      vardecl(
-        x1def,
-        val(nat(1))),
-      plus(
-        var(x1use),
-        seq(
-          vardecl(
-            x2def,
-            val(nat(1))),
-          plus(
-            var(x2use),
-            seq(
-              vardecl(
-                x3def,
-                val(nat(1))),
-              var(x3use))))))]);
+  prog([],
+       [block([vdef(x1def, val(nat(1)))],
+              plus(var(x1use),
+                   block([vdef(x2def, val(nat(1)))],
+                         plus(var(x2use),
+                              block([vdef(x3def, val(nat(1)))],
+                                    var(x3use))))))]);
 
 Prog prog() = theProg;
 

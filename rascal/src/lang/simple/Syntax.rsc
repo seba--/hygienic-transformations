@@ -2,7 +2,9 @@ module lang::simple::Syntax
 
 start syntax Prog = prog: FDef* defs Exp? main;
 
-syntax FDef = fdef: Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
+syntax VDef = vdef: "var" Id name Exp exp ";";
+
+syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
            | var: Id x
@@ -13,7 +15,7 @@ syntax Exp = val: Val v
            > assign: Id "=" Exp
            | vardecl: "var" Id "=" Exp
            > right seq: Exp ";" Exp
-           | block: "{" Exp e "}"
+           | block: "{" VDef? vini Exp body "}"
            | bracket "(" Exp ")"
            ;
 
