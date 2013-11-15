@@ -1,4 +1,4 @@
-module lang::locfun::AST
+module lang::simple::locfun::AST
 
 
 import lang::simple::AST;

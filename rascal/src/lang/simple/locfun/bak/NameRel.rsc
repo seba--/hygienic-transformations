@@ -1,8 +1,8 @@
-module lang::locfun::NameRel
+module lang::simple::locfun::NameRel
 
 
 import lang::simple::NameRel;
-import lang::locfun::AST;
+import lang::simple::locfun::AST;
 
 
 Answer resolveNamesExp(block(list[FDef] fini, Exp body), Scope scope) {

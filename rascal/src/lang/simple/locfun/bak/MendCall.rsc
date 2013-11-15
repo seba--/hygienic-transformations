@@ -1,8 +1,8 @@
-module lang::locfun::MendCall
+module lang::simple::locfun::MendCall
 
 
 import lang::simple::AST;
-import lang::locfun::AST;
+import lang::simple::locfun::AST;
 
 
 VDef mendcallVDef(vdef(str name, Exp exp), str fsym, str fsym1, list[str] fvns) {

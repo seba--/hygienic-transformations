@@ -1,9 +1,9 @@
-module lang::locfun::Decorate
+module lang::simple::locfun::Decorate
 
 
 import Prelude;
 import lang::simple::AST;
-import lang::locfun::AST;
+import lang::simple::locfun::AST;
 
 
 anno set[str] VDef @ fns;

@@ -1,11 +1,11 @@
-module lang::locfun::Lift
+module lang::simple::locfun::Lift
 
 
 import lang::simple::AST;
-import lang::locfun::AST;
-import lang::locfun::Decorate;
-import lang::locfun::Abstract;
-import lang::locfun::MendCall;
+import lang::simple::locfunlocfun::AST;
+import lang::simple::locfun::Decorate;
+import lang::simple::locfun::Abstract;
+import lang::simple::locfun::MendCall;
 import Node;
 
 

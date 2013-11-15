@@ -4,7 +4,7 @@ import lang::simple::AST;
 import name::Relation;
 import name::Names;
 
-import IO; 
+import IO;
 
 alias Scope = map[str, ID];
 alias Answer = tuple[NameGraph ng, Scope sc];
@@ -26,23 +26,26 @@ Answer resolveNamesFDef(FDef def, Scope scope) {
           scope + (def.fsym : getID(def.fsym))>;
 }
 
-Answer resolveNamesExp(var(v), Scope scope) =
-  <<{getID(v)}, (getID(v):scope[v]), ()>, scope>   
-  when v in scope;
+Answer resolveNamesExp(var(v), Scope scope) {
+  if (v in scope)
+  	  return <<{getID(v)}, (getID(v):scope[v]), ()>, scope>;
+  	else
+  	  return <<{getID(v)}, (), ()>, scope>;
+}   
 
 Answer resolveNamesExp(assign(v, e), Scope scope) {
-  if (v notin scope)
-    throw "Unbound variable <v> at <getID(v)>.";
   <<V,E,N>, scope2> = resolveNamesExp(e, scope);
-  return <<V + {getID(v)}, E + (getID(v):scope[v]), N>, scope2>;
+  if (v in scope)
+  		  return <<V + {getID(v)}, E + (getID(v):scope[v]), N>, scope2>;
+  		else
+  		  return <<V + {getID(v)}, E, N>, scope2>;
 }
 
 Answer resolveNamesExp(call(v, args), Scope scope) {
-  if (v notin scope)
-    throw "Unbound variable <v> at <getID(v)>.";
-
   V = {getID(v)};
-  E = (getID(v):scope[v]);
+  E = ();
+  if (v in scope)
+    E = (getID(v):scope[v]);
   N = ();
   for (e <- args) {
     <<V2,E2,N2>, _> = resolveNamesExp(e, scope);

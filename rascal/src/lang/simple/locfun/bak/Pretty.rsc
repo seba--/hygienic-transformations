@@ -1,4 +1,4 @@
-module lang::locfun::Pretty
+module lang::simple::locfun::Pretty
 
 
 import lang::simple::Pretty;

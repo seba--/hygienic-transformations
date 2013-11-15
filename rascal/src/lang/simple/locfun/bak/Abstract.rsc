@@ -1,11 +1,11 @@
-module lang::locfun::Abstract
+module lang::simple::locfun::Abstract
 
 
 import Prelude;
 import lang::simple::AST;
-import lang::locfun::AST;
-import lang::locfun::Decorate;
-import lang::locfun::MendCall;
+import lang::simple::locfun::AST;
+import lang::simple::locfun::Decorate;
+import lang::simple::locfun::MendCall;
 
 
 anno list[FDef] VDef @ lfs;

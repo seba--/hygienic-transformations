@@ -1,4 +1,4 @@
-module lang::locfun::Syntax
+module lang::simple::locfun::Syntax
 
 
 import lang::simple::Syntax;
