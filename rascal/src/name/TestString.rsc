@@ -36,6 +36,8 @@ Prog compiled1() = compile(statemachine1());
 
 Prog compiled1ill() = compile(statemachine1illcompiled()); 
 
+NameGraph sourceNames1() = resolveNames(statemachine1());
+
 NameGraph names1() = resolveNames(compiled1());
 
 Edges check1() {

@@ -22,7 +22,7 @@ str compile(str name, Controller ctl) =
 str states2consts(list[State] states) {
   i = 0;
   return "<for (s <- states) {>
-         'private static final int <stateName(s)> = <i>;
+         'private static final int <s.name> = <i>;
          '<i += 1;}>"; 
 }
 
@@ -40,29 +40,25 @@ str event2java(Event event) =
 
 str controller2run(Controller ctl) =
          "void run(java.util.Scanner input, java.io.Writer output) throws java.io.IOException {
-         '  int state = <stateName(ctl.states[0])>;
+         '  int current = <ctl.states[0].name>;
          '  while (true) {
          '    String token = input.nextLine();
-         '    switch (state) {
-         '      <for (s <- ctl.states) {>
-         '      <state2case(s)>
-         '      <}>
-         '    }
+         '    <for (s <- ctl.states) {>
+         '    <state2case(s)>
+         '    <}>
          '  }
          '}";
 
 str state2case(State s) =
-         "case <stateName(s)>: {
+         "if (current == <s.name>) {
          '  <for (a <- s.actions) {>
          '     <a>(output);
          '  <}>
          '  <for (transition(e, s2) <- s.transitions) {>
          '  if (<e>(token)) {
-         '     state = <stateName(s2)>;
+         '     current = <s2>;
          '  }
          '  <}>
-         '  break;
+         '  continue;
          '}";
 
-str stateName(State s) = stateName(s.name);
-str stateName(str s) = "state$<s>";
