@@ -2,7 +2,7 @@ module lang::simple::locfun::Locfun
 
 import lang::simple::Syntax;
 import lang::simple::AST;
-import lang::simple::NameRel;
+extend lang::simple::NameRel;
 import lang::simple::Pretty;
 
 import name::Names;
