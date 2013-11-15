@@ -1,0 +1,27 @@
+format Minbad
+extension jpeg jpg jfif
+
+unit byte
+size 1
+sign false
+type integer
+endian big
+strings ascii
+
+/* This program generates a name-correct Java program, but with the wrong semantics. */
+
+sequence
+  S1
+  S2
+  
+structures
+
+S1 {
+  x: 0x0;
+  y: S2.x;
+}
+
+S2 {
+  x ;
+}
+
