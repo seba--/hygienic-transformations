@@ -46,31 +46,20 @@ import String;
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(<Vs,Es,Ns>, &T t, NameGraph(&T) resolveT) {
+&T fixHygiene(Gs, &T t, NameGraph(&T) resolveT) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   //println("Source edges: <Es>");
   //println("Target edges: <Et>");
   
-  notPreserveSourceBinding =    (u:Et[u] | u <- Vs & Vt, u in Es, u in Et && Es[u] != Et[u]);
-  notPreserveDefinitionScope =  (u:Et[u] | d <- Vs & Vt, u <- Et, Et[u] == d, u in Es ? Es[u] != d : true);
-  notSafeDefinitionReferences = (u:Et[u] | u <- Vs & Vt, u notin Es, u in Et, Et[u] != u);
-  
-  //println("not preserve source binding: <notPreserveSourceBinding>");
-  //println("not preserve definition scope: <notPreserveDefinitionScope>");
-  //println("not safe definition references: <notSafeDefinitionReferences>");
-
-  allBadRefs = notPreserveSourceBinding + notPreserveDefinitionScope + notSafeDefinitionReferences;
+  <notPreserveSourceBinding, notPreserveDefinitionScope, notSafeDefinitionReferences> = unhygienicLinks(Gs, Gt);
+  allBadRefs = notPreserveSourceBinding + notPreserveDefinitionScope + notSafeDefinitionReferences; 
   badDefinitionNodes = allBadRefs<1>;
   
-  goodDefRefs = ( u:Es[u] | u <- notPreserveSourceBinding<0>, u in Es);
+  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>);
   // goodUseRefs required?
-  goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Es, Es[u] == d);
-  
-  //iprintln(badDefRefs);
-  //iprintln(badUseRefs);
-  //iprintln(goodDefRefs);
-  
+  goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Gs.E, Gs.E[u] == d);
+    
   if (badDefinitionNodes == {})
     return t;
   
@@ -87,5 +76,5 @@ import String;
   
   &T t_new = rename(Et_new, t, subst);
   
-  return fixHygiene(<Vs,Es,Ns>, t_new, resolveT);
+  return fixHygiene(Gs, t_new, resolveT);
 }

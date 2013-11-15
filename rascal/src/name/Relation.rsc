@@ -13,8 +13,10 @@ set[ID] synthesizedNodes(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
 
 
 ID refOf(ID n, Edges refs) = refs[n];
+ID refOf(str n, Edges refs) = refs[getID(n)];
 
-ID refOf(ID n, NameGraph G) = refOf(n, G.E); 
+ID refOf(ID n, NameGraph G) = refOf(n, G.E);
+ID refOf(str n, NameGraph G) = refOf(getID(n), G.E); 
 
 str nameOf(ID n, NameGraph G) {
   if (n in G.N)
@@ -45,4 +47,6 @@ NameGraph makeGraph(rel[str name,ID l] names, rel[ID use, ID def] refs) {
   return <nodes, ( u:d | <u,d> <- refs ), ( v:name | <v,name> <- N )>;
 }
 
-
+NameGraph union(NameGraph g1, NameGraph g2) =
+  <g1.V + g2.V, g1.E + g2.E, g1.N + g2.N>
+   when g1.E<0> & g2.E<0> == {} && g1.N<0> & g2.N<0> == {};
