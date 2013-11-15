@@ -1,8 +1,8 @@
 module lang::simple::Syntax
 
-start syntax Prog = prog: {FDef ";"}* defs Exp? main;
+start syntax Prog = prog: FDef* defs Exp? main;
 
-syntax FDef = fdef: Id fsym "(" {Id ","}* params ")" "=" Exp body;
+syntax FDef = fdef: Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
            | var: Id x

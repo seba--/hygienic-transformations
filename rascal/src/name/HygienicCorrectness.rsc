@@ -25,7 +25,7 @@ Synthesized names never point to source labels.
 @return set of illegal links.
 }
 Edges synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
-  return (u:d | <u,d> <- Gt<0,1>, u notin Gs.V, d in Gs.V);
+  return (u:d | <u,d> <- Gt.E<0,1>, u notin Gs.V, d in Gs.V);
 }
 
 Edges unhygienicLinks(NameGraph Gs, NameGraph Gt) = 
