@@ -1,19 +1,21 @@
 module lang::simple::Syntax
 
-start syntax Prog = prog: FDef* defs Exp? main;
+start syntax Prog = prog: FDef* fdefs Exp? main;
 
-syntax FDef = fdef: Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
+syntax VDef = vdef: "var" Id name "=" Exp exp ";";
+
+syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
            | var: Id x
            | call: Id "(" {Exp ","}* args ")"
            | cond: "if" Exp "then" Exp "else" Exp
            | right plus: Exp "+" Exp 
-           > non-assoc eq: Exp "==" Exp
+           > non-assoc equ: Exp "==" Exp
            > assign: Id "=" Exp
            | vardecl: "var" Id "=" Exp
-           > right seq: Exp ";" Exp
-           | block: "{" Exp e "}"
+           > right sequ: Exp ";" Exp
+           | block: "{" VDef? vdef Exp body "}"
            | bracket "(" Exp ")"
            ;
 

@@ -18,6 +18,14 @@ ID refOf(str n, Edges refs) = refs[getID(n)];
 ID refOf(ID n, NameGraph G) = refOf(n, G.E);
 ID refOf(str n, NameGraph G) = refOf(getID(n), G.E); 
 
+bool isRefOf(str u, str d, NameGraph G) {
+  uid = getID(u);
+  did = getID(d);
+  return uid in G.E && G.E[uid] == did;
+}
+
+bool isFree(str v, NameGraph G) = getID(v) notin G.E;
+
 str nameOf(ID n, NameGraph G) {
   if (n in G.N)
     return G.N[n];

@@ -44,8 +44,8 @@ Exp transitions2condexp([], Exp deflt) = deflt;
 
 
 Exp transitions2condexp([t, *ts], Exp deflt) =
-  cond( eq(var("event"), val(string(t.event))) 
-      , call(t.state, []) 
+  cond( equ(var("event"), val(string(t.event)))
+      , call(t.state, [])
       , transitions2condexp(ts, deflt));
 
 FDef stateDispatch(list[State] states) = 
@@ -57,13 +57,13 @@ FDef stateDispatch(list[State] states) =
 Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
-  cond( eq(var("state"), call(s.name, []))
+  cond( equ(var("state"), call(s.name, []))
        , call("<s.name>-trans", [var("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
   return 
     ( vardecl("current", call(init.name, [])) 
-    | seq(it, assign("current", call("trans-dispatch", [var("current"), val(string(e))])))
+    | sequ(it, assign("current", call("trans-dispatch", [var("current"), val(string(e))])))
     | e <- es);
 }
