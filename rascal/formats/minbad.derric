@@ -13,6 +13,7 @@ strings ascii
 sequence
   S1
   S2
+/*  getExtension */
   
 structures
 
@@ -24,4 +25,10 @@ S1 {
 S2 {
   x ;
 }
+
+/*
+getExtension {
+  foo ;
+}
+*/
 

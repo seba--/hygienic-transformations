@@ -21,7 +21,7 @@ import lang::derric::Validator;
 import lang::derric::GenerateGlobalJava;
 
 public str generateStructure(Structure struct) {
-	str ret = "private boolean parse<struct.name>() throws java.io.IOException {markStart();";
+	str ret = "private boolean <struct.name>() throws java.io.IOException {markStart();";
 	int i = 0;
 	for (s <- struct.statements) {
 		switch (s) {

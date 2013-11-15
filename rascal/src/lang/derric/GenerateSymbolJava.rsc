@@ -58,15 +58,15 @@ private str generateAnyOfSymbols(set[DSymbol] symbols, bool iterate) {
 		//println(breakTarget);
 		if (res == "") {
 			switch (s) {
-				case term(str name): res += "if (parse<name>()) { <iterate ? continueStatement : breakTarget>; }\n";
-				case optional(term(str name)): res += "parse<name>();\n<iterate ? continueStatement : breakTarget>;\n";
-				case iter(term(str name)): res += "for (;;) {\nif (parse<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n";
+				case term(str name): res += "if (<name>()) { <iterate ? continueStatement : breakTarget>; }\n";
+				case optional(term(str name)): res += "<name>();\n<iterate ? continueStatement : breakTarget>;\n";
+				case iter(term(str name)): res += "for (;;) {\nif (<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n";
 			}
 		} else {
 			switch (s) {
-				case term(str name): res = "if (parse<name>()) {\n<res>}\n";
-				case optional(term(str name)): res = "parse<name>();\n<res>";
-				case iter(term(str name)): res = "for (;;) {\nif (parse<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n<res>";
+				case term(str name): res = "if (<name>()) {\n<res>}\n";
+				case optional(term(str name)): res = "<name>();\n<res>";
+				case iter(term(str name)): res = "for (;;) {\nif (<name>()) { <continueStatement>; }\n<breakTarget>;\n}\n<res>";
 			}
 		}
 	}
