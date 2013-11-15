@@ -1,10 +1,11 @@
 module lang::simple::locfun::Tests
 
 import lang::simple::AST;
-import lang::simple::NameRel;
+import lang::simple::Pretty;
 import lang::simple::locfun::Locfun;
 
 import name::HygienicCorrectness;
+import name::Rename;
 
 import IO;
 
@@ -37,13 +38,25 @@ fun f(x, y) = f(x + y, y);
 }
 */
 
+Prog trans1() = testProg1();
 test bool test1() {
   Gs = resolveNames(prog1);
-  Gt = resolveNames(testProg1());
+  prog2 = testProg1();
+  Gt = resolveNames(prog2);
   iprintln(Gs);
   iprintln(Gt);
-  <refs,defs,self> = unhygienicLinks(Gs,Gt);
-  iprintln(<refs,defs,self>);
-  return refs == () && defs == () && self == ();
+  iprintln(unhygienicLinks(Gs,Gt));
+  return isCompiledHygienically(Gs, Gt);
+}
+
+Prog transFixed1() {
+  Gs = resolveNames(prog1);
+  prog2 = fixHygiene(Gs, trans1(), resolveNames);
+}
+test bool testFixed1() {
+  Gs = resolveNames(prog1);
+  transformed = testProg1();
+  fixed = fixHygiene(Gs, transformed, resolveNames);
+  return transformed == fixed;
 }
 
