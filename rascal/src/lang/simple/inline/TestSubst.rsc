@@ -45,7 +45,7 @@ Prog subst3() {
 }
 test bool testSubst3() {
   p = subst3();
-  nvars = count(var("n"), p); // should be 2 in name-fixed version, but here it is 4
+  nvars = count(var("n"), p);
   hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
   return nvars == 4 && !hygienic;
 }
