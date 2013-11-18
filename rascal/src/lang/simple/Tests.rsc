@@ -3,8 +3,8 @@ module lang::simple::Tests
 
 import lang::simple::Syntax;
 import lang::simple::Parse;
-import lang::simple::AST;
 import lang::simple::Implode;
+import lang::simple::AST;
 import lang::simple::Eval;
 
 
@@ -23,21 +23,21 @@ test bool test03() = eval([], var("x"), ("x" : nat(1))).val == nat(1);
 
 test bool test04() = eval(plus(val(nat(1)), val(nat(2)))).val == nat(3);
 
-test bool test05() = eval(seq(val(nat(1)), val(nat(2)))).val == nat(2);
+test bool test05() = eval(sequ(val(nat(1)), val(nat(2)))).val == nat(2);
 
-test bool test06() = eval(eq(val(nat(1)), val(nat(1)))).val == nat(1);
+test bool test06() = eval(equ(val(nat(1)), val(nat(1)))).val == nat(1);
 
-test bool test07() = eval(eq(val(nat(1)), val(nat(2)))).val == nat(0);
+test bool test07() = eval(equ(val(nat(1)), val(nat(2)))).val == nat(0);
 
-test bool test08() = eval(cond(eq(val(nat(1)), val(nat(1))), val(nat(1)), val(nat(0)))).val == nat(1);
+test bool test08() = eval(cond(equ(val(nat(1)), val(nat(1))), val(nat(1)), val(nat(0)))).val == nat(1);
 
-test bool test08() = eval(cond(eq(val(nat(1)), val(nat(2))), val(nat(1)), val(nat(0)))).val == nat(0);
+test bool test08() = eval(cond(equ(val(nat(1)), val(nat(2))), val(nat(1)), val(nat(0)))).val == nat(0);
 
-test bool test09() = eval(block(seq(assign("x", val(nat(1))), val(nat(2))))).val == nat(2);
+test bool test09() = eval(block(sequ(assign("x", val(nat(1))), val(nat(2))))).val == nat(2);
 
 test bool test10() = eval([], assign("x", val(nat(1))), ("x" : nat(0))).val == nat(1);
 
-test bool test11() = eval(block(seq(assign("x", val(nat(1))), seq(assign("x", val(nat(2))), var("x"))))).val == nat(2);
+test bool test11() = eval(block(sequ(assign("x", val(nat(1))), sequ(assign("x", val(nat(2))), var("x"))))).val == nat(2);
 
 test bool test12() = eval([fdef("f", ["x"], val(nat(2)))], call("f", [val(nat(1))]), ()).val == nat(2);
 

@@ -60,13 +60,13 @@ Result eval(FDefs fdefs, plus(Exp exp1, Exp exp2), Env env) {
   return <env, nat(n1 + n2)>;
 }
 
-Result eval(FDefs fdefs, seq(Exp exp1, Exp exp2), Env env) {
+Result eval(FDefs fdefs, sequ(Exp exp1, Exp exp2), Env env) {
   <env, _> = eval(fdefs, exp1, env);
   return eval(fdefs, exp2, env);
 }
 
-Result eval(FDefs fdefs, eq(Exp exp1, Exp exp2), Env env) {
-  // Side effects by evaluating operands of `eq` is disallowed.
+Result eval(FDefs fdefs, equ(Exp exp1, Exp exp2), Env env) {
+  // Side effects by evaluating operands of `equ` is disallowed.
   nat(n1) = eval(fdefs, exp1, env).val;
   nat(n2) = eval(fdefs, exp2, env).val;
   return <env, nat(n1 == n2? 1 : 0)>;
