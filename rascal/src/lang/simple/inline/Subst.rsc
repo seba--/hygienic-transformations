@@ -36,8 +36,8 @@ FDef substFDef(FDef def, str name, Exp e) {
 
 Exp substExp(Exp exp, str name, Exp e) = 
   top-down-break visit(exp) {
-    case seq(vardecl(name, e1), e2):
-      insert seq(vardecl(name, substExp(e1, name, e)), e2);
+    case block([vdef(name, e1)], e2):
+      insert block([vdef(name, substExp(e1, name, e))], e2);
     case var(x):
       insert substVar(var(x), name, e);
   };

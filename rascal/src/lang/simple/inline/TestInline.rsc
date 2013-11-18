@@ -13,9 +13,9 @@ import lang::simple::inline::Inline;
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
-str source() = "zero() = 0; \nsucc(x) = {var n = 1; x + n};    \n\n(var n = free + 5; succ(succ(n + free + zero())))";
+str source() = "fun zero() = 0; \nfun succ(x) = {var n = 1; x + n};    \n\n{var n = free + 5; succ(succ(n + free + zero()))}";
 loc testfile2 = |project://Rascal-Hygiene/output/testinline2.sim|;
-str source2() = "zero() = 0; \ndouble(x) = {var n = 0; n = x; n + n};    \n\n(var n = free + 5; double(double(n + free + zero())))";
+str source2() = "fun zero() = 0; \nfun double(x) = {var n = 0; (n = x; n + n)};    \n\n{var n = free + 5; double(double(n + free + zero()))}";
 
 Prog load(loc file, str code) {
   writeFile(file, code);

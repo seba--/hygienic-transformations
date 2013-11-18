@@ -8,13 +8,12 @@ syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
            | var: Id x
-           | call: Id "(" {Exp ","}* args ")"
-           | cond: "if" Exp "then" Exp "else" Exp
-           | right plus: Exp "+" Exp 
-           > non-assoc equ: Exp "==" Exp
-           > assign: Id "=" Exp
-           | vardecl: "var" Id "=" Exp
-           > right sequ: Exp ";" Exp
+           | call: Id fsym "(" {Exp ","}* args ")"
+           | cond: "if" Exp c "then" Exp t "else" Exp e
+           | right plus: Exp e1 "+" Exp e2 
+           > non-assoc equ: Exp e1 "==" Exp e2
+           > right sequ: Exp e1 ";" Exp e2
+           > assign: Id var "=" Exp e
            | block: "{" VDef? vdef Exp body "}"
            | bracket "(" Exp ")"
            ;
