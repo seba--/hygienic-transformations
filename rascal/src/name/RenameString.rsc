@@ -6,6 +6,8 @@ import util::Maybe;
 import name::Relation;
 import name::Names;
 import name::Gensym;
+import name::HygienicCorrectness;
+import name::Rename;
 
 @doc{
 This applies a (definition-)renaming to a string (represent as an lrel with origins). 
@@ -29,68 +31,7 @@ lrel[Maybe[loc], str] renameString(Edges refs, lrel[Maybe[loc], str] src, map[ID
 
 
 lrel[Maybe[loc], str] fixHygieneString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT) 
-  = fixHygiene2(Gs, t, /* renameString, */ resolveT); 
-
-
-// NB: this is different from  fixHygiene in Rename.rsc...
-lrel[Maybe[loc], str] fixHygiene2(<Vs,Es,Ns>, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT) {
-  Gt = <Vt,Et,Nt> = resolveT(t);
-  
-  //println("Source edges:");
-  //iprintln(Es);
-  //println("Target edges:");
-  //iprintln(Et);
-  //println("Synthesized nodes");
-  //iprintln(Vt - Vs);
-  
-  
-  notPreserveSourceBinding =    (u:Et[u] | u <- Vs & Vt, u in Es, u in Et && Es[u] != Et[u]);
-  //notPreserveDefinitionScope =  (u:Et[u] | d <- Vs & Vt, u <- Et, Et[u] == d, u in Es ? Es[u] != d : true);
-  notSafeDefinitionReferences = (u:Et[u] | u <- Vs & Vt, u notin Es, u in Et, Et[u] != u);
-  
-  //println("not preserve source binding:");
-  //iprintln(notPreserveSourceBinding);
-  //println("not preserve definition scope:");
-  //iprintln(notPreserveDefinitionScope);
-  //println("not safe definition references:");
-  //iprintln(notSafeDefinitionReferences);
-
-  allBadRefs = notPreserveSourceBinding /*+ notPreserveDefinitionScope*/ + notSafeDefinitionReferences;
-  badDefinitionNodes = allBadRefs<1>;
-  
-  goodDefRefs = ( u:Es[u] | u <- notPreserveSourceBinding<0>, u in Es);
-  // goodUseRefs required?
-  //goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Es, Es[u] == d);
-  
-  //println("All bad refs:");
-  //iprintln(allBadRefs);
-  
-  if (badDefinitionNodes == {})
-    return t;
-
-  //println("Bad definition nodes:");
-  //iprintln(badDefinitionNodes);
-
-  
-  usedNames = Nt<1>;
-  subst = ();
-  
-  for (l <- badDefinitionNodes) {
-    fresh = freshName(usedNames, nameOf(l, Gt));
-    usedNames += fresh;
-    subst += (l : fresh);
-  };
-  
-  Et_new = Et - allBadRefs + goodDefRefs;// + goodUseRefs;
-  
-  //println("New reference graph:");
-  //iprintln(Et_new);
-  
-  t_new = renameString(Et_new, t, subst);
-  
-  return fixHygiene2(<Vs,Es,Ns>, t_new, resolveT);
-}
-
+  = fixHygiene(Gs, t, renameString, resolveT); 
 
 @doc{
 This function maps (target language) name-IDs to (source or meta program) origins

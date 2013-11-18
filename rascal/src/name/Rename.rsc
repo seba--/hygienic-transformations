@@ -47,10 +47,13 @@ import String;
 //  = fixHygiene(Gs, t, renameSubst, resolveT);
 
 
+&T fixHygiene(NameGraph Gs, (&T<:node) t, NameGraph(&T) resolveT) 
+  = fixHygiene(Gs, t, rename, resolveT);
+
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(NameGraph Gs, &T t, /* &T(Edges refs, &T t, map[ID,str] subst) rename, */ NameGraph(&T) resolveT) {
+&T fixHygiene(NameGraph Gs, &T t, &T(Edges refs, &T t, map[ID,str] subst) rename, NameGraph(&T) resolveT) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   //println("Source edges: <Es>");
@@ -78,5 +81,5 @@ import String;
   
   &T t_new = rename(Et_new, t, subst);
   
-  return fixHygiene(Gs, t_new, /* rename, */ resolveT);
+  return fixHygiene(Gs, t_new, rename, resolveT);
 }
