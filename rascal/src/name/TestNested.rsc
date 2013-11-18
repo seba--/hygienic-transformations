@@ -45,7 +45,7 @@ Prog prog() = theProg;
 NameGraph resolve() = resolveNames(prog());
 
 Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
-  p2 = fixHygiene(g, p, resolve);
+  p2 = fixHygiene(#Prog, g, p, resolve);
   println("fixed: <pretty(p2)>");
   return p2;
 }

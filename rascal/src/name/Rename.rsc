@@ -8,7 +8,6 @@ import IO;
 import Map;
 import String;
 
-
 &T rename(NameGraph G, &T t, ID varId, str new) = renameSubst(G.E, t, (varId:new));
 
 &T rename(Edges refs, &T t, map[ID,str] subst) {
@@ -47,8 +46,9 @@ import String;
 //  = fixHygiene(Gs, t, renameSubst, resolveT);
 
 
-&T fixHygiene(NameGraph Gs, (&T<:node) t, NameGraph(&T) resolveT) 
-  = fixHygiene(Gs, t, rename, resolveT);
+&T fixHygiene(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
+  = x // vvvvv work around Rascal bug.
+  when &T x := fixHygiene(Gs, t, rename, resolveT);
 
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
