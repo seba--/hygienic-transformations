@@ -52,13 +52,11 @@ import String;
   //println("Source edges: <Es>");
   //println("Target edges: <Et>");
   
-  <notPreserveSourceBinding, notPreserveDefinitionScope, notSafeDefinitionReferences> = unhygienicLinks(Gs, Gt);
-  allBadRefs = notPreserveSourceBinding + notPreserveDefinitionScope + notSafeDefinitionReferences; 
+  <notPreserveSourceBinding, notPreventCrossReferences> = unhygienicLinks(Gs, Gt);
+  allBadRefs = notPreserveSourceBinding + notPreventCrossReferences; 
   badDefinitionNodes = allBadRefs<1>;
   
-  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>);
-  // goodUseRefs required?
-  goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Gs.E, Gs.E[u] == d);
+  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>, u in Gs.E);
     
   if (badDefinitionNodes == {})
     return t;
@@ -72,7 +70,7 @@ import String;
     subst += (l : fresh);
   };
   
-  Et_new = Et - allBadRefs + goodDefRefs + goodUseRefs;
+  Et_new = Et - allBadRefs + goodDefRefs;
   
   &T t_new = rename(Et_new, t, subst);
   
