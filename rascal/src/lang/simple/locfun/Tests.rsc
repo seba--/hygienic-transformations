@@ -17,7 +17,7 @@ Exp exp1 =
 
 Prog prog1 = prog([], [exp1]);
 
-/* prog1 before desugaring
+/* prog1 before local functions being lifted
 {
   var y = 1;
   {
@@ -27,9 +27,9 @@ Prog prog1 = prog([], [exp1]);
 }
 */
 
-Prog testProg1() = desugarLocfun(prog1);
+Prog liftProg1() = liftLocfun(prog1);
 
-/* prog1 after desugaring
+/* prog1 after local functions being lifted
 fun f(x, y) = f(x + y, y);
 
 {
@@ -38,25 +38,25 @@ fun f(x, y) = f(x + y, y);
 }
 */
 
-Prog trans1() = testProg1();
 test bool test1() {
   Gs = resolveNames(prog1);
-  prog2 = testProg1();
-  Gt = resolveNames(prog2);
+  liftedProg1 = liftProg1();
+  Gt = resolveNames(liftedProg1);
   iprintln(Gs);
   iprintln(Gt);
   iprintln(unhygienicLinks(Gs,Gt));
   return isCompiledHygienically(Gs, Gt);
 }
 
-Prog transFixed1() {
+Prog liftFixProg1() {
   Gs = resolveNames(prog1);
-  prog2 = fixHygiene(Gs, trans1(), resolveNames);
+  return fixHygiene(#Prog, Gs, liftProg1(), resolveNames);
 }
+
 test bool testFixed1() {
   Gs = resolveNames(prog1);
-  transformed = testProg1();
-  fixed = fixHygiene(Gs, transformed, resolveNames);
-  return transformed == fixed;
+  liftedProg1 = liftProg1();
+  fixedProg1 = fixHygiene(#Prog, Gs, liftedProg1, resolveNames);
+  return liftedProg1 == fixedProg1;
 }
 

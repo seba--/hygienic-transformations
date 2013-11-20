@@ -32,7 +32,7 @@ Answer resolveNamesExp(block(FDef fdef, Exp body), Scope scope) {
 }
 
 // desugar
-Prog desugarLocfun(prog(fdefs, main)) {
+Prog liftLocfun(prog(fdefs, main)) {
   lifted = [];
   
   liftedMain = visit(main) {
