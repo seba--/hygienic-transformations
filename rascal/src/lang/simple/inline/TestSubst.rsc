@@ -12,7 +12,7 @@ import lang::simple::inline::Subst;
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testsubst.sim|;
-str source() = "zero() = 0; \nsucc(x) = {var n = 1; x + n};        \n\n(var n = free + 5; succ(succ(n + free + zero())))";
+str source() = "fun zero() = 0; \nfun succ(x) = {var n = 1; x + n};        \n\n{var n = free + 5; succ(succ(n + free + zero()))}";
 
 Prog load(str code) {
   writeFile(testfile, code);

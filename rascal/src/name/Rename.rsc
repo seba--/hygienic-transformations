@@ -8,8 +8,7 @@ import IO;
 import Map;
 import String;
 
-
-&T rename(NameGraph G, &T t, ID varId, str new) = rename(G.E, t, (varId:new));
+&T rename(NameGraph G, &T t, ID varId, str new) = renameSubst(G.E, t, (varId:new));
 
 &T rename(Edges refs, &T t, map[ID,str] subst) {
   return visit (t) {
@@ -43,22 +42,28 @@ import String;
 //  return renamed;
 //}
 
+//&T fixHygiene(NameGraph Gs, &T t, NameGraph(&T) resolveT) 
+//  = fixHygiene(Gs, t, renameSubst, resolveT);
+
+
+&T fixHygiene(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
+  = x // vvvvv work around Rascal bug.
+  when &T x := fixHygiene(Gs, t, rename, resolveT);
+
 @doc {
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
-&T fixHygiene(Gs, &T t, NameGraph(&T) resolveT) {
+&T fixHygiene(NameGraph Gs, &T t, &T(Edges refs, &T t, map[ID,str] subst) rename, NameGraph(&T) resolveT) {
   Gt = <Vt,Et,Nt> = resolveT(t);
   
   //println("Source edges: <Es>");
   //println("Target edges: <Et>");
   
-  <notPreserveSourceBinding, notPreserveDefinitionScope, notSafeDefinitionReferences> = unhygienicLinks(Gs, Gt);
-  allBadRefs = notPreserveSourceBinding + notPreserveDefinitionScope + notSafeDefinitionReferences; 
+  <notPreserveSourceBinding, notPreventCrossReferences> = unhygienicLinks(Gs, Gt);
+  allBadRefs = notPreserveSourceBinding + notPreventCrossReferences; 
   badDefinitionNodes = allBadRefs<1>;
   
-  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>);
-  // goodUseRefs required?
-  goodUseRefs = ( u:d | d <- notPreserveDefinitionScope<1>, u <- Gs.E, Gs.E[u] == d);
+  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>, u in Gs.E);
     
   if (badDefinitionNodes == {})
     return t;
@@ -72,9 +77,9 @@ import String;
     subst += (l : fresh);
   };
   
-  Et_new = Et - allBadRefs + goodDefRefs + goodUseRefs;
+  Et_new = Et - allBadRefs + goodDefRefs;
   
   &T t_new = rename(Et_new, t, subst);
   
-  return fixHygiene(Gs, t_new, resolveT);
+  return fixHygiene(Gs, t_new, rename, resolveT);
 }

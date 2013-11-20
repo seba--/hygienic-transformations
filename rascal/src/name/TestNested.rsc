@@ -30,7 +30,6 @@ str x3use = "x";
 
 str testprog =
   "{var <x1def> = 1; <x1use> + {var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}}";
-
 Prog theProg =
   prog([],
        [block([vdef(x1def, val(nat(1)))],
@@ -39,13 +38,26 @@ Prog theProg =
                          plus(var(x2use),
                               block([vdef(x3def, val(nat(1)))],
                                     var(x3use))))))]);
-
 Prog prog() = theProg;
-
 NameGraph resolve() = resolveNames(prog());
 
+
+str testprog2 =
+  "{var <x1def> = 1; <x1use>};{var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}";
+Prog theProg2 =
+  prog([],
+       [sequ(
+          block([vdef(x1def, val(nat(1)))],
+                var(x1use)),
+          block([vdef(x2def, val(nat(1)))],
+                plus(var(x2use),
+                     block([vdef(x3def, val(nat(1)))],
+                           var(x3use)))))]);
+Prog prog2() = theProg2;
+NameGraph resolve2() = resolveNames(prog2());
+
 Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
-  p2 = fixHygiene(g, p, resolve);
+  p2 = fixHygiene(#Prog, g, p, resolve);
   println("fixed: <pretty(p2)>");
   return p2;
 }
@@ -218,3 +230,22 @@ Prog fix11() {
 test bool test11() {
   return isCompiledHygienically(sNames11(), resolveNames(fix11()));
 }
+
+
+// test 12 illustrates that name-fix may introduce free variable if
+// use and definition are in separate scopes. [note: test uses prog2()]
+NameGraph sNames12() {
+  Vs = {getID(x1def), getID(x3use)};
+  Es = (getID(x3use):getID(x1def));
+  Ns = ();
+  return <Vs,Es,Ns>;
+}
+Prog fix12() {
+  Prog p = prog2();
+  tNames = resolveNames(p);
+  return fixAndPrint(sNames12(), p, resolveNames);
+}
+test bool test12() {
+  return isCompiledHygienically(sNames12(), resolveNames(fix12()));
+}
+

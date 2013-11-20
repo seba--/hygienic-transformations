@@ -12,13 +12,13 @@ import name::Rename;
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {
   Gs = resolveNames(p);
   p2 = subst(p, name, e);
-  return fixHygiene(Gs, p2, resolveNames);
+  return fixHygiene(#Prog, Gs, p2, resolveNames);
 }
 
 Exp captureAvoidingSubstExp(Exp exp, str name, Exp e) {
   Gs = mainResolveNamesExp(exp);
   exp2 = substExp(exp, name, e);
-  return fixHygiene(Gs, exp2, mainResolveNamesExp);
+  return fixHygiene(#Prog, Gs, exp2, mainResolveNamesExp);
 }
 
 Prog subst(Prog p, str name, Exp e) {
@@ -36,8 +36,8 @@ FDef substFDef(FDef def, str name, Exp e) {
 
 Exp substExp(Exp exp, str name, Exp e) = 
   top-down-break visit(exp) {
-    case seq(vardecl(name, e1), e2):
-      insert seq(vardecl(name, substExp(e1, name, e)), e2);
+    case block([vdef(name, e1)], e2):
+      insert block([vdef(name, substExp(e1, name, e))], e2);
     case var(x):
       insert substVar(var(x), name, e);
   };

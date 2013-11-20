@@ -13,7 +13,7 @@ Prog captureAvoidingInline(Prog p, str name) {
   if ({def} := { d | d <- p.fdefs, d.fsym == name}) {
     Gs = resolveNames(p);
   	p2 = inline(p, def);
-    return fixHygiene(Gs, p2, resolveNames);
+    return fixHygiene(#Prog, Gs, p2, resolveNames);
  }
 }
 

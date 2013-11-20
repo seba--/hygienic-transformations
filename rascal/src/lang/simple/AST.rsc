@@ -2,7 +2,7 @@ module lang::simple::AST
 
 alias FDefs = list[FDef];
 
-data Prog = prog(FDefs fdefs, list[Exp] main);
+data Prog = prog(list[FDef] fdefs, list[Exp] main);
 
 data VDef = vdef(str name, Exp exp);
 
@@ -14,8 +14,8 @@ data Exp = val(Val v)
          | cond(Exp c, Exp t, Exp e)
          | plus(Exp e1, Exp e2)
          | equ(Exp e1, Exp e2)
-         | assign(str var, Exp e)
          | sequ(Exp e1, Exp e2)
+         | assign(str var, Exp e)
          | block(list[VDef] vdef, Exp body)
          ;
 

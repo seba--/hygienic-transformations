@@ -103,10 +103,10 @@ Prog fixTheHygiene(Controller m) {
 Prog fixHygiene1() = fixTheHygiene(statemachine1());
 Prog fixHygiene2() = fixTheHygiene(statemachine1illcompiled());
 
-test bool rand(Controller m) {
-  p = compile(m);
-  sNames = resolveNames(m);
-  tNames = resolveNames(p);
-  p2 = fixHygiene(resolveNames(m), p, resolveNames);
-  return isCompiledHygienically(sNames, resolveNames(p2));
-} 
+//test bool rand(Controller m) {
+//  p = compile(m);
+//  sNames = resolveNames(m);
+//  tNames = resolveNames(p);
+//  p2 = fixHygiene(resolveNames(m), p, resolveNames);
+//  return isCompiledHygienically(sNames, resolveNames(p2));
+//} 
