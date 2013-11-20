@@ -34,7 +34,7 @@ tuple[Edges,Edges] unhygienicLinks(NameGraph Gs, NameGraph Gt) {
   Vsyn = Vt - Vs;
   
   notPreserveSourceBinding =    (u:d | u <- Vs & Vt, u in Et, d:=Et[u], u in Es ? Es[u] != d : u != d);
-  notPreventCrossReferences =   (u:d | <u,d> <- Et<0,1>, u in Vs && d notin Vs || u in Vsyn && d notin Vsyn);
+  notPreventCrossReferences =   (u:d | <u,d> <- Et<0,1>, u notin Vs && d in Vs);
   
   //referenceCapture = (u:d | <u,d> <- Et<0,1>, u in Vs, d notin Vs);
   //definitionInjection = (u:d | <u,d> <- Et<0,1>, d in Vs, u notin Vs);
