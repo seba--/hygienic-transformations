@@ -60,6 +60,6 @@ Controller fixedCapturingConcat() {
   G2 = resolveNames(misterjones);
   G12 = union(G1, G2);
   
-  return fixHygiene(G12, ctl, resolveNames);
+  return fixHygiene(#Controller, G12, ctl, resolveNames);
 }
 test bool test2() = testConcat(missgrant, misterjones, fixedCapturingConcat());
