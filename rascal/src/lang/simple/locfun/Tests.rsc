@@ -60,3 +60,57 @@ test bool testFixed1() {
   return liftedProg1 == fixedProg1;
 }
 
+
+Prog prog2 =
+  prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))],
+       [block([vdef("y", call("f", [val(nat(1))]))],
+              block(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
+                    call("f", [val(nat(1))])))]);
+
+/* prog2 before local functions being lifted
+fun f(x) = x + 1;
+
+{
+  var y = f(1);
+  {
+    fun f(x) = f(x + y);
+    f(1)
+  }
+}
+*/
+
+Prog liftProg2() = liftLocfun(prog2);
+
+/* prog2 after local functions being lifted
+fun f(x) = x + 1;
+
+fun f(x, y) = f(x + y, y);
+
+{
+  var y = f(1);
+  f(1, y);
+}
+*/
+
+test bool test2() {
+  Gs = resolveNames(prog2);
+  liftedProg2 = liftProg2();
+  Gt = resolveNames(liftedProg2);
+  iprintln(Gs);
+  iprintln(Gt);
+  iprintln(unhygienicLinks(Gs,Gt));
+  return !isCompiledHygienically(Gs, Gt);
+}
+
+Prog liftFixProg2() {
+  Gs = resolveNames(prog2);
+  return fixHygiene(#Prog, Gs, liftProg2(), resolveNames);
+}
+
+test bool testFixed2() {
+  Gs = resolveNames(prog2);
+  liftedProg2 = liftProg2();
+  fixedProg2 = fixHygiene(#Prog, Gs, liftedProg2, resolveNames);
+  return liftedProg2 != fixedProg2;
+}
+
