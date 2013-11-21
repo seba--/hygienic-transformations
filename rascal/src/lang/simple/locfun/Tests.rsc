@@ -96,9 +96,9 @@ test bool test2() {
   Gs = resolveNames(prog2);
   liftedProg2 = liftProg2();
   Gt = resolveNames(liftedProg2);
-  iprintln(Gs);
-  iprintln(Gt);
-  iprintln(unhygienicLinks(Gs,Gt));
+  //iprintln(Gs);
+  //iprintln(Gt);
+  //iprintln(unhygienicLinks(Gs,Gt));
   return !isCompiledHygienically(Gs, Gt);
 }
 
@@ -111,6 +111,7 @@ test bool testFixed2() {
   Gs = resolveNames(prog2);
   liftedProg2 = liftProg2();
   fixedProg2 = fixHygiene(#Prog, Gs, liftedProg2, resolveNames);
-  return liftedProg2 != fixedProg2;
+  Gt = resolveNames(fixedProg2);
+  return isCompiledHygienically(Gs, Gt);
 }
 
