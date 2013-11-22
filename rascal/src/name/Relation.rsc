@@ -34,9 +34,17 @@ str nameOf(ID n, NameGraph G) {
   throw "Node <n> has no name in <G.N>";
 }
 
+str nameAt(ID n, &T t) = 
+  visit(t) {
+    case str x: 
+      if (getID(x) == n)
+        return x;
+  };
+
 set[str] namesOf(NameGraph G) = G.N<1>;
 
 set[ID] idsOf(NameGraph G) = G.N<0>;
+set[ID] idsOf(&T t) = ({} | it + {getID(x)} | /str x <- t);
 
 set[ID] defsOf(NameGraph G) = G.E.def;
 

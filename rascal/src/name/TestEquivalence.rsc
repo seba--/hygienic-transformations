@@ -2,94 +2,77 @@ module name::TestEquivalence
 
 import lang::simple::AST;
 import lang::simple::NameRel;
+import lang::simple::Pretty;
 
 import name::Names;
 import name::Equivalence;
 import name::Relation;
+import name::Rename;
 
 import IO;
 
 loc progloc = |project://Rascal-Hygiene/input/testnested.sim|;
 
-str x1def = "x";
-str x1use = "x";
-str x2def = "x";
-str x2use = "x";
-str y2def = "y";
-str y2use = "y";
-str x3def = "x";
-str x3use = "x";
+public ID xdefID = getID("");
+public ID xuse1ID = getID("");
+public ID xuse2ID = getID("");
+public ID ydefID = getID("");
+public ID yuseID = getID("");
 
-public Prog theProg1 =
+public NameGraph G = <{xdefID, xuse1ID, xuse2ID}, (xuse1ID:xdefID, xuse2ID:xdefID), ()>;
+
+Prog mkExample(str xdef, str xuse1, str xuse2, str ydef, str yuse) =
   prog([],
-       [block([vdef(x1def, val(nat(1)))],
-              plus(var(x1use),
-                   block([vdef(x2def, val(nat(1)))],
-                         plus(var(x2use),
-                              block([vdef(x3def, val(nat(1)))],
-                                    var(x3use))))))]);
-NameGraph resolve1() = resolveNames(theProg1);
+       [block([vdef(setID(xdef, xdefID), val(nat(1)))],
+              plus(block([vdef(setID(ydef, ydefID), val(nat(2)))],
+                         plus(var(setID(xuse2, xuse2ID)),
+                              var(setID(yuse, yuseID)))),
+                   var(setID(xuse1, xuse1ID))))]);
 
-public Prog theProg2 =
-  prog([],
-       [block([vdef(x1def, val(nat(1)))],
-              plus(var(x1use),
-                   block([vdef(setID(y2def,getID(x2def)), val(nat(1)))],
-                         plus(var(setID(y2use,getID(x2use))),
-                              block([vdef(x3def, val(nat(1)))],
-                                    var(x3use))))))]);
-NameGraph resolve2() = resolveNames(theProg2);
-
-public Prog theProg3 =
-  prog([],
-       [block([vdef(x1def, val(nat(1)))],
-              block([vdef(x2def, val(nat(1)))],
-                    plus(var(x1use), 
-                         var(x2use))))]);
-NameGraph resolve3() = resolveNames(theProg3);
-
-public Prog theProg4 =
-  prog([],
-       [block([vdef(x1def, val(nat(1)))],
-              block([vdef(setID(y2def,getID(x2def)), val(nat(1)))],
-                    plus(var(x1use), 
-                         var(setID(y2use,getID(x2use))))))]);
-NameGraph resolve4() = resolveNames(theProg4);
-
-
-test bool testLabel1() {
-  return labelEquivalent(theProg1, theProg1);
-}
-test bool testLabel2() {
-  return labelEquivalent(theProg2, theProg2);
-}
-test bool testLabel3() {
-  return labelEquivalent(theProg1, theProg2);
-}
-test bool testLabel4() {
-  return !labelEquivalent(theProg1, prog([],[]));
-}
-test bool testLabel5() {
-  return !labelEquivalent(theProg1, theProg3);
-}
-test bool testLabel6() {
-  return labelEquivalent(theProg3, theProg4);
+bool testSubAlphaEquivalence(p1, p2) {
+  bool sub = subAlphaEquivalent(p1, p2, G);
+  if (!sub)
+    return false;
+  
+  fix1 = fixHygiene(#Prog, G, p1, resolveNames);
+  fix2 = fixHygiene(#Prog, G, p2, resolveNames);
+  bool alphaFix = alphaEquivalent(fix1, resolveNames(fix1), fix2, resolveNames(fix2));
+  if (!alphaFix)
+    println("sub-alpha but not alpha fix:\n<p1>\n<p2>");
+  return alphaFix;
 }
 
+bool testIsAlphaEquivalentFix(p1, p2) {
+  fix1 = fixHygiene(#Prog, G, p1, resolveNames);
+  fix2 = fixHygiene(#Prog, G, p2, resolveNames);
+  iprintln("fix1: <pretty(fix1)>");
+  iprintln("fix2: <pretty(fix2)>");
+  return alphaEquivalent(fix1, resolveNames(fix1), fix2, resolveNames(fix2));
+}
 
-test bool testAlpha1() {
-  return alphaEquivalent(theProg1, resolve1(), theProg1, resolve1());
-}
-test bool testAlpha2() {
-  return alphaEquivalent(theProg2, resolve2(), theProg2, resolve2());
-}
-test bool testAlpha3() {
-  return alphaEquivalent(theProg1, resolve1(), theProg2, resolve2());
-}
-test bool testAlpha3() {
-  return !alphaEquivalent(theProg1, resolve1(), theProg3, resolve3());
-}
-test bool testAlpha4() {
-  return !alphaEquivalent(theProg3, resolve3(), theProg4, resolve4());
-}
+Prog prog1() = mkExample("x","x","x","y","y");
+Prog prog2() = mkExample("z","z","z","y","y");
+Prog prog3() = mkExample("x","x","x","z","z");
+Prog prog4() = mkExample("x","x","x","x","x");
+
+Prog prog5() = mkExample("x","x","x1","y","y");
+Prog prog6() = mkExample("x","x","x","y","y1");
+Prog prog7() = mkExample("x","x","x","x","y1");
+
+test bool test_1_2() = testSubAlphaEquivalence(prog1(), prog2());
+test bool test_2_3() = testSubAlphaEquivalence(prog2(), prog3());
+test bool test_3_4() = testSubAlphaEquivalence(prog3(), prog4());
+test bool test_1_5() = !testSubAlphaEquivalence(prog1(), prog5());
+test bool test_1_6() = !testSubAlphaEquivalence(prog1(), prog6());
+test bool test_1_7() = !testSubAlphaEquivalence(prog1(), prog7());
+test bool test_6_7() = testSubAlphaEquivalence(prog6(), prog7());
+
+test bool test_1_2() = testIsAlphaEquivalentFix(prog1(), prog2());
+test bool test_2_3() = testIsAlphaEquivalentFix(prog2(), prog3());
+test bool test_3_4() = testIsAlphaEquivalentFix(prog3(), prog4());
+test bool test_1_5() = !testIsAlphaEquivalentFix(prog1(), prog5());
+test bool test_1_6() = !testIsAlphaEquivalentFix(prog1(), prog6());
+test bool test_1_7() = !testIsAlphaEquivalentFix(prog1(), prog7());
+test bool test_6_7() = testIsAlphaEquivalentFix(prog6(), prog7());
+
 
