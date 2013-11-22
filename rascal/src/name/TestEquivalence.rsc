@@ -53,11 +53,12 @@ bool testIsAlphaEquivalentFix(p1, p2) {
 Prog prog1() = mkExample("x","x","x","y","y");
 Prog prog2() = mkExample("z","z","z","y","y");
 Prog prog3() = mkExample("x","x","x","z","z");
-Prog prog4() = mkExample("x","x","x","x","x");
+Prog prog4() = mkExample("z","z","z","z","z");
 
-Prog prog5() = mkExample("x","x","x1","y","y");
-Prog prog6() = mkExample("x","x","x","y","y1");
-Prog prog7() = mkExample("x","x","x","x","y1");
+Prog prog5() = mkExample("z","x","x","y","y");
+Prog prog6() = mkExample("x","x","z","y","y");
+Prog prog7() = mkExample("x","x","x","z","y");
+Prog prog8() = mkExample("x","x","x","y","z");
 
 test bool test_1_2() = testSubAlphaEquivalence(prog1(), prog2());
 test bool test_2_3() = testSubAlphaEquivalence(prog2(), prog3());
@@ -65,7 +66,8 @@ test bool test_3_4() = testSubAlphaEquivalence(prog3(), prog4());
 test bool test_1_5() = !testSubAlphaEquivalence(prog1(), prog5());
 test bool test_1_6() = !testSubAlphaEquivalence(prog1(), prog6());
 test bool test_1_7() = !testSubAlphaEquivalence(prog1(), prog7());
-test bool test_6_7() = testSubAlphaEquivalence(prog6(), prog7());
+test bool test_1_8() = !testSubAlphaEquivalence(prog1(), prog8());
+test bool test_7_8() = testSubAlphaEquivalence(prog7(), prog8());
 
 test bool test_1_2() = testIsAlphaEquivalentFix(prog1(), prog2());
 test bool test_2_3() = testIsAlphaEquivalentFix(prog2(), prog3());
@@ -73,6 +75,7 @@ test bool test_3_4() = testIsAlphaEquivalentFix(prog3(), prog4());
 test bool test_1_5() = !testIsAlphaEquivalentFix(prog1(), prog5());
 test bool test_1_6() = !testIsAlphaEquivalentFix(prog1(), prog6());
 test bool test_1_7() = !testIsAlphaEquivalentFix(prog1(), prog7());
-test bool test_6_7() = testIsAlphaEquivalentFix(prog6(), prog7());
+test bool test_1_8() = !testIsAlphaEquivalentFix(prog1(), prog8());
+test bool test_7_8() = testIsAlphaEquivalentFix(prog7(), prog8());
 
 
