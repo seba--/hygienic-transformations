@@ -121,7 +121,7 @@ Prog renameProg3() {
   Prog p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(sNames, p, resolveNames);
+  p2 = fixHygiene(#Prog, sNames, p, resolveNames);
   assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
@@ -131,7 +131,7 @@ Prog renameProg3() {
   p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(sNames, p, resolveNames);
+  p2 = fixHygiene(#Prog, sNames, p, resolveNames);
   assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
   return p2;
 }
