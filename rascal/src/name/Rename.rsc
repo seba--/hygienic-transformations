@@ -80,7 +80,7 @@ import String;
   for (vd <- allBadBindings<1>) {
     fresh = gensym(Nt[vd], Nt<1> + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
-      Nsrc += (vd:fresh) + (v:fresh | v <- EsClosure[vd]) + (v:fresh | v <- Vs, vd in EsClosure[v]);
+      Nsrc += (vd:fresh) + (v:fresh | v <- Vs, v in EsClosure[vd] || vd in EsClosure[v]);
     else if (vd notin Nsyn) // vd in Vt \ Vs
       Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == Nt[vd]);
   };
