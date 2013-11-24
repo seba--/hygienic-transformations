@@ -28,32 +28,24 @@ Edges synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
   return (u:d | <u,d> <- Gt.E<0,1>, u notin Gs.V, d in Gs.V);
 }
 
-tuple[Edges,Edges] unhygienicLinks(NameGraph Gs, NameGraph Gt) {
+tuple[Edges,Edges,Edges] unhygienicLinks(NameGraph Gs, NameGraph Gt) {
   <Vs,Es,_> = Gs;
   <Vt,Et,_> = Gt;
   Vsyn = Vt - Vs;
   
-  notPreserveSourceBinding =    (u:d | u <- Vs & Vt, u in Et, d:=Et[u], u in Es ? Es[u] != d : u != d);
-  notPreventCrossReferences =   (u:d | <u,d> <- Et<0,1>, u notin Vs && d in Vs);
+  notPreserveVar1 =    (u:Et[u] | u <- Vs & Vt, u in Et, u in Es, Es[u] != Et[u]);
+  notPreserveVar2 =    (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
+  notPreserveDef  =    (u:Et[u] | u <- Vt, u in Et, u notin Vs, Et[u] in Vs);
   
-  //referenceCapture = (u:d | <u,d> <- Et<0,1>, u in Vs, d notin Vs);
-  //definitionInjection = (u:d | <u,d> <- Et<0,1>, d in Vs, u notin Vs);
+  println("not preserve source vars 1: <notPreserveVar1>");
+  println("not preserve source vars 2: <notPreserveVar2>");
+  println("not preserve source defs  : <notPreserveDef>");
   
-  //notPreserveDefinitionScope =  (u:Et[u] | d <- Vs & Vt, u <- Et, Et[u] == d, u in Es ? Es[u] != d : d != u);
-  //notSafeDefinitionReferences = (u:Et[u] | u <- Vs & Vt, u notin Es, u in Et, Et[u] != u);
-  
-  //println("not preserve source binding: <notPreserveSourceBinding>");
-  //println("not prevent cross references: <notPreventCrossReferences>");
-  
-  //println("not preserve definition scope: <notPreserveDefinitionScope>");
-  //println("not safe definition references: <notSafeDefinitionReferences>");
-  
-  
-  return <notPreserveSourceBinding, notPreventCrossReferences>;
+  return <notPreserveVar1, notPreserveVar2, notPreserveDef>;
 }
 
 bool isCompiledHygienically(NameGraph Gs, NameGraph Gt) =
-  unhygienicLinks(Gs, Gt) == <(),()> && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
+  unhygienicLinks(Gs, Gt) == <(),(),()> && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
 
 
 

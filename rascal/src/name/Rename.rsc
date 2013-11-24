@@ -21,6 +21,13 @@ import String;
   };
 }
 
+&T rename(&T t, map[ID,str] subst) {
+  return visit (t) {
+    case str x => setID(subst[getID(x)], getID(x)) 
+      when getID(x) in subst
+  };
+}
+
 
 //&T fixHygiene(NameGraph Gs, NameGraph Gt, &T t, &U(str) name2var) {
 //  Edges badRefs = sourceNotPreserved(Gs, Gt) + synthesizedCaptured(Gs, Gt);
@@ -54,32 +61,34 @@ import String;
   Cleaner paper version of fixHygiene that produces exactly the same result.
 }
 &T fixHygiene(NameGraph Gs, &T t, &T(Edges refs, &T t, map[ID,str] subst) rename, NameGraph(&T) resolveT) {
-  Gt = <Vt,Et,Nt> = resolveT(t);
+  <Vs,Es,Ns> = Gs;
+  EsClosure = (Es<0,1>)+;
+  <Vt,Et,Nt> = resolveT(t);
   
   //println("Source edges: <Es>");
   //println("Target edges: <Et>");
   
-  <notPreserveSourceBinding, notPreventCrossReferences> = unhygienicLinks(Gs, Gt);
-  allBadRefs = notPreserveSourceBinding + notPreventCrossReferences; 
-  badDefinitionNodes = allBadRefs<1>;
+  <notPreserveVar1, notPreserveVar2, notPreserveDef> = unhygienicLinks(<Vs,Es,Ns>, <Vt,Et,Nt>);
+  allBadBindings = notPreserveVar1 + notPreserveVar2 + notPreserveDef; 
   
-  goodDefRefs = ( u:Gs.E[u] | u <- notPreserveSourceBinding<0>, u in Gs.E);
-    
-  if (badDefinitionNodes == {})
+  if (allBadBindings == ())
     return t;
   
-  usedNames = Nt<1>;
-  subst = ();
+  Nsrc = ();
+  Nsyn = ();
   
-  for (l <- badDefinitionNodes) {
-    fresh = freshName(usedNames, nameOf(l, Gt));
-    usedNames += fresh;
-    subst += (l : fresh);
+  for (vd <- allBadBindings<1>) {
+    fresh = gensym(Nt[vd], Nt<1> + Nsrc<1> + Nsyn<1>);
+    if (vd in Vs && vd notin Nsrc)
+      Nsrc += (vd:fresh) + (v:fresh | v <- EsClosure[vd]) + (v:fresh | v <- Vs, vd in EsClosure[v]);
+    else if (vd notin Nsyn) // vd in Vt \ Vs
+      Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == Nt[vd]);
   };
   
-  Et_new = Et - allBadRefs + goodDefRefs;
+  //println("Nsrc: <Nsrc>");
+  //println("Nsyn: <Nsyn>");
   
-  &T t_new = rename(Et_new, t, subst);
+  &T t_new = rename(t, Nsrc + Nsyn);
   
   return fixHygiene(Gs, t_new, rename, resolveT);
 }
