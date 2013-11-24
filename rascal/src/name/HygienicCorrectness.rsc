@@ -37,9 +37,9 @@ tuple[Edges,Edges,Edges] unhygienicLinks(NameGraph Gs, NameGraph Gt) {
   notPreserveVar2 =    (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
   notPreserveDef  =    (u:Et[u] | u <- Vt, u in Et, u notin Vs, Et[u] in Vs);
   
-  println("not preserve source vars 1: <notPreserveVar1>");
-  println("not preserve source vars 2: <notPreserveVar2>");
-  println("not preserve source defs  : <notPreserveDef>");
+  //println("not preserve source vars 1: <notPreserveVar1>");
+  //println("not preserve source vars 2: <notPreserveVar2>");
+  //println("not preserve source defs  : <notPreserveDef>");
   
   return <notPreserveVar1, notPreserveVar2, notPreserveDef>;
 }
