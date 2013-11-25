@@ -6,13 +6,20 @@ import lang::simple::AST;
 import lang::simple::Parse;
 import lang::simple::Implode;
 import lang::simple::NameRel;
+import lang::simple::Pretty;
 
 import lang::simple::inline::Subst;
 
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testsubst.sim|;
-str source() = "fun zero() = 0; \nfun succ(x) = {var n = 1; x + n};        \n\n{var n = free + 5; succ(succ(n + free + zero()))}";
+str source() = "fun zero() = 0;
+               'fun succ(x) = {var n = 1; x + n};
+               '
+               '{
+               '  var n = free + 5; 
+               '  succ(succ(n + free + zero()))
+               '}";
 
 Prog load(str code) {
   writeFile(testfile, code);
@@ -23,7 +30,9 @@ Prog prog() = load(source());
 Prog subst1() {
   x = "n";
   e = call("ERROR", []);
-  return subst(prog(), x, e);
+  x2 = subst(prog(), x, e);
+  println(pretty(x2));
+  return x2;
 }
 test bool testSubst1() {
   return subst1() == prog();
@@ -32,7 +41,9 @@ test bool testSubst1() {
 Prog subst2() {
   x = "free";
   e = call("GOOD", []);
-  return subst(prog(), x, e);
+  x2 = subst(prog(), x, e);
+  println(pretty(x2));
+  return x2;
 }
 test bool testSubst2() {
   return count(call("GOOD", []), subst2()) == 2;
@@ -41,7 +52,9 @@ test bool testSubst2() {
 Prog subst3() {
   x = "free";
   e = var("n");
-  return subst(prog(), x, e);
+  x2 =  subst(prog(), x, e);
+  println(pretty(x2));
+  return x2;
 }
 test bool testSubst3() {
   p = subst3();
@@ -53,7 +66,9 @@ test bool testSubst3() {
 Prog subst4() {
   x = "free";
   e = var("n");
-  return captureAvoidingSubst(prog(), x, e);
+  x2 = captureAvoidingSubst(prog(), x, e);
+  println(pretty(x2));
+  return x2;
 }
 test bool testSubst4() {
   p = subst4();

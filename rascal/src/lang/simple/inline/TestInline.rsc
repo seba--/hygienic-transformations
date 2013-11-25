@@ -6,6 +6,7 @@ import Set;
 import lang::simple::AST;
 import lang::simple::Parse;
 import lang::simple::Implode;
+import lang::simple::Pretty;
 import lang::simple::NameRel;
 
 import lang::simple::inline::Inline;
@@ -13,9 +14,20 @@ import lang::simple::inline::Inline;
 import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
-str source() = "fun zero() = 0; \nfun succ(x) = {var n = 1; x + n};    \n\n{var n = free + 5; succ(succ(n + free + zero()))}";
+str source() = "fun zero() = 0; 
+               'fun succ(x) = {var n = 1; x + n}; 
+               '{
+               '  var n = free + 5; 
+               '  succ(succ(n + free + zero()))
+               '}";
+               
 loc testfile2 = |project://Rascal-Hygiene/output/testinline2.sim|;
-str source2() = "fun zero() = 0; \nfun double(x) = {var n = 0; (n = x; n + n)};    \n\n{var n = free + 5; double(double(n + free + zero()))}";
+str source2() = "fun zero() = 0; 
+                'fun double(x) = {var n = 0; (n = x; n + n)};
+                '{
+                '  var n = free + 5; 
+                '  double(double(n + free + zero()))
+                '}";
 
 Prog load(loc file, str code) {
   writeFile(file, code);
@@ -25,14 +37,18 @@ Prog prog() = load(testfile, source());
 Prog prog2() = load(testfile2, source2());
 
 Prog inline1() {
-  return inline(prog(), "zero");
+  x = inline(prog(), "zero");
+  println(pretty(x));
+  return x;
 }
 test bool testInline1() {
   return count(val(nat(0)), inline1()) == 2;
 }
 
 Prog inline2() {
-  return inline(prog(), "succ");
+  x = inline(prog(), "succ");
+  println(pretty(x));
+  return x;
 }
 test bool testInline2() {
   p = inline2();
@@ -42,7 +58,9 @@ test bool testInline2() {
 }
 
 Prog inline3() {
-  return captureAvoidingInline(prog(), "succ");
+  x = captureAvoidingInline(prog(), "succ");
+  println(pretty(x));
+  return x;
 }
 test bool testInline3() {
   p = inline3();
@@ -59,7 +77,9 @@ test bool testInline3() {
 }
 
 Prog inline4() {
-  return inline(prog2(), "double");
+  x = inline(prog2(), "double");
+  println(pretty(x));
+  return x;
 }
 test bool testInline4() {
   p = inline4();
@@ -69,7 +89,9 @@ test bool testInline4() {
 }
 
 Prog inline5() {
-  return captureAvoidingInline(prog2(), "double");
+  x = captureAvoidingInline(prog2(), "double");
+  println(pretty(x));
+  return x;
 }
 test bool testInline5() {
   p = inline5();
@@ -86,7 +108,9 @@ test bool testInline5() {
 }
 
 Prog inline6() {
-  return captureAvoidingInline2(prog(), "succ");
+  x = captureAvoidingInline2(prog(), "succ");
+  println(pretty(x));
+  return x;
 }
 test bool testInline6() {
   p = inline6();
@@ -103,7 +127,9 @@ test bool testInline6() {
 }
 
 Prog inline7() {
-  return captureAvoidingInline2(prog2(), "double");
+  x = captureAvoidingInline2(prog2(), "double");
+  println(pretty(x));
+  return x;
 }
 test bool testInline7() {
   p = inline7();
