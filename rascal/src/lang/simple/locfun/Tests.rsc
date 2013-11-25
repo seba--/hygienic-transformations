@@ -5,7 +5,7 @@ import lang::simple::Pretty;
 import lang::simple::locfun::Locfun;
 
 import name::HygienicCorrectness;
-import name::Rename;
+import name::NameFix;
 
 import IO;
 
@@ -42,21 +42,20 @@ test bool test1() {
   Gs = resolveNames(prog1);
   liftedProg1 = liftProg1();
   Gt = resolveNames(liftedProg1);
-  iprintln(Gs);
-  iprintln(Gt);
-  iprintln(unhygienicLinks(Gs,Gt));
+  //iprintln(Gs);
+  //iprintln(Gt);
   return isCompiledHygienically(Gs, Gt);
 }
 
 Prog liftFixProg1() {
   Gs = resolveNames(prog1);
-  return fixHygiene(#Prog, Gs, liftProg1(), resolveNames);
+  return nameFix(#Prog, Gs, liftProg1(), resolveNames);
 }
 
 test bool testFixed1() {
   Gs = resolveNames(prog1);
   liftedProg1 = liftProg1();
-  fixedProg1 = fixHygiene(#Prog, Gs, liftedProg1, resolveNames);
+  fixedProg1 = nameFix(#Prog, Gs, liftedProg1, resolveNames);
   return liftedProg1 == fixedProg1;
 }
 
@@ -98,19 +97,18 @@ test bool test2() {
   Gt = resolveNames(liftedProg2);
   //iprintln(Gs);
   //iprintln(Gt);
-  //iprintln(unhygienicLinks(Gs,Gt));
   return !isCompiledHygienically(Gs, Gt);
 }
 
 Prog liftFixProg2() {
   Gs = resolveNames(prog2);
-  return fixHygiene(#Prog, Gs, liftProg2(), resolveNames);
+  return nameFix(#Prog, Gs, liftProg2(), resolveNames);
 }
 
 test bool testFixed2() {
   Gs = resolveNames(prog2);
   liftedProg2 = liftProg2();
-  fixedProg2 = fixHygiene(#Prog, Gs, liftedProg2, resolveNames);
+  fixedProg2 = nameFix(#Prog, Gs, liftedProg2, resolveNames);
   Gt = resolveNames(fixedProg2);
   return isCompiledHygienically(Gs, Gt);
 }

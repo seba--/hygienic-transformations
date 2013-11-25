@@ -7,18 +7,18 @@ import lang::simple::Pretty;
 import IO;
 
 import name::Relation;
-import name::Rename;
+import name::NameFix;
 
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {
   Gs = resolveNames(p);
   p2 = subst(p, name, e);
-  return fixHygiene(#Prog, Gs, p2, resolveNames);
+  return nameFix(#Prog, Gs, p2, resolveNames);
 }
 
 Exp captureAvoidingSubstExp(Exp exp, str name, Exp e) {
   Gs = mainResolveNamesExp(exp);
   exp2 = substExp(exp, name, e);
-  return fixHygiene(#Prog, Gs, exp2, mainResolveNamesExp);
+  return nameFix(#Prog, Gs, exp2, mainResolveNamesExp);
 }
 
 Prog subst(Prog p, str name, Exp e) {

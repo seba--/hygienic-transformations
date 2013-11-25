@@ -7,7 +7,7 @@ import lang::simple::Pretty;
 import name::Names;
 import name::Equivalence;
 import name::Relation;
-import name::Rename;
+import name::NameFix;
 
 import IO;
 
@@ -34,8 +34,8 @@ bool testSubAlphaEquivalence(p1, p2) {
   if (!sub)
     return false;
   
-  fix1 = fixHygiene(#Prog, G, p1, resolveNames);
-  fix2 = fixHygiene(#Prog, G, p2, resolveNames);
+  fix1 = nameFix(#Prog, G, p1, resolveNames);
+  fix2 = nameFix(#Prog, G, p2, resolveNames);
   bool alphaFix = alphaEquivalent(fix1, resolveNames(fix1), fix2, resolveNames(fix2));
   if (!alphaFix)
     println("sub-alpha but not alpha fix:\n<p1>\n<p2>");
@@ -43,8 +43,8 @@ bool testSubAlphaEquivalence(p1, p2) {
 }
 
 bool testIsAlphaEquivalentFix(p1, p2) {
-  fix1 = fixHygiene(#Prog, G, p1, resolveNames);
-  fix2 = fixHygiene(#Prog, G, p2, resolveNames);
+  fix1 = nameFix(#Prog, G, p1, resolveNames);
+  fix2 = nameFix(#Prog, G, p2, resolveNames);
   iprintln("fix1: <pretty(fix1)>");
   iprintln("fix2: <pretty(fix2)>");
   return alphaEquivalent(fix1, resolveNames(fix1), fix2, resolveNames(fix2));

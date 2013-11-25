@@ -19,7 +19,7 @@ import lang::derric::GenerateJava;
 import lang::derric::GenerateFactoryJava;
 
 import name::Relation;
-import name::RenameString;
+import name::NameFixString;
 import name::Names;
 import name::Gensym;
 import util::Maybe;
@@ -121,7 +121,7 @@ str fixMinBad() {
   NameGraph resolve(lrel[Maybe[loc], str] src) {
     return resolveJava(src, class, |project://Rascal-Hygiene/formats/minbad.derric|); 
   }
-  orgs = fixHygieneString(minbadNames(), origins(minbadCompiled()), resolve);
+  orgs = nameFixString(minbadNames(), origins(minbadCompiled()), resolve);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(|project://<output>/src<javaPathPrefix><class>.java|, newSource);
   return newSource;

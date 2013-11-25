@@ -1,6 +1,7 @@
 module name::HygienicCorrectness
 
 import name::Relation;
+import name::NameFix;
 
 import IO;
 
@@ -28,24 +29,8 @@ Edges synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
   return (u:d | <u,d> <- Gt.E<0,1>, u notin Gs.V, d in Gs.V);
 }
 
-tuple[Edges,Edges,Edges] unhygienicLinks(NameGraph Gs, NameGraph Gt) {
-  <Vs,Es,_> = Gs;
-  <Vt,Et,_> = Gt;
-  Vsyn = Vt - Vs;
-  
-  notPreserveVar1 =    (u:Et[u] | u <- Vs & Vt, u in Et, u in Es, Es[u] != Et[u]);
-  notPreserveVar2 =    (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
-  notPreserveDef  =    (u:Et[u] | u <- Vt, u in Et, u notin Vs, Et[u] in Vs);
-  
-  //println("not preserve source vars 1: <notPreserveVar1>");
-  //println("not preserve source vars 2: <notPreserveVar2>");
-  //println("not preserve source defs  : <notPreserveDef>");
-  
-  return <notPreserveVar1, notPreserveVar2, notPreserveDef>;
-}
-
 bool isCompiledHygienically(NameGraph Gs, NameGraph Gt) =
-  unhygienicLinks(Gs, Gt) == <(),(),()> && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
+  badBindings(Gs, Gt) == () && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
 
 
 

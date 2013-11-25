@@ -8,9 +8,8 @@ import lang::java::NameRel;
 import lang::java::jdt::m3::Core;
 
 import name::TestString;
-import name::RenameString;
 import name::Relation;
-import name::Rename;
+import name::NameFixString;
 import name::Names;
 import name::Gensym;
 import util::Maybe;
@@ -67,7 +66,7 @@ NameGraph resolveJava(lrel[Maybe[loc], str] src) {
 
 str fixIllCompiledJava1() { 
   compileIllCompiled1javaToDisk(); // start clean;
-  orgs = fixHygieneString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava);
+  orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(|project://<output>/src/<missGrantClass>.java|, newSource);
   return newSource;

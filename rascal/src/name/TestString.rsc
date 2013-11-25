@@ -15,7 +15,7 @@ import lang::simple::Pretty;
 import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
-import name::Rename;
+import name::NameFix;
 import name::Names;
 
 import IO;
@@ -43,13 +43,13 @@ NameGraph names1() = resolveNames(compiled1());
 Edges check1() {
   m = statemachine1();
   p = compiled1();
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return badBindings(resolveNames(m), resolveNames(p));
 }
 
 Edges check2() {
   m = statemachine1illcompiled();
   p = compiled1ill();
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return badBindings(resolveNames(m), resolveNames(p));
 }
 
 Controller renameS1() {
@@ -91,17 +91,17 @@ Prog renameProg3()  = renameTestProg1(
    str(Prog p)   { return p.sig[1].name; });
 
 
-Prog fixTheHygiene(Controller m) {
+Prog theNameFix(Controller m) {
   Prog p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(m, p, resolveNames, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  p2 = nameFix(#Prog, sNames, p, resolveNames);
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
   return p2;
 }
 
-Prog fixHygiene1() = fixTheHygiene(statemachine1());
-Prog fixHygiene2() = fixTheHygiene(statemachine1illcompiled());
+Prog nameFix1() = theNameFix(statemachine1());
+Prog nameFix2() = theNameFix(statemachine1illcompiled());
 
 //test bool rand(Controller m) {
 //  p = compile(m);

@@ -2,7 +2,7 @@ module name::Equivalence
 
 import name::Names;
 import name::Relation;
-import name::Rename;
+//import name::NameFix;
 
 import util::Maybe;
 import List;

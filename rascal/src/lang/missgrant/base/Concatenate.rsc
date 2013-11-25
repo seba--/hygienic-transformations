@@ -6,7 +6,7 @@ import lang::missgrant::base::NameRel;
 
 import name::HygienicCorrectness;
 import name::Relation;
-import name::Rename;
+import name::NameFix;
 
 
 import String;
@@ -60,6 +60,6 @@ Controller fixedCapturingConcat() {
   G2 = resolveNames(misterjones);
   G12 = union(G1, G2);
   
-  return fixHygiene(#Controller, G12, ctl, resolveNames);
+  return nameFix(#Controller, G12, ctl, resolveNames);
 }
 test bool test2() = testConcat(missgrant, misterjones, fixedCapturingConcat());

@@ -14,7 +14,7 @@ import lang::simple::Pretty;
 import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
-import name::Rename;
+import name::NameFix;
 import name::Names;
 
 import IO;
@@ -57,7 +57,7 @@ Prog prog2() = theProg2;
 NameGraph resolve2() = resolveNames(prog2());
 
 Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
-  p2 = fixHygiene(#Prog, g, p, resolve);
+  p2 = nameFix(#Prog, g, p, resolve);
   println("fixed: <pretty(p2)>");
   return p2;
 }

@@ -7,13 +7,13 @@ import lang::simple::NameRel;
 
 import lang::simple::inline::Subst;
 
-import name::Rename;
+import name::NameFix;
 
 Prog captureAvoidingInline(Prog p, str name) {
   if ({def} := { d | d <- p.fdefs, d.fsym == name}) {
     Gs = resolveNames(p);
   	p2 = inline(p, def);
-    return fixHygiene(#Prog, Gs, p2, resolveNames);
+    return nameFix(#Prog, Gs, p2, resolveNames);
  }
 }
 

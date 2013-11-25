@@ -1,4 +1,4 @@
-module name::RenameString
+module name::NameFixString
 
 import String;
 import List;
@@ -7,7 +7,7 @@ import name::Relation;
 import name::Names;
 import name::Gensym;
 import name::HygienicCorrectness;
-import name::Rename;
+import name::NameFix;
 
 @doc{
 This applies a (definition-)renaming to a string (represent as an lrel with origins). 
@@ -30,8 +30,8 @@ lrel[Maybe[loc], str] renameString(Edges refs, lrel[Maybe[loc], str] src, map[ID
 }
 
 
-lrel[Maybe[loc], str] fixHygieneString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT) 
-  = fixHygiene(Gs, t, renameString, resolveT); 
+lrel[Maybe[loc], str] nameFixString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT) 
+  = nameFix(Gs, t, renameString, resolveT); 
 
 @doc{
 This function maps (target language) name-IDs to (source or meta program) origins

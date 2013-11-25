@@ -15,7 +15,7 @@ import lang::simple::Pretty;
 import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
-import name::Rename;
+import name::NameFix;
 
 import IO;
 
@@ -39,13 +39,13 @@ void visualizeCompiled1() = renderNames(names1());
 set[Edge] check1() {
   m = statemachine1();
   p = compile(m);
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return badBindings(resolveNames(m), resolveNames(p));
 }
 
 set[Edge] check2() {
   m = statemachine1illcompiled();
   p = compile(m);
-  return unhygienicLinks(resolveNames(m), resolveNames(p));
+  return badBindings(resolveNames(m), resolveNames(p));
 }
 
 
@@ -95,57 +95,57 @@ Prog renameProg3() {
   return rename(resolveNames(p), p, d0@location, new);
 }
 
-//Prog fixHygiene1() {
+//Prog nameFix1() {
 //  m = statemachine1();
 //  p = compile(m);
 //  sNames = resolveNames(m);
 //  tNames = resolveNames(p);
-//  p2 = fixHygiene(sNames, tNames, p, name2var);
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  p2 = nameFix(sNames, tNames, p, name2var);
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
 //  return p2;
 //}
 //
-//Prog fixHygiene2() {
+//Prog nameFix2() {
 //  m = statemachine1illcompiled();
 //  p = compile(m);
 //  sNames = resolveNames(m);
 //  tNames = resolveNames(p);
-//  p2 = fixHygiene(sNames, tNames, p, name2var);
+//  p2 = nameFix(sNames, tNames, p, name2var);
 //  //println(pretty(p2));
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
 //  return p2;
 //}
 
-&T fixHygiene1() {
+&T nameFix1() {
   m = statemachine1();
   Prog p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(#Prog, sNames, p, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  p2 = nameFix(#Prog, sNames, p, resolveNames);
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
   return p2;
 }
 
-&T fixHygiene2() {
+&T nameFix2() {
   m = statemachine1illcompiled();
   p = compile(m);
   sNames = resolveNames(m);
   tNames = resolveNames(p);
-  p2 = fixHygiene(#Prog, sNames, p, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <unhygienicLinks(sNames, resolveNames(p2))>";
+  p2 = nameFix(#Prog, sNames, p, resolveNames);
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
   return p2;
 }
 
 //set[Link] check2() {
 //  m = statemachine1illcompiled();
 //  p = compile(m);
-//  return unhygienicLinks(resolveNames(m), resolveNames(p));
+//  return badBindings(resolveNames(m), resolveNames(p));
 //}
 
 //test bool rand(Controller m) {
 //  p = compile(m);
 //  sNames = resolveNames(m);
 //  tNames = resolveNames(p);
-//  p2 = fixHygiene(m, p, resolveNames, resolveNames, name2var);
+//  p2 = nameFix(m, p, resolveNames, resolveNames, name2var);
 //  return isCompiledHygienically(sNames, resolveNames(p2));
 //} 
