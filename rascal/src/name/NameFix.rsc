@@ -18,9 +18,9 @@ import String;
 
 
 Edges badBindings(<Vs,Es,Ns>, <Vt,Et,Nt>) {
-  notPreserveVar1 =    (u:Et[u] | u <- Vs & Vt, u in Et, u in Es, Es[u] != Et[u]);
-  notPreserveVar2 =    (u:Et[u] | u <- Vs & Vt, u in Et, u notin Es, u != Et[u]);
-  notPreserveDef  =    (u:Et[u] | u <- Vt, u in Et, u notin Vs, Et[u] in Vs);
+  notPreserveVar1 =    (u:Et[u] | u <- Et<0>, u in Vs, u in Es, Es[u] != Et[u]);
+  notPreserveVar2 =    (u:Et[u] | u <- Et<0>, u in Vs, u notin Es, u != Et[u]);
+  notPreserveDef  =    (u:Et[u] | u <- Et<0>, u notin Vs, Et[u] in Vs);
   
   //println("not preserve source vars 1: <notPreserveVar1>");
   //println("not preserve source vars 2: <notPreserveVar2>");
