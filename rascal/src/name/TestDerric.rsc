@@ -121,9 +121,10 @@ str fixMinBad() {
   NameGraph resolve(lrel[Maybe[loc], str] src) {
     return resolveJava(src, class, |project://Rascal-Hygiene/formats/minbad.derric|); 
   }
-  orgs = nameFixString(minbadNames(), origins(minbadCompiled()), resolve);
+  outFile = |project://<output>/src<javaPathPrefix><class>.java|;
+  orgs = nameFixString(minbadNames(), origins(minbadCompiled()), resolve, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
-  writeFile(|project://<output>/src<javaPathPrefix><class>.java|, newSource);
+  writeFile(outFile, newSource);
   return newSource;
 }
 
