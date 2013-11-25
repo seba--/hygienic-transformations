@@ -47,7 +47,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs,
   return <Nsrc,Nsyn>;
 }
 
-&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(ID, &T) resolveT) 
+&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
   = x // vvvvv work around Rascal bug.
   when &T x := nameFix(Gs, t, rename, resolveT, nameAt);
 
