@@ -18,9 +18,9 @@ import String;
 
 
 Edges badBindings(<Vs,Es,Ns>, <Vt,Et,Nt>) {
-  notPreserveVar1 =    (u:Et[u] | u <- Et<0>, u in Vs, u in Es, Es[u] != Et[u]);
-  notPreserveVar2 =    (u:Et[u] | u <- Et<0>, u in Vs, u notin Es, u != Et[u]);
-  notPreserveDef  =    (u:Et[u] | u <- Et<0>, u notin Vs, Et[u] in Vs);
+  notPreserveVar1 =    (v:Et[v] | v <- Et<0>, v in Vs, v in Es, Es[v] != Et[v]);
+  notPreserveVar2 =    (v:Et[v] | v <- Et<0>, v in Vs, v notin Es, v != Et[v]);
+  notPreserveDef  =    (v:Et[v] | v <- Et<0>, v notin Vs, Et[v] in Vs);
   
   //println("not preserve source vars 1: <notPreserveVar1>");
   //println("not preserve source vars 2: <notPreserveVar2>");
@@ -30,14 +30,13 @@ Edges badBindings(<Vs,Es,Ns>, <Vt,Et,Nt>) {
 }
 
 tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs) {
-  EsClosure = (Es<0,1>)+;
   Nsrc = ();
   Nsyn = ();
   
   for (vd <- badDefs) {
     fresh = gensym(Nt[vd], Nt<1> + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
-      Nsrc += (vd:fresh) + (v:fresh | v <- Vs, v in EsClosure[vd] || vd in EsClosure[v]);
+      Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
     else if (vd notin Nsyn) // vd in Vt \ Vs
       Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == Nt[vd]);
   };
