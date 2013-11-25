@@ -55,7 +55,9 @@ Prog liftFixProg1() {
 test bool testFixed1() {
   Gs = resolveNames(prog1);
   liftedProg1 = liftProg1();
+  println("Lifted:\n<pretty(liftedProg1)>");
   fixedProg1 = nameFix(#Prog, Gs, liftedProg1, resolveNames);
+  println("Fixed:\n<pretty(fixedProg1)>");
   return liftedProg1 == fixedProg1;
 }
 
@@ -108,7 +110,9 @@ Prog liftFixProg2() {
 test bool testFixed2() {
   Gs = resolveNames(prog2);
   liftedProg2 = liftProg2();
+  println("Lifted:\n<pretty(liftedProg2)>");
   fixedProg2 = nameFix(#Prog, Gs, liftedProg2, resolveNames);
+  println("Fixed:\n<pretty(fixedProg2)>");
   Gt = resolveNames(fixedProg2);
   return isCompiledHygienically(Gs, Gt);
 }

@@ -3,12 +3,13 @@ module lang::missgrant::base::Concatenate
 import lang::missgrant::base::AST;
 import lang::missgrant::base::Implode;
 import lang::missgrant::base::NameRel;
+import lang::missgrant::base::Unparse;
 
 import name::HygienicCorrectness;
 import name::Relation;
 import name::NameFix;
 
-
+import IO;
 import String;
 
 Controller concatenate(Controller ctl1, Controller ctl2) {
@@ -60,6 +61,9 @@ Controller fixedCapturingConcat() {
   G2 = resolveNames(misterjones);
   G12 = union(G1, G2);
   
-  return nameFix(#Controller, G12, ctl, resolveNames);
+  x = nameFix(#Controller, G12, ctl, resolveNames);
+  println(unparse(x));
+    
+  return x;
 }
 test bool test2() = testConcat(missgrant, misterjones, fixedCapturingConcat());
