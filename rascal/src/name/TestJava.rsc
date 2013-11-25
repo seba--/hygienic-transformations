@@ -66,9 +66,10 @@ NameGraph resolveJava(lrel[Maybe[loc], str] src) {
 
 str fixIllCompiledJava1() { 
   compileIllCompiled1javaToDisk(); // start clean;
-  orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava);
+  outFile = |project://<output>/src/<missGrantClass>.java|;
+  orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
-  writeFile(|project://<output>/src/<missGrantClass>.java|, newSource);
+  writeFile(outFile, newSource);
   return newSource;
 }
 

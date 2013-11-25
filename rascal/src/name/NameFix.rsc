@@ -29,7 +29,7 @@ Edges badBindings(<Vs,Es,Ns>, <Vt,Et,Nt>) {
   return notPreserveVar1 + notPreserveVar2 + notPreserveDef;
 }
 
-tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs) {
+tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs, str(ID, &T) nameAt) {
   EsClosure = (Es<0,1>)+;
   Nsrc = ();
   Nsyn = ();
@@ -48,11 +48,11 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs)
   return <Nsrc,Nsyn>;
 }
 
-&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
+&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(ID, &T) resolveT) 
   = x // vvvvv work around Rascal bug.
-  when &T x := nameFix(Gs, t, rename, resolveT);
+  when &T x := nameFix(Gs, t, rename, resolveT, nameAt);
 
-&T nameFix(NameGraph Gs, &T t, &T(&T t, map[ID,str] subst) rename, NameGraph(&T) resolveT) {
+&T nameFix(NameGraph Gs, &T t, &T(&T t, map[ID,str] subst) rename, NameGraph(&T) resolveT, str(ID, &T) nameAt) {
   Gt = resolveT(t);
   
   //println("Source edges: <Gs.E>");
@@ -61,8 +61,8 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs)
   allBadBindings = badBindings(Gs, Gt); 
   if (allBadBindings == ()) return t;
   
-  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings<1>);
+  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings<1>, nameAt);
   &T t_new = rename(t, Nsrc + Nsyn);
   
-  return nameFix(Gs, t_new, rename, resolveT);
+  return nameFix(Gs, t_new, rename, resolveT, nameAt);
 }

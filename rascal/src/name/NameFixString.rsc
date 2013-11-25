@@ -2,26 +2,32 @@ module name::NameFixString
 
 import String;
 import List;
+import Set;
 import util::Maybe;
 import name::Relation;
 import name::Names;
 import name::Gensym;
 import name::HygienicCorrectness;
 import name::NameFix;
+import IO;
+
+//&T rename(&T t, map[ID,str] subst) {
+//  return visit (t) {
+//    case str x => setID(subst[getID(x)], getID(x)) 
+//      when getID(x) in subst
+//  };
+//}
+
 
 @doc{
 This applies a (definition-)renaming to a string (represent as an lrel with origins). 
 }
-lrel[Maybe[loc], str] renameString(Edges refs, lrel[Maybe[loc], str] src, map[ID,str] subst) {
+lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst) {
   src = for (<just(loc l), str x> <- src) {
     if ({l} in subst) {
       //println("Renaming <l>");
       append <just(l), subst[{l}]>;
     }
-    else if ({l} in refs, def := refs[{l}], def in subst) {
-      //println("Renaming definition <def>");
-      append <just(l), subst[def]>;
-    } 
     else {
       append <just(l), x>;
     }
@@ -30,10 +36,28 @@ lrel[Maybe[loc], str] renameString(Edges refs, lrel[Maybe[loc], str] src, map[ID
 }
 
 
-lrel[Maybe[loc], str] nameFixString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT) 
-  = nameFix(Gs, t, renameString, resolveT); 
+str nameAtString(ID n, lrel[Maybe[loc], str] t) {
+  //println("Search for name: <n>");
+  for (<just(loc l1), /*loc l2, */ str x> <- t) {
+    //println("Loc l1 = <l1>, l2 = <l2>");
+    if ({l1} == n /* || {l2} == n */) {
+      //println("Found it: <x>");
+      return x;
+    }
+  }
+  // Non-existing name.... (TODO?)
+  return "";
+}
+
+
+lrel[Maybe[loc], str] nameFixString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT, loc outFile) 
+  = nameFix(Gs, t, renameString, resolveT, str(ID n, lrel[Maybe[loc], str] t) {
+     return nameAtString(n, t); //reconstruct(t, outFile));
+     // |project://generated-missgrant/src/MissGrant.java|  
+  });
 
 @doc{
+
 This function maps (target language) name-IDs to (source or meta program) origins
 through the reconstructed result origins.
 }
@@ -46,6 +70,7 @@ NameGraph insertSourceNames(NameGraph targetGraph, lrel[loc, loc, str] reconOrgs
 
 
 @doc{
+
 An lrel coming from origins()) maps (source or meta program) origins to 
 output string fragments. This functions reconstructs the source locations
 of each chunk according to occurence in the output. 

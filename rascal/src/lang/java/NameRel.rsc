@@ -10,7 +10,12 @@ NameGraph m3toNameGraph(M3 m) {
   
   map[ID, str] n = ( m@declarations[x]: n | <str n, loc x>  <- m@names );
   
-  set[ID] v = { {x} | x <- m@uses<0> + m@declarations<1> };
+  fewerDecls = ( {} | it + m@declarations[x] | <_, loc x>  <- m@names );
+  
+   //{ d | d <- m@declarations<1>.
+   // TODO: get rid of packages.
+  
+  set[ID] v = { {x} | x <- m@uses<0> + fewerDecls };
   
   return <v, e, n>;
   
