@@ -22,6 +22,7 @@ import name::Relation;
 import name::NameFixString;
 import name::Names;
 import name::Gensym;
+import name::HygienicCorrectness;
 import util::Maybe;
 import ParseTree;
 import IO;
@@ -115,7 +116,7 @@ NameGraph resolveJava(lrel[Maybe[loc], str] src, str class, loc dsl) {
          dsl);
 }
 
-str fixMinBad() { 
+lrel[Maybe[loc], str] fixMinBad() { 
   writeMinbadCompiled(); // start clean;
   str class = "MinbadValidator";
   NameGraph resolve(lrel[Maybe[loc], str] src) {
@@ -125,7 +126,13 @@ str fixMinBad() {
   orgs = nameFixString(minbadNames(), origins(minbadCompiled()), resolve, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(outFile, newSource);
-  return newSource;
+  return orgs;
+}
+
+test bool testMinBad() {
+  newSource = fixMinBad();
+  return isCompiledHygienically(minbadNames(), 
+     resolveJava(newSource, "MinbadValidator", |project://Rascal-Hygiene/formats/minbad.derric|));
 }
 
 

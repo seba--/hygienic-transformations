@@ -12,6 +12,7 @@ import name::Relation;
 import name::NameFixString;
 import name::Names;
 import name::Gensym;
+import name::HygienicCorrectness;
 import util::Maybe;
 import IO;
 import String;
@@ -64,13 +65,18 @@ NameGraph resolveJava(lrel[Maybe[loc], str] src) {
          |project://Rascal-Hygiene/input/illcompiledjava.ctl|);
 }
 
-str fixIllCompiledJava1() { 
+lrel[Maybe[loc], str] fixIllCompiledJava1() { 
   compileIllCompiled1javaToDisk(); // start clean;
   outFile = |project://<output>/src/<missGrantClass>.java|;
   orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(outFile, newSource);
-  return newSource;
+  return orgs;
+}
+
+test bool testIllCompiled1() {
+  newSource = fixIllCompiledJava1();
+  return isCompiledHygienically(illCompiled1Names(), resolveJava(newSource));
 }
 
 void compileIllCompiled1javaToDisk() {
