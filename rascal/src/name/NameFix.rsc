@@ -37,7 +37,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs)
     fresh = gensym(Nt[vd], Nt<1> + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
       Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
-    else if (vd notin Vs && vd notin Nsyn) // vd in Vt \ Vs
+    if (vd notin Vs && vd notin Nsyn) // vd in Vt \ Vs
       Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == Nt[vd]);
   };
   
