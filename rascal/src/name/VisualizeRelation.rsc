@@ -11,7 +11,7 @@ import List;
 
 Figure toFigure(NameGraph G) {
   return graph(
-     [ellipse(text("<nameOf(v, G)> (<idString(v)>)"), left(), top(), 
+     [ellipse(text("<nameOf(v, G)> (<idString(v)>)"), left(), top(), isSyn(v) ? lineColor("red") : top(), 
           id("<v>"), 
           
           onMouseDown(bool (int btn, map[KeyModifier,bool] m) {
@@ -28,6 +28,9 @@ str idString({l}) {
   return "line <l.begin.line>";
 }
 str idString(id) = "syn";
+
+bool isSyn({l}) = false;
+bool isSyn(id) = true;
 
 void renderNames(NameGraph names) = 
   render(toFigure(names));
