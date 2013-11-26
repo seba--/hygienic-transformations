@@ -21,12 +21,18 @@ import IO;
 
 Controller statemachine1() = load(|project://Rascal-Hygiene/input/missgrant.ctl|);
 Controller statemachine1illcompiled() = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);
+loc statemachine1Out() = |project://Rascal-Hygiene/output/missgrant.sim|;
+loc statemachine1illcompiledOut() = |project://Rascal-Hygiene/output/missgrant-illcompiled.sim|;
 
 loc initStateLoc() = statemachine1().states[0]@location;
 
 void printCompiled1() = println(pretty(compile(statemachine1())));
 
-Prog compiled1() = compile(statemachine1());
+Prog compiled1() {
+   p = compile(statemachine1());
+   writeFile(statemachine1Out(), pretty(p));
+   return p;
+}
 
 Prog compiled1ill() = compile(statemachine1illcompiled());
 

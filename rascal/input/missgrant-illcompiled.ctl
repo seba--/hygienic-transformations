@@ -24,10 +24,10 @@ end
   
 state idle
  actions {unlockDoor lockPanel}
- doorClosed => idle-trans 
+ doorClosed => idle-dispatch 
 end
   
-state idle-trans
+state idle-dispatch
  drawerOpened => waitingForLight
  lightOn => waitingForDrawer 
 end 

@@ -73,7 +73,12 @@ default bool structurallyEquivalent(x1, x2) {
 }
 
 bool alphaEquivalent(t1, <V1,E1,N1>, t2, <V2,E2,N2>) {
-  return structurallyEquivalent(t1, t2) && V1 == V2 && E1 == E2;
+  if (!structurallyEquivalent(t1, t2))
+    return false;
+  if (V1 == V2 && E1 == E2)
+    return true;
+  // TODO if labels differ, unify labels first and check graphs again
+  return false;
 }
 
 bool subAlphaEquivalent(t1, t2, <V,E,N>) {
@@ -83,44 +88,47 @@ bool subAlphaEquivalent(t1, t2, <V,E,N>) {
   V1 = idsOf(t1);
   for (vr <- V1 & E<0>) {
     vd = E[vr];
-    if (nameAt(vr, t1) != nameAt(vd, t1) ||
-        nameAt(vr, t2) != nameAt(vd, t2)) {
-      println("not sub-alpha at <vr>=<vd>: \n<t1>\n<t2>");
+    if (nameAt(vr, t1) == nameAt(vd, t1) && 
+        nameAt(vr, t2) != nameAt(vd, t2) ||
+        nameAt(vr, t1) != nameAt(vd, t1) && 
+        nameAt(vr, t2) == nameAt(vd, t2)) {
+      println("not sub-alpha (src) at <vr>=<vd>: \n<t1>\n<t2>");
       return false;
     }
   }
   
   synNames = {};
-  for (v <- V1 - V)
-    synNames += <nameAt(v, t1), nameAt(v,t2)>;
-  
-  unifier = unifyNames(synNames);
-  
-  if (unifier == nothing())
-    println("not sub-alpha, syn=<synNames>: \n<t1>\n<t2>");
-  
-  return unifier != nothing();
+  for (v1 <- V1 - V, v2 <- V1 - V)
+    if (nameAt(v1, t1) == nameAt(v2, t1) && 
+        nameAt(v1, t2) != nameAt(v2, t2) ||
+        nameAt(v1, t1) != nameAt(v2, t1) && 
+        nameAt(v1, t2) == nameAt(v2, t2)) {
+      println("not sub-alpha (syn) at <v1>=<v2>: \n<t1>\n<t2>");
+      return false;
+    }
+
+  return true;
 }
 
-Maybe[tuple[map[str,int],map[str,int]]] unifyNames(set[tuple[str,str]] ns) = unifyNames(ns, <(),()>, 0);
-
-Maybe[tuple[map[str,int],map[str,int]]] unifyNames(set[tuple[str,str]] ns, tuple[map[str,int],map[str,int]] m, int i) {
-  if (ns == {})
-    return just(m);
-  
-  <<x,y>,rest> = takeOneFrom(ns);
-  
-  <m1,m2> = m;
-  
-  res = ();
-  if (x in m1 && y in m2) {
-    if (m1[x] == m2[y])
-      return unifyNames(rest, m, i);
-    else
-      return nothing();
-  }
-  else if (x notin m1 && y notin m2)
-    return unifyNames(rest, <m1 + (x:i),m2 + (y:i)>, i+1);
-  else
-    return nothing();
-}
+//Maybe[tuple[map[str,int],map[str,int]]] unifyNames(set[tuple[str,str]] ns) = unifyNames(ns, <(),()>, 0);
+//
+//Maybe[tuple[map[str,int],map[str,int]]] unifyNames(set[tuple[str,str]] ns, tuple[map[str,int],map[str,int]] m, int i) {
+//  if (ns == {})
+//    return just(m);
+//  
+//  <<x,y>,rest> = takeOneFrom(ns);
+//  
+//  <m1,m2> = m;
+//  
+//  res = ();
+//  if (x in m1 && y in m2) {
+//    if (m1[x] == m2[y])
+//      return unifyNames(rest, m, i);
+//    else
+//      return nothing();
+//  }
+//  else if (x notin m1 && y notin m2)
+//    return unifyNames(rest, <m1 + (x:i),m2 + (y:i)>, i+1);
+//  else
+//    return nothing();
+//}

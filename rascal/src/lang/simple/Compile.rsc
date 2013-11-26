@@ -34,7 +34,7 @@ list[FDef] states2constdefs(list[State] states) {
 }
 
 FDef state2def(State s) {
-  return fdef("<s.name>-trans", 
+  return fdef("<s.name>-dispatch", 
                 ["event"], 
                 transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
 }
@@ -49,7 +49,7 @@ Exp transitions2condexp([t, *ts], Exp deflt) =
       , transitions2condexp(ts, deflt));
 
 FDef stateDispatch(list[State] states) = 
-  fdef("trans-dispatch",
+  fdef("main-dispatch",
          ["state", "event"], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
@@ -58,7 +58,7 @@ Exp stateDispatchCondexp([], Exp deflt) = deflt;
 
 Exp stateDispatchCondexp([s, *ss], Exp deflt) =
   cond( equ(var("state"), call(s.name, []))
-       , call("<s.name>-trans", [var("event")])
+       , call("<s.name>-dispatch", [var("event")])
        , stateDispatchCondexp(ss, deflt));
 
 Exp triggerEvents(State init, list[str] es) {
