@@ -27,7 +27,7 @@ Prog prog1 = prog([], [exp1]);
 }
 */
 
-Prog liftProg1() = liftLocfun(prog1);
+Prog liftProg1() = liftLocfun(prog1, resolveNames(prog1));
 
 /* prog1 after local functions being lifted
 fun f(x, y) = f(x + y, y);
@@ -80,7 +80,7 @@ fun f(x) = x + 1;
 }
 */
 
-Prog liftProg2() = liftLocfun(prog2);
+Prog liftProg2() = liftLocfun(prog2, resolveNames(prog2));
 
 /* prog2 after local functions being lifted
 fun f(x) = x + 1;
