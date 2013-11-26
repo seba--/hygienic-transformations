@@ -32,19 +32,18 @@ Answer resolveNamesExp(block(FDef fdef, Exp body), Scope scope) {
 }
 
 // desugar
-Prog liftLocfun(prog(fdefs, main)) {
+Prog liftLocfun(prog(fdefs, main), NameGraph ng) {
   lifted = [];
   
   liftedMain = visit(main) {
-    case block(fdef(name, params, body), bexp): {
-      fvs = freevars(body) - name - params;
-      calls = callsTo(name, block(fdef(name, params, body), bexp));
+    case b:block(fdef(name, params, body), bexp): {
+      fvs = [ n | /var(n) := body ] - name - params;
       
       // replace recursive calls to pass along additional arguments
       replaceBody = visit(body) {
         case call(cname, args) =>
              call(cname, args + [var(v) | v <- fvs])
-           when cname in calls     
+           when isRefOf(cname, name, ng)     
       };
       lifted += fdef(name, params + fvs, replaceBody);
       
@@ -52,7 +51,7 @@ Prog liftLocfun(prog(fdefs, main)) {
       replaceExp = visit(bexp) {
         case call(cname, args) =>
              call(cname, args + [var(v) | v <- fvs])
-           when cname in calls     
+           when isRefOf(cname, name, ng)     
       };
       insert replaceExp;
     }
@@ -61,15 +60,15 @@ Prog liftLocfun(prog(fdefs, main)) {
   return prog(fdefs + lifted, liftedMain);
 }
 
-@doc{Computes set of unbound variables in expression (as list).}
-list[str] freevars(Exp e) {
-  <G,_> = resolveNamesExp(e, ());
-  return toList({v | /var(v) <- e, isFree(v, G)});
-}
-
-@doc{Computes set of call-sites for given (labeled) definition name (as list).}
-list[str] callsTo(str def, Exp e) {
-  <G,_> = resolveNamesExp(e, ());
-  return toList({name | /call(name, _) <- e, isRefOf(name, def, G)});
-}
+//@doc{Computes set of unbound variables in expression (as list).}
+//list[str] freevars(Exp e) {
+//  <G,_> = resolveNamesExp(e, ());
+//  return [v | /var(v) <- e, isFree(v, G)];
+//}
+//
+//@doc{Computes set of call-sites for given (labeled) definition name (as list).}
+//list[str] callsTo(str def, Exp e) {
+//  <G,_> = resolveNamesExp(e, ());
+//  return [ name | /call(name, _) <- e, isRefOf(name, def, G) ];
+//}
 
