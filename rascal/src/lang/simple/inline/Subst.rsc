@@ -11,7 +11,7 @@ import name::NameFix;
 
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {
   Gs = resolveNames(p);
-  p2 = subst(p, name, e);
+  p2 = mysubst(p, name, e);
   return nameFix(#Prog, Gs, p2, resolveNames);
 }
 
@@ -44,3 +44,26 @@ Exp substExp(Exp exp, str name, Exp e) =
 
 Exp substVar(var(x), str name, Exp e) = e when x == name;
 Exp substVar(var(x), str name, Exp e) = var(x) when x != name;
+
+
+Prog mysubst(Prog p, str name, Exp e) {
+  Exp subst(Exp subj) {
+    return top-down-break visit(subj) {
+      case block(vdefs, e2): {
+        free = true;
+        vdefs = for (vdef(n, e1) <- vdefs) {
+          if (n == name) free = false;
+          append vdef(n, free ? subst(e1) : e1);
+        }
+        insert block(vdefs, free ? subst(e2) : e2);  
+      }
+      case var(name) =>  e
+    }
+  }
+  fdefs = [ fdef(fn, ps, name in ps ? b : subst(b)) 
+            | fdef(fn, ps, b) <- p.fdefs ];
+  main = [ subst(exp) | Exp exp <- p.main ];
+  return prog(fdefs, main);
+}
+
+
