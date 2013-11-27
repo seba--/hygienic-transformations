@@ -12,8 +12,8 @@ syntax Exp = val: Val v
            | cond: "if" Exp c "then" Exp t "else" Exp e
            | right plus: Exp e1 "+" Exp e2 
            > non-assoc equ: Exp e1 "==" Exp e2
-           > right sequ: Exp e1 ";" Exp e2
            > assign: Id var "=" Exp e
+           > right sequ: Exp e1 ";" Exp e2
            | block: "{" VDef? vdef Exp body "}"
            | bracket "(" Exp ")"
            ;

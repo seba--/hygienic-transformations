@@ -5,6 +5,7 @@ import lang::simple::AST;
 import List;
 import util::Maybe;
 
+import IO;
 
 alias Env = map[str, Val];
 
@@ -72,8 +73,10 @@ Result eval(FDefs fdefs, equ(Exp exp1, Exp exp2), Env env) {
   return <env, nat(n1 == n2? 1 : 0)>;
 }
 
-Result eval(FDefs fdefs, block(Exp exp), Env env) = eval(fdefs, exp, env);
-
+Result eval(FDefs fdefs, block([vdef(n,e)], exp), Env env){
+  r = eval(fdefs,e,env);
+  return eval(fdefs, exp, r.env + (n:r.val));
+}
 
 Maybe[FDef] lookup(str s, FDefs fdefs) {
   switch (fdefs) {
