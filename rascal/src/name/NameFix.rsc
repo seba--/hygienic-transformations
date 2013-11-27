@@ -3,11 +3,11 @@ module name::NameFix
 import name::Gensym;
 import name::HygienicCorrectness;
 import name::Relation;
+import name::Figs;
 import name::Names;
 import IO;
 import Map;
 import String;
-
 
 &T rename(&T t, map[ID,str] subst) {
   return visit (t) {
@@ -47,12 +47,19 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es,Ns>, <Vt,Et,Nt>, t, badDefs,
   return <Nsrc,Nsyn>;
 }
 
+
+
+
 &T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
   = x // vvvvv work around Rascal bug.
-  when &T x := nameFix(Gs, t, rename, resolveT, nameAt);
-
+  when resetFigs(), 
+       &T x := nameFix(Gs, t, rename, resolveT, nameAt),
+       renderFigs();
+  
+ 
 &T nameFix(NameGraph Gs, &T t, &T(&T t, map[ID,str] subst) rename, NameGraph(&T) resolveT, str(ID, &T) nameAt) {
   Gt = resolveT(t);
+  recordNameGraphFig(Gt);
   
   //println("Source edges: <Gs.E>");
   //println("Target edges: <Gt.E>");

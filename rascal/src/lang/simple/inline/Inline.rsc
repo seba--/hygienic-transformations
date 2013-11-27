@@ -8,6 +8,7 @@ import lang::simple::NameRel;
 import lang::simple::inline::Subst;
 
 import name::NameFix;
+import vis::Figure;
 
 Prog captureAvoidingInline(Prog p, str name) {
   if ({def} := { d | d <- p.fdefs, d.fsym == name}) {

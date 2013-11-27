@@ -46,6 +46,12 @@ Exp substVar(var(x), str name, Exp e) = e when x == name;
 Exp substVar(var(x), str name, Exp e) = var(x) when x != name;
 
 
+Prog mysubst2(Prog p, str name, Exp e) {
+  return visit (p) { 
+    case var(name) => e
+  }
+}
+
 Prog mysubst(Prog p, str name, Exp e) {
   Exp subst(Exp subj) {
     return top-down-break visit(subj) {

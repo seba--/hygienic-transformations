@@ -29,12 +29,24 @@ str source2() = "fun zero() = 0;
                 '  double(double(n + free + zero()))
                 '}";
 
+
+loc testfile3 = |project://Rascal-Hygiene/output/testinline3.sim|;
+str source3() = "fun zero() = 0; 
+                'fun succ(x) = {var n = 1; x + n + zero()};
+                'fun zero() = 2; 
+                '{
+                '  var n = free + 5; 
+                '  succ(succ(n + free + zero()))
+                '}";
+
+
 Prog load(loc file, str code) {
   writeFile(file, code);
   return load(file);
 }
 Prog prog() = load(testfile, source());
 Prog prog2() = load(testfile2, source2());
+Prog prog3() = load(testfile3, source3());
 
 Prog inline1() {
   x = inline(prog(), "zero");
@@ -145,6 +157,29 @@ test bool testInline7() {
   return nvars == 3 && nRenamed == 4 && hygienic && allRenamedDefsHaveThreeRefs;
 }
 
+
+Prog inline8() {
+  x = captureAvoidingInline(prog3(), "succ");
+  println(pretty(x));
+  return x;
+}
+test bool testInline8() {
+  p = inline8();
+  nvars = count(var("n"), p) + count(call("zero", []), p);
+  nRenamed = count(var("n_0"), p) + count(call("zero_0", []), p);
+  hygienic = isCompiledHygienically(resolveNames(prog3()),resolveNames(p));
+  
+  G = resolveNames(p);
+  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"n_0", "zero_0"}};
+  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
+  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
+  
+  println("nvars == 2: <nvars>");
+  println("nRenamed == 2: <nRenamed>");
+  println("hyg = <hygienic>"); 
+  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
+  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+}
 
 int count(&T t, &U here) {
   i = 0;

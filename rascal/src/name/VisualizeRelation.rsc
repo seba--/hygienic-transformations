@@ -4,14 +4,13 @@ import name::Relation;
 import vis::Figure;
 import vis::KeySym;
 import vis::Render;
-import util::Editors;
 
 import String;
 import List;
 
 Figure toFigure(NameGraph G) {
   return graph(
-     [ellipse(text("<nameOf(v, G)> (<idString(v)>)"), left(), top(), isSyn(v) ? lineColor("red") : top(), 
+     [ellipse(text("<v in G.N ? nameOf(v, G) : "UNKNOWN!!!"> (<idString(v)>)"), left(), top(), isSyn(v) ? lineColor("red") : top(), 
           id("<v>"), 
           
           onMouseDown(bool (int btn, map[KeyModifier,bool] m) {
