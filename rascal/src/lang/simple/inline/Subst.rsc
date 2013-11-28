@@ -11,7 +11,7 @@ import name::NameFix;
 
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {
   Gs = resolveNames(p);
-  p2 = mysubst(p, name, e);
+  p2 = paperSubst(p, name, e);
   return nameFix(#Prog, Gs, p2, resolveNames);
 }
 
@@ -70,6 +70,19 @@ Prog mysubst(Prog p, str name, Exp e) {
             | fdef(fn, ps, b) <- p.fdefs ];
   main = [ subst(exp) | Exp exp <- p.main ];
   return prog(fdefs, main);
+}
+
+// only works for single vardefs in blocks.
+Prog paperSubst(Prog p, str name, Exp e) {
+  Exp subst(Exp subj) = top-down-break visit(subj) {
+      case block([vdef(n:!name, e1)], e2) 
+         => block([vdef(n, subst(e1))], subst(e2))
+      case block([vdef(name, e1)], e2) 
+         => block([vdef(nane, subst(e1))], e2)
+      case var(name) =>  e
+  };
+  fdefs = [ fdef(fn, ps, name in ps ? b : subst(b)) | fdef(fn, ps, b) <- p.fdefs ];
+  return prog(fdefs, [ subst(exp) | Exp exp <- p.main ]);
 }
 
 

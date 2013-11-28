@@ -9,6 +9,7 @@ syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 syntax Exp = val: Val v
            | var: Id x
            | call: Id fsym "(" {Exp ","}* args ")"
+           | not: "!" Exp e
            | cond: "if" Exp c "then" Exp t "else" Exp e
            | right plus: Exp e1 "+" Exp e2 
            > non-assoc equ: Exp e1 "==" Exp e2
