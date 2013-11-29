@@ -1,4 +1,9 @@
-events end
+events
+  close  C
+  open   O
+  lock   L
+  unlock U
+end
 
 state opened
  close => closed 

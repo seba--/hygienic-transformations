@@ -41,7 +41,7 @@ str source3() = "fun zero() = 0;
 
 loc andOrFile = |project://Rascal-Hygiene/output/andOr.sim|;
 str andOrSource() =   
-                "fun or(x, y) = { var tmp = x; if tmp == 0 then y else tmp };
+                "fun or(x, y) =  { var tmp = x; if tmp == 0 then y else tmp };
                 'fun and(x, y) = !or(!x, !y);
                 '{
                 '  var or = 1;
@@ -215,9 +215,45 @@ test bool testInlineAnd() {
   return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
 }
 
+Prog inlineImplies() {
+  x = captureAvoidingInline(andOr(), "implies");
+  //x = captureAvoidingInline(x, "or");
+  println(pretty(x));
+  return x;
+}
+test bool testInlineImplies() {
+  p = inlineImplies();
+  nvars = count(call("and", []), p);
+  nRenamed = count(call("and", []), p);
+  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  
+  G = resolveNames(p);
+  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"and"}};
+  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
+  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
+  
+  println("nvars == 2: <nvars>");
+  println("nRenamed == 2: <nRenamed>");
+  println("hyg = <hygienic>"); 
+  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
+  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+}
+
 Prog inlineAndThenOr() {
+  println("input:");
+  println(pretty(andOr()));
+
+
+  y = inline(andOr(), "and");
+  y = inline(y, "or");
+  println("Unh inline:");
+  println(pretty(y));
+
   x = captureAvoidingInline(andOr(), "and");
+  println("Inlined and");
+  println(pretty(x));
   x = captureAvoidingInline(x, "or");
+  println("Inlined or");
   println(pretty(x));
   return x;
 }
@@ -238,7 +274,6 @@ test bool testInlineAndThenOr() {
   println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
   return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
 }
-
 
 Prog inlineAndThenOrThenNot() {
   x = captureAvoidingInline(andOr(), "and");
