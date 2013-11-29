@@ -8,9 +8,9 @@ import vis::Render;
 import String;
 import List;
 
-Figure toFigure(NameGraph G) {
+Figure toFigure(NameGraph G, &T t) {
   return graph(
-     [ellipse(text("<v in G.N ? nameOf(v, G) : "UNKNOWN!!!"> (<idString(v)>)"), left(), top(), isSyn(v) ? lineColor("red") : top(), 
+     [ellipse(text("<nameAt(v, t)> (<idString(v)>)"), left(), top(), isSyn(v) ? lineColor("red") : top(), 
           id("<v>"), 
           
           onMouseDown(bool (int btn, map[KeyModifier,bool] m) {
@@ -31,5 +31,5 @@ str idString(id) = "syn";
 bool isSyn({l}) = false;
 bool isSyn(id) = true;
 
-void renderNames(NameGraph names) = 
-  render(toFigure(names));
+void renderNames(NameGraph names, &T t) = 
+  render(toFigure(names, t));

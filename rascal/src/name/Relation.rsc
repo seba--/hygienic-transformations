@@ -7,7 +7,7 @@ import name::Names;
 
 alias Edge = tuple[ID use, ID def];
 alias Edges = map[ID use, ID def];
-alias NameGraph = tuple[set[ID] V, Edges E, map[ID v, str name] N];
+alias NameGraph = tuple[set[ID] V, Edges E];
 
 set[ID] synthesizedNodes(NameGraph Gs, NameGraph Gt) = Gt.V - Gs.V;
 
@@ -26,14 +26,6 @@ bool isRefOf(str u, str d, NameGraph G) {
 
 bool isFree(str v, NameGraph G) = getID(v) notin G.E;
 
-str nameOf(ID n, NameGraph G) {
-  if (n in G.N)
-    return G.N[n];
-  if (refOf(n, G.E) in G.N)
-    return G.N[refOf(n, G.E)];
-  throw "Node <n> has no name in <G.N>";
-}
-
 str nameAt(ID n, &T t) = 
   visit(t) {
     case str x: 
@@ -50,6 +42,13 @@ set[ID] defsOf(NameGraph G) = G.E.def;
 
 set[ID] usesOf(NameGraph G) = G.E.use;
 
+set[str] allNames(Vt, t) {
+  ss = {};
+  visit(t) {
+    case str s: ss += s; 
+  };
+  return ss;
+}
 
 NameGraph makeGraph(rel[str name,ID l] names, rel[ID use, ID def] refs) {
   nodes = names<1>;
@@ -60,7 +59,7 @@ NameGraph makeGraph(rel[str name,ID l] names, rel[ID use, ID def] refs) {
   if (size(N<0>) != size(N))
     throw "NameGraph requires unique mapping from node labels to names, but got <N>";
   
-  return <nodes, ( u:d | <u,d> <- refs ), ( v:name | <v,name> <- N )>;
+  return <nodes, ( u:d | <u,d> <- refs )>;
 }
 
 NameGraph union(NameGraph g1, NameGraph g2) =

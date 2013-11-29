@@ -2,7 +2,7 @@ module name::TestNested
 
 
 import lang::missgrant::base::AST;
-import lang::missgrant::base::NameRel;
+//import lang::missgrant::base::NameRel;
 
 import lang::simple::AST;
 import lang::simple::Compile;
@@ -65,12 +65,11 @@ Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
 NameGraph sNames1() {
   Vs = {getID(x3def), getID(x3use)};
   Es = (getID(x3use):getID(x3def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix1() {
   Prog p = prog();
-  tNames = resolveNames(p);
+  NameGraph tNames = resolveNames(p);
   return fixAndPrint(sNames1(), p, resolveNames);
 }
 test bool test1() {
@@ -80,8 +79,7 @@ test bool test1() {
 NameGraph sNames2() {
   Vs = {getID(x2def), getID(x3use)};
   Es = (getID(x3use):getID(x2def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix2() {
   Prog p = prog();
@@ -96,8 +94,7 @@ test bool test2() {
 NameGraph sNames3() {
   Vs = {getID(x1def), getID(x3use)};
   Es = (getID(x3use):getID(x1def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix3() {
   Prog p = prog();
@@ -111,8 +108,7 @@ test bool test3() {
 NameGraph sNames4() {
   Vs = {getID(x1def), getID(x2use)};
   Es = (getID(x2use):getID(x1def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix4() {
   Prog p = prog();
@@ -127,8 +123,7 @@ test bool test4() {
 NameGraph sNames5() {
   Vs = {getID(x2def)};
   Es = ();
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix5() {
   Prog p = prog();
@@ -142,8 +137,7 @@ test bool test5() {
 NameGraph sNames6() {
   Vs = {getID(x2def),getID(x2use),getID(x3def),getID(x3use)};
   Es = (getID(x3use):getID(x2def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix6() {
   Prog p = prog();
@@ -157,8 +151,7 @@ test bool test6() {
 NameGraph sNames7() {
   Vs = {getID(x2use),getID(x3def)};
   Es = (getID(x2use):getID(x3def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix7() {
   Prog p = prog();
@@ -173,8 +166,7 @@ test bool test7() {
 NameGraph sNames8() {
   Vs = {getID(x2use),getID(x3def),getID(x1def)};
   Es = (getID(x2use):getID(x3def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix8() {
   Prog p = prog();
@@ -188,8 +180,7 @@ test bool test8() {
 NameGraph sNames9() {
   Vs = {getID(x2use),getID(x3def),getID(x1def),getID(x3use)};
   Es = (getID(x2use):getID(x3def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix9() {
   Prog p = prog();
@@ -203,8 +194,7 @@ test bool test9() {
 NameGraph sNames10() {
   Vs = {getID(x1use),getID(x3def)};
   Es = (getID(x1use):getID(x3def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix10() {
   Prog p = prog();
@@ -219,8 +209,7 @@ test bool test10() {
 NameGraph sNames11() {
   Vs = {getID(x2def),getID(x2use),getID(x3def),getID(x3use)};
   Es = (getID(x2use):getID(x2def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix11() {
   Prog p = prog();
@@ -237,8 +226,7 @@ test bool test11() {
 NameGraph sNames12() {
   Vs = {getID(x1def), getID(x3use)};
   Es = (getID(x3use):getID(x1def));
-  Ns = ();
-  return <Vs,Es,Ns>;
+  return <Vs,Es>;
 }
 Prog fix12() {
   Prog p = prog2();

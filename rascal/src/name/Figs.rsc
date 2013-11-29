@@ -13,7 +13,8 @@ list[Figure] getFigs() = figs;
 Figure getFig() = vcat(figs, gap(20), width(900), height(1000));
 
 bool renderFigs() {
-  render(getFig());
+  if (figs != [])
+  	  render(getFig());
   return true;
 }
 
@@ -22,6 +23,6 @@ bool resetFigs() {
   return true;
 }
 
-void recordNameGraphFig(NameGraph g) {
-  figs += [toFigure(g)];
+void recordNameGraphFig(NameGraph g, &T t) {
+  figs += [toFigure(g, t)];
 }
