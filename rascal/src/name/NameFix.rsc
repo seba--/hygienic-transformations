@@ -29,11 +29,11 @@ Edges badBindings(<Vs,Es>, <Vt,Et>) {
   return notPreserveVar1 + notPreserveVar2 + notPreserveDef;
 }
 
-tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badDefs, str(ID, &T) nameAt) {
+tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, str(ID, &T) nameAt) {
   Nsrc = ();
   Nsyn = ();
   
-  for (vd <- badDefs) {
+  for (vd <- badDefs<1>) {
     fresh = gensym(nameAt(vd, t), allNames(Vt, t) + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
       Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
@@ -67,7 +67,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badDefs, str(I
   allBadBindings = badBindings(Gs, Gt); 
   if (allBadBindings == ()) return t;
   
-  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings<1>, nameAt);
+  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings, nameAt);
   &T t_new = rename(t, Nsrc + Nsyn);
   
   return nameFix(Gs, t_new, rename, resolveT, nameAt);

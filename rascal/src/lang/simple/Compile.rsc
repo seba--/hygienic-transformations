@@ -25,19 +25,14 @@ Prog compile(list[State] states, list[str] events) {
 }
 
 
-FDef state2constdef(State s, int i) {
-  return fdef(s.name, [], val(nat(i)));
-}
+FDef state2constdef(state(name,_,_), int i) = fdef(name, [], val(nat(i)));
 
 list[FDef] states2constdefs(list[State] states) {
   return [state2constdef(s,i) | <s,i> <- zip(states, [0..size(states)]) ];
 }
 
-FDef state2def(State s) {
-  return fdef("<s.name>-dispatch", 
-                ["event"], 
-                transitions2condexp(s.transitions, val(error("UnsupportedEvent"))));
-}
+FDef state2def(state(s,trans)) = fdef("<s.name>-dispatch", ["event"], transitions2condexp(trans, val(error("UnsupportedEvent"))));
+
 
 // Maybe we will have to parse in the variable symbol "event" to enable hygiene.
 Exp transitions2condexp([], Exp deflt) = deflt;
