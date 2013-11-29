@@ -20,7 +20,7 @@ Figure toFigure(NameGraph G, &T t) {
            | v <- G.V ],
           
      [edge("<u>", "<d>", triangle(10,fillColor("black"))) | <u, d> <- G.E<0,1> ], 
-     hint("layered"), width(900), height(1000), gap(70));
+     hint("layered"), width(900), /*height(1000),*/ gap(70));
 }
 
 str idString({l}) {

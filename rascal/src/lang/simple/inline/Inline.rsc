@@ -10,6 +10,14 @@ import lang::simple::inline::Subst;
 import name::NameFix;
 import vis::Figure;
 
+Prog captureAvoidingInline(Prog p, list[str] names) {
+  defs = [ d | d <- p.fdefs, d.fsym in names ];
+  Gs = resolveNames(p);
+  p2 = ( p | inline(it, def) | def <- defs );
+  return nameFix(#Prog, Gs, p2, resolveNames);
+}
+
+
 Prog captureAvoidingInline(Prog p, str name) {
   if ({def} := { d | d <- p.fdefs, d.fsym == name}) {
     Gs = resolveNames(p);

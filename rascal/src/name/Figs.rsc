@@ -10,7 +10,7 @@ list[Figure] figs = [];
 
 list[Figure] getFigs() = figs;
 
-Figure getFig() = vcat(figs, gap(20), width(900), height(1000));
+Figure getFig() = vcat(figs, gap(1), width(900));
 
 bool renderFigs() {
   if (figs != [])

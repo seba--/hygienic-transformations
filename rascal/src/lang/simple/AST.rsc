@@ -10,6 +10,7 @@ data FDef = fdef(str fsym, list[str] params, Exp body);
 
 data Exp = val(Val v)
          | var(str x)
+         | not(Exp e)
          | call(str fsym, list[Exp] args)
          | cond(Exp c, Exp t, Exp e)
          | plus(Exp e1, Exp e2)
