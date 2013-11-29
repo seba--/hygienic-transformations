@@ -17,7 +17,7 @@ NameGraph m3toNameGraph(M3 m) {
   
   set[ID] v = { {x} | x <- m@uses<0> + fewerDecls };
   
-  return <v, e, n>;
+  return <v, e>;
   
 }
 

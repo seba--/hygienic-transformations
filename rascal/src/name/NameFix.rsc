@@ -33,7 +33,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
   Nsrc = ();
   Nsyn = ();
   
-  for (vd <- badDefs<1>) {
+  for (vd <- badBindings<1>) {
     fresh = gensym(nameAt(vd, t), allNames(Vt, t) + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
       Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
