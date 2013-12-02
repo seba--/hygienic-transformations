@@ -24,15 +24,15 @@ str pretty(block(FDef fdef, Exp body)) = "{ <pretty(fdef)> <pretty(body)> }";
 Answer resolveNamesExp(block(FDef fdef, Exp body), Scope scope) {
   lscope = scope;
   
-  <<dV, dE, dN>, _> = resolveNamesFDef(fdef, lscope);
+  <<dV, dE>, _> = resolveNamesFDef(fdef, lscope);
   lscope = lscope + (fdef.fsym : getID(fdef.fsym));
   
-  <<V, E, N>, _> = resolveNamesExp(body, lscope);
-  return <<V + dV, E + dE, N + dN>, scope>;
+  <<V, E>, _> = resolveNamesExp(body, lscope);
+  return <<V + dV, E + dE>, scope>;
 }
 
 // desugar
-Prog liftLocfun(prog(fdefs, main), NameGraph ng) {
+Prog liftLocfun_(prog(fdefs, main), NameGraph ng) {
   lifted = [];
   
   liftedMain = visit(main) {
@@ -58,6 +58,24 @@ Prog liftLocfun(prog(fdefs, main), NameGraph ng) {
   };
 
   return prog(fdefs + lifted, liftedMain);
+}
+
+Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
+  Exp substCalls(str name, Exp e, list[str] vars ) = visit (e) {
+    case call (cname, args) => call(cname, args + [var(v) | v <- vars])
+      when isRefOf(cname, name, ng)
+  };
+  list[FDef] new = [];
+  main = bottom-up visit(main) {
+     case block(f:fdef(name, params, body), bexp): {
+       free = [ n | /var(n) := body ] - name - params;
+       f2 = fdef(name, params + free, body);
+       new = [f2, *new];
+       new = [fdef(n, ps, substCalls(name, b, free)) | fdef(n, ps, b) <- new ];
+       insert substCalls (name, bexp, free );
+     }
+  };
+  return prog(fdefs + new, main);
 }
 
 //@doc{Computes set of unbound variables in expression (as list).}
