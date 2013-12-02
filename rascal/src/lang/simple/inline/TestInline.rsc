@@ -12,6 +12,9 @@ import lang::simple::NameRel;
 import lang::simple::inline::Inline;
 
 import name::HygienicCorrectness;
+import name::Relation;
+
+import Map;
 
 loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
 str source() = "fun zero() = 0; 
@@ -91,10 +94,16 @@ test bool testInline3() {
   hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
   
   G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0"};
+  renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E) };
   references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
   allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
   
+  println(nvars);
+  println(nRenamed);
+  println(hygienic);
+  println(allRenamedDefsHaveOneRef);
+  println(renamedDefs);
+  println(references);
   return nvars == 1 && nRenamed == 3 && hygienic && allRenamedDefsHaveOneRef;
 }
 
@@ -122,7 +131,7 @@ test bool testInline5() {
   hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
   
   G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0"};
+  renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E)};
   references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
   allRenamedDefsHaveThreeRefs = (true | it && size(refs) == 3 | refs <- references);
   
@@ -136,16 +145,8 @@ Prog inline6() {
 }
 test bool testInline6() {
   p = inline6();
-  nvars = count(var("n"), p);
-  nRenamed = count(var("n_0_0"), p);
   hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0_0"};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  return nvars == 2 && nRenamed == 2 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;  
 }
 
 Prog inline7() {
@@ -155,16 +156,8 @@ Prog inline7() {
 }
 test bool testInline7() {
   p = inline7();
-  nvars = count(var("n"), p);
-  nRenamed = count(var("n_0_0"), p);
   hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name == "n_0_0"};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveThreeRefs = (true | it && size(refs) == 3 | refs <- references);
-  
-  return nvars == 3 && nRenamed == 4 && hygienic && allRenamedDefsHaveThreeRefs;
+  return hygienic;
 }
 
 
@@ -180,7 +173,7 @@ test bool testInline8() {
   hygienic = isCompiledHygienically(resolveNames(prog3()),resolveNames(p));
   
   G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"n_0", "zero_0"}};
+  renamedDefs = { d | <d,name> <- piOf(G, p), name in {"n_0", "zero_0"}, d in range(G.E)};
   references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
   allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
   
@@ -199,20 +192,8 @@ Prog inlineAnd() {
 }
 test bool testInlineAnd() {
   p = inlineAnd();
-  nvars = count(call("and", []), p);
-  nRenamed = count(call("and", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"and"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 Prog inlineImplies() {
@@ -223,20 +204,8 @@ Prog inlineImplies() {
 }
 test bool testInlineImplies() {
   p = inlineImplies();
-  nvars = count(call("and", []), p);
-  nRenamed = count(call("and", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"and"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 Prog inlineAndThenOr() {
@@ -259,20 +228,8 @@ Prog inlineAndThenOr() {
 }
 test bool testInlineAndThenOr() {
   p = inlineAndThenOr();
-  nvars = count(call("and", []), p);
-  nRenamed = count(call("and", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"and"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 Prog inlineAndThenOrThenNot() {
@@ -284,20 +241,8 @@ Prog inlineAndThenOrThenNot() {
 }
 test bool testInlineAndThenOrThenNot() {
   p = inlineAndThenOrThenNot();
-  nvars = count(call("and", []), p);
-  nRenamed = count(call("and", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"and"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 
@@ -309,20 +254,8 @@ Prog inlineOr() {
 }
 test bool testInlineOr() {
   p = inlineOr();
-  nvars = count(call("or", []), p);
-  nRenamed = count(call("or", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"or"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 
@@ -334,20 +267,8 @@ Prog inlineOrThenAnd() {
 }
 test bool testInlineOrThenAnd() {
   p = inlineOrThenAnd();
-  nvars = count(call("or", []), p);
-  nRenamed = count(call("or", []), p) + count(call("and", []), p);
   hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
-  
-  G = resolveNames(p);
-  renamedDefs = { d | <d,name> <- G.N<0,1>, name in {"or"}};
-  references = { { u | u <- G.E<0>, G.E[u] == d} | d <- renamedDefs };
-  allRenamedDefsHaveOneRef = (true | it && size(refs) == 1 | refs <- references);
-  
-  println("nvars == 2: <nvars>");
-  println("nRenamed == 2: <nRenamed>");
-  println("hyg = <hygienic>"); 
-  println("allRenamedDefsHaveOneRef = <allRenamedDefsHaveOneRef>");
-  return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
+  return hygienic;
 }
 
 

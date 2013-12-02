@@ -49,7 +49,7 @@ Answer resolveNamesExp(call(v, args), Scope scope) {
   if (v in scope)
     E = (getID(v):scope[v]);
   for (e <- args) {
-    <<V2,E2,N2>, _> = resolveNamesExp(e, scope);
+    <<V2,E2>, _> = resolveNamesExp(e, scope);
     V += V2;
     E += E2;
   }

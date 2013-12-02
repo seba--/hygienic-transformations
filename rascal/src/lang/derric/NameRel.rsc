@@ -2,14 +2,8 @@ module lang::derric::NameRel
 
 import lang::derric::FileFormat;
 import String;
-
-alias ID = set[loc];
-
-alias Edge = tuple[ID use, ID def];
-alias Edges = map[ID use, ID def];
-alias NameGraph = tuple[set[ID] V, Edges E, map[ID v, str name] N];
-
-ID getID(str x) = originsOnly(x);
+import name::Names;
+import name::Relation;
 
 NameGraph resolveNames(FileFormat frm) {
   structs = collectStructs(frm);
@@ -19,25 +13,8 @@ NameGraph resolveNames(FileFormat frm) {
     + resolveSequence(frm, structs)
     + resolveFields(frm, structs);
   v = e.use + e.def;
-  n = getAllNames(frm);
-  return <v, e, n>;
+  return <v, e>;
 }
-
-map[ID, str] getAllNames(FileFormat frm) {
-  m = ();
-  visit (frm) {
-    case term(x, _): m[getID(x)] = x;
-    case term(x, sup, _): { m[getID(x)] = x; m[getID(sup)] = sup; }
-    case Field f: m[getID(f.name)] = f.name;
-    case ref(str x): m[getID(x)] = x; 
-    case ref(str q, str x): { m[getID(q)] = q; m[getID(x)] = x; } 
-    case field(str x): m[getID(x)] = x; 
-    case field(str q, str x): { m[getID(q)] = q; m[getID(x)] = x; } 
-  }
-  return m;
-}
-
-
 
 rel[str, ID, str, ID] collectStructs(FileFormat frm)
   = { <t.name, getID(t.name), f.name, getID(f.name)> | 

@@ -33,14 +33,17 @@ str nameAt(ID n, &T t) =
         return x;
   };
 
-set[str] namesOf(NameGraph G) = G.N<1>;
+//set[str] namesOf(NameGraph G) = G.N<1>;
 
-set[ID] idsOf(NameGraph G) = G.N<0>;
+//set[ID] idsOf(NameGraph G) = G.N<0>;
 set[ID] idsOf(&T t) = ({} | it + {getID(x)} | /str x <- t);
 
 set[ID] defsOf(NameGraph G) = G.E.def;
 
 set[ID] usesOf(NameGraph G) = G.E.use;
+
+rel[ID, str] piOf(NameGraph G, &T t) 
+  = { <getID(s), s> | /str s := t, getID(s) in G.V };
 
 set[str] allNames(Vt, t) {
   ss = {};
@@ -63,5 +66,5 @@ NameGraph makeGraph(rel[str name,ID l] names, rel[ID use, ID def] refs) {
 }
 
 NameGraph union(NameGraph g1, NameGraph g2) =
-  <g1.V + g2.V, g1.E + g2.E, g1.N + g2.N>
-   when g1.E<0> & g2.E<0> == {} && g1.N<0> & g2.N<0> == {};
+  <g1.V + g2.V, g1.E + g2.E>
+   when g1.E<0> & g2.E<0> == {};
