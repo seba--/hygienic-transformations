@@ -10,6 +10,7 @@ import name::Relation;
 
 import IO;
 import Set;
+import List;
 
 // concrete
 syntax Exp = block: "{" FDef fdef Exp body "}";
@@ -62,21 +63,25 @@ Prog liftLocfun_(prog(fdefs, main), NameGraph ng) {
 
 Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
   Exp substCalls(str name, Exp e, list[str] vars ) = visit (e) {
-    case call (cname, args) => call(cname, args + [var(v) | v <- vars])
-      when isRefOf(cname, name, ng)
+    case call(cname, args) => call(cname, args + [var(v) | v <- vars])
+      when isRefOf(cname, name, ng), bprintln("Updating call <cname>")
   };
+  
   list[FDef] new = [];
-  main = bottom-up visit(main) {
-     case block(f:fdef(name, params, body), bexp): {
-       free = [ n | /var(n) := body ] - name - params;
-       f2 = fdef(name, params + free, body);
-       new = [f2, *new];
-       new = [fdef(n, ps, substCalls(name, b, free)) | fdef(n, ps, b) <- new ];
-       insert substCalls (name, bexp, free );
+  
+  Exp liftE(Exp e) = top-down-break visit(e) {
+      case block(f:fdef(name, params, body), bexp): {
+        println("Lifting <name>");
+        free = dup([ n | /var(n) := body ] - name - params);
+        new += fdef(name, params + free, liftE(body));
+        insert liftE(substCalls(name, bexp, free ));
      }
   };
+  
+  main = [ liftE(m) | m <- main ];
   return prog(fdefs + new, main);
 }
+
 
 //@doc{Computes set of unbound variables in expression (as list).}
 //list[str] freevars(Exp e) {
