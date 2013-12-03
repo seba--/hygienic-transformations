@@ -13,16 +13,16 @@ import Set;
 import List;
 
 // concrete
-syntax Exp = block: "{" FDef fdef Exp body "}";
+syntax Exp = let: "let" FDef fdef "in" Exp body;
 
 // abstract
-data Exp = block(FDef fdef, Exp body);
+data Exp = let(FDef fdef, Exp body);
 
 // pretty
-str pretty(block(FDef fdef, Exp body)) = "{ <pretty(fdef)> <pretty(body)> }";
+str pretty(let(FDef fdef, Exp body)) = "{ <pretty(fdef)> <pretty(body)> }";
 
 // name resolution
-Answer resolveNamesExp(block(FDef fdef, Exp body), Scope scope) {
+Answer resolveNamesExp(let(FDef fdef, Exp body), Scope scope) {
   lscope = scope;
   
   <<dV, dE>, _> = resolveNamesFDef(fdef, lscope);
@@ -37,7 +37,7 @@ Prog liftLocfun_(prog(fdefs, main), NameGraph ng) {
   lifted = [];
   
   liftedMain = visit(main) {
-    case b:block(fdef(name, params, body), bexp): {
+    case b:let(fdef(name, params, body), bexp): {
       fvs = [ n | /var(n) := body ] - name - params;
       
       // replace recursive calls to pass along additional arguments
@@ -70,7 +70,7 @@ Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
   list[FDef] new = [];
   
   Exp liftE(Exp e) = top-down-break visit(e) {
-      case block(f:fdef(name, params, body), bexp): {
+      case let(f:fdef(name, params, body), bexp): {
         println("Lifting <name>");
         free = dup([ n | /var(n) := body ] - name - params);
         new += fdef(name, params + free, liftE(body));

@@ -11,8 +11,8 @@ import IO;
 
 
 Exp exp1 =
-  block([vdef("y", val(nat(1)))],
-        block(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
+  let("y", val(nat(1)),
+        let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
               call("f", [val(nat(1))])));
 
 Prog prog1 = prog([], [exp1]);
@@ -68,8 +68,8 @@ test bool testFixed1() {
 
 Prog prog2 =
   prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))],
-       [block([vdef("y", call("f", [val(nat(1))]))],
-              block(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
+       [let("y", call("f", [val(nat(1))]),
+              let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
                     call("f", [val(nat(1))])))]);
 
 /* prog2 before local functions being lifted
@@ -124,9 +124,9 @@ test bool testFixed2() {
 
 
 Exp exp3 =
-  block([vdef("y", call("f", [val(nat(10))]))],
-        block(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
-            block(fdef("g", ["x"], call("f", [plus(var("y"), plus(var("x"), val(nat(1))))])),
+  let("y", call("f", [val(nat(10))]),
+        let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
+            let(fdef("g", ["x"], call("f", [plus(var("y"), plus(var("x"), val(nat(1))))])),
                plus(
                 call("f", [val(nat(1))]),
                 call("g", [val(nat(3))]))
