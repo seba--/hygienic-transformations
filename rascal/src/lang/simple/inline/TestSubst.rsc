@@ -14,12 +14,11 @@ import name::HygienicCorrectness;
 
 loc testfile = |project://Rascal-Hygiene/output/testsubst.sim|;
 str source() = "fun zero() = 0;
-               'fun succ(x) = {var n = 1; x + n};
+               'fun succ(x) = let n = 1 in x + n;
                '
-               '{
-               '  var n = free + 5; 
+               'let n = free + 5 in 
                '  succ(succ(n + free + zero()))
-               '}";
+               '";
 
 Prog load(str code) {
   writeFile(testfile, code);

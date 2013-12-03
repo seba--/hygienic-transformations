@@ -18,39 +18,35 @@ import Map;
 
 loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
 str source() = "fun zero() = 0; 
-               'fun succ(x) = {var n = 1; x + n}; 
-               '{
-               '  var n = free + 5; 
+               'fun succ(x) = let n = 1 in x + n; 
+               'let n = free + 5 in 
                '  succ(succ(n + free + zero()))
-               '}";
+               '";
                
 loc testfile2 = |project://Rascal-Hygiene/output/testinline2.sim|;
 str source2() = "fun zero() = 0; 
-                'fun double(x) = {var n = 0; (n = x; n + n)};
-                '{
-                '  var n = free + 5; 
+                'fun double(x) = let n = 0 in (n = x; n + n);
+                'let  n = free + 5 in
                 '  double(double(n + free + zero()))
-                '}";
+                '";
 
 
 loc testfile3 = |project://Rascal-Hygiene/output/testinline3.sim|;
 str source3() = "fun zero() = 0; 
-                'fun succ(x) = {var n = 1; x + n + zero()};
+                'fun succ(x) = let n = 1 in x + n + zero();
                 'fun zero() = 2; 
-                '{
-                '  var n = free + 5; 
+                'let n = free + 5 in 
                 '  succ(succ(n + free + zero()))
-                '}";
+                '";
 
 loc andOrFile = |project://Rascal-Hygiene/output/andOr.sim|;
 str andOrSource() =   
-                "fun or(x, y) =  { var tmp = x; if tmp == 0 then y else tmp };
+                "fun or(x, y) =  let tmp = x in if tmp == 0 then y else tmp;
                 'fun and(x, y) = !or(!x, !y);
-                '{
-                '  var or = 1;
-                '  { var tmp = 0; 
-                '    and(or, tmp) }
-                '}";
+                'let or = 1 in
+                '  let tmp = 0 in 
+                '    and(or, tmp)
+                '";
 
 Prog load(loc file, str code) {
   writeFile(file, code);

@@ -12,12 +12,6 @@ alias Answer = tuple[NameGraph ng, Scope sc];
 Scope collectDefinitions(Prog p) =
   ( def.fsym: getID(def.fsym) | /FDef def := p );
 
-Answer resolveNamesVDef(vdef(str name, Exp exp), Scope scope) {
-  <<V, E>, _> = resolveNamesExp(exp, scope);
-  return <<V + {getID(name)}, E>,
-          scope + (name : getID(name))>;
-}
-
 Answer resolveNamesFDef(FDef def, Scope scope) {
   <<V, E>, _> = resolveNamesExp(def.body, scope + (p: getID(p) | p <- def.params));
   return <<V + {getID(def.fsym)} + {getID(p) | p <- def.params},
@@ -56,16 +50,10 @@ Answer resolveNamesExp(call(v, args), Scope scope) {
   return <<V,E>, scope>;
 }
 
-Answer resolveNamesExp(block(list[VDef] vini, Exp body), Scope scope) {
-  <V, E> = <{}, ()>;
-  lscope = scope;
-  for (vdef <- vini) {
-    <<dV, dE>, _> = resolveNamesVDef(vdef, lscope);
-    <V, E> = <V + dV, E + dE>;
-    lscope = lscope + (vdef.name : getID(vdef.name));
-  }
-  <<dV, dE>, _> = resolveNamesExp(body, lscope);
-  return <<V + dV, E + dE>, scope>;
+Answer resolveNamesExp(let(x, e, body), Scope scope) {
+  <<V1, E1>, _> = resolveNamesExp(e, scope);
+  <<V2, E2>, _> = resolveNamesExp(body, scope + (x : getID(x)));
+  return <<V1 + V2 + {getID(x)}, E1 + E2>, scope>;
 }
 
 default Answer resolveNamesExp(Exp e, Scope scope) {

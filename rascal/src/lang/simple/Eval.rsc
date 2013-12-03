@@ -73,7 +73,7 @@ Result eval(FDefs fdefs, equ(Exp exp1, Exp exp2), Env env) {
   return <env, nat(n1 == n2? 1 : 0)>;
 }
 
-Result eval(FDefs fdefs, block([vdef(n,e)], exp), Env env){
+Result eval(FDefs fdefs, let(n,e, exp), Env env){
   r = eval(fdefs,e,env);
   return eval(fdefs, exp, r.env + (n:r.val));
 }

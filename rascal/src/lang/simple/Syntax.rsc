@@ -2,8 +2,6 @@ module lang::simple::Syntax
 
 start syntax Prog = prog: FDef* fdefs Exp? main;
 
-syntax VDef = vdef: "var" Id name "=" Exp exp ";";
-
 syntax FDef = fdef: "fun" Id fsym "(" {Id ","}* params ")" "=" Exp body ";";
 
 syntax Exp = val: Val v
@@ -15,7 +13,7 @@ syntax Exp = val: Val v
            > non-assoc equ: Exp e1 "==" Exp e2
            > assign: Id var "=" Exp e
            > right sequ: Exp e1 ";" Exp e2
-           | block: "{" VDef? vdef Exp body "}"
+           | let: "let" Id x "=" Exp e "in" Exp body
            | bracket "(" Exp ")"
            ;
 

@@ -36,10 +36,10 @@ FDef substFDef(FDef def, str name, Exp e) {
 
 Exp substExp(Exp exp, str name, Exp e) = 
   top-down-break visit(exp) {
-    case block([vdef(name, e1)], e2):
-      insert block([vdef(name, substExp(e1, name, e))], e2);
-    case var(x):
-      insert substVar(var(x), name, e);
+    case let(x, e2, body) =>
+      let(x, substExp(e2, name, e), x == name ? body : substExp(body, name, e))
+    case var(x) =>
+      substVar(var(x), name, e)
   };
 
 Exp substVar(var(x), str name, Exp e) = e when x == name;
@@ -55,14 +55,8 @@ Prog mysubst2(Prog p, str name, Exp e) {
 Prog mysubst(Prog p, str name, Exp e) {
   Exp subst(Exp subj) {
     return top-down-break visit(subj) {
-      case block(vdefs, e2): {
-        free = true;
-        vdefs = for (vdef(n, e1) <- vdefs) {
-          if (n == name) free = false;
-          append vdef(n, free ? subst(e1) : e1);
-        }
-        insert block(vdefs, free ? subst(e2) : e2);  
-      }
+      case let(x, e2, body) =>
+        let(x, subst(e2), x == name ? body : subst(body))  
       case var(name) =>  e
     }
   }
@@ -75,10 +69,8 @@ Prog mysubst(Prog p, str name, Exp e) {
 // only works for single vardefs in blocks.
 Prog paperSubst(Prog p, str name, Exp e) {
   Exp subst(Exp subj) = top-down-break visit(subj) {
-      case block([vdef(n:!name, e1)], e2) 
-         => block([vdef(n, subst(e1))], subst(e2))
-      case block([vdef(name, e1)], e2) 
-         => block([vdef(nane, subst(e1))], e2)
+      case let(n, e2, body) 
+         => let(n, subst(e2), n == name ? body : subst(body))
       case var(name) =>  e
   };
   fdefs = [ fdef(fn, ps, name in ps ? b : subst(b)) | fdef(fn, ps, b) <- p.fdefs ];

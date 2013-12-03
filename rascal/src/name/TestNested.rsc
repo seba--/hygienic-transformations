@@ -32,11 +32,11 @@ str testprog =
   "{var <x1def> = 1; <x1use> + {var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}}";
 Prog theProg =
   prog([],
-       [block([vdef(x1def, val(nat(1)))],
+       [let(x1def, val(nat(1)),
               plus(var(x1use),
-                   block([vdef(x2def, val(nat(1)))],
+                   let(x2def, val(nat(1)),
                          plus(var(x2use),
-                              block([vdef(x3def, val(nat(1)))],
+                              let(x3def, val(nat(1)),
                                     var(x3use))))))]);
 Prog prog() = theProg;
 NameGraph resolve() = resolveNames(prog());
@@ -47,11 +47,11 @@ str testprog2 =
 Prog theProg2 =
   prog([],
        [sequ(
-          block([vdef(x1def, val(nat(1)))],
+          let(x1def, val(nat(1)),
                 var(x1use)),
-          block([vdef(x2def, val(nat(1)))],
+          let(x2def, val(nat(1)),
                 plus(var(x2use),
-                     block([vdef(x3def, val(nat(1)))],
+                     let(x3def, val(nat(1)),
                            var(x3use)))))]);
 Prog prog2() = theProg2;
 NameGraph resolve2() = resolveNames(prog2());

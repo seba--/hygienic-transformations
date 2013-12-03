@@ -23,8 +23,8 @@ public NameGraph G = <{xdefID, xuse1ID, xuse2ID}, (xuse1ID:xdefID, xuse2ID:xdefI
 
 Prog mkExample(str xdef, str xuse1, str xuse2, str ydef, str yuse) =
   prog([],
-       [block([vdef(setID(xdef, xdefID), val(nat(1)))],
-              plus(block([vdef(setID(ydef, ydefID), val(nat(2)))],
+       [let(setID(xdef, xdefID), val(nat(1)),
+              plus(let(setID(ydef, ydefID), val(nat(2)),
                          plus(var(setID(xuse2, xuse2ID)),
                               var(setID(yuse, yuseID)))),
                    var(setID(xuse1, xuse1ID))))]);
