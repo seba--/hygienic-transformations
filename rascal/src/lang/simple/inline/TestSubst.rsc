@@ -16,8 +16,8 @@ loc testfile = |project://Rascal-Hygiene/output/testsubst.sim|;
 str source() = "fun zero() = 0;
                'fun succ(x) = let n = 1 in x + n;
                '
-               'let n = free + 5 in 
-               '  succ(succ(n + free + zero()))
+               'let n = x + 5 in 
+               '  succ(succ(n + x + zero()))
                '";
 
 Prog load(str code) {
@@ -38,7 +38,7 @@ test bool testSubst1() {
 }
 
 Prog subst2() {
-  x = "free";
+  x = "x";
   e = call("GOOD", []);
   x2 = subst(prog(), x, e);
   println(pretty(x2));
@@ -49,7 +49,7 @@ test bool testSubst2() {
 }
 
 Prog subst3() {
-  x = "free";
+  x = "x";
   e = var("n");
   x2 =  subst(prog(), x, e);
   println(pretty(x2));
@@ -63,7 +63,7 @@ test bool testSubst3() {
 }
 
 Prog subst4() {
-  x = "free";
+  x = "x";
   e = var("n");
   x2 = captureAvoidingSubst(prog(), x, e);
   println(pretty(x2));
@@ -79,7 +79,7 @@ test bool testSubst4() {
 }
 
 Prog subst5() {
-  x = "free";
+  x = "x";
   e = times(val(nat(2)), var("n"));
   x2 = captureAvoidingSubst(prog(), x, e);
   println(pretty(x2));
