@@ -9,7 +9,8 @@ syntax Exp = val: Val v
            | call: Id fsym "(" {Exp ","}* args ")"
            | not: "!" Exp e
            | cond: "if" Exp c "then" Exp t "else" Exp e
-           | right plus: Exp e1 "+" Exp e2 
+           | right times: Exp e1 "*" Exp e2 
+           > right plus: Exp e1 "+" Exp e2 
            > non-assoc equ: Exp e1 "==" Exp e2
            > assign: Id var "=" Exp e
            > right sequ: Exp e1 ";" Exp e2

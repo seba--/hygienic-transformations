@@ -54,6 +54,13 @@ Result eval(FDefs fdefs, cond(Exp cnd, Exp csq, Exp alt), Env env) {
   return eval(fdefs, n != 0 ? csq : alt, env);
 }
 
+Result eval(FDefs fdefs, times(Exp exp1, Exp exp2), Env env) {
+  // Side effects by evaluating operands of `plus` is disallowed.
+  nat(n1) = eval(fdefs, exp1, env).val;
+  nat(n2) = eval(fdefs, exp2, env).val;
+  return <env, nat(n1 * n2)>;
+}
+
 Result eval(FDefs fdefs, plus(Exp exp1, Exp exp2), Env env) {
   // Side effects by evaluating operands of `plus` is disallowed.
   nat(n1) = eval(fdefs, exp1, env).val;

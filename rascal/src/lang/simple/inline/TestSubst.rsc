@@ -78,6 +78,22 @@ test bool testSubst4() {
   return nvars == 3 && renamedVars == 1 && hygienic;
 }
 
+Prog subst5() {
+  x = "free";
+  e = times(val(nat(2)), var("n"));
+  x2 = captureAvoidingSubst(prog(), x, e);
+  println(pretty(x2));
+  return x2;
+}
+test bool testSubst5() {
+  p = subst5();
+  nvars = count(var("n"), p);
+  renamedVars = count(var("n_0"), p);
+  hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
+  
+  return nvars == 3 && renamedVars == 1 && hygienic;
+}
+
 int count(&T t, &U here) {
   i = 0;
   visit(here) {

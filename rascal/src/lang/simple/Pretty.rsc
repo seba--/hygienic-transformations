@@ -24,6 +24,7 @@ str pretty(assign(x, e)) = "<x> = <pretty(e)>";
 str pretty(call(x, es)) = "<x>(<intercalate(", ",[pretty(e)|e<-es])>)";
 str pretty(cond(c, t, e)) = "if (<pretty(c)>) then <pretty(t)> else <pretty(e)>";
 str pretty(not(e)) = "(!<pretty(e)>)";
+str pretty(times(e1,e2)) = "(<pretty(e1)> * <pretty(e2)>)";
 str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
 str pretty(sequ(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
 str pretty(equ(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";

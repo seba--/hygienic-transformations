@@ -4,6 +4,7 @@ import lang::simple::AST;
 import lang::simple::NameRel;
 import lang::simple::Pretty;
 
+import Node;
 import IO;
 
 import name::Relation;
@@ -11,7 +12,7 @@ import name::NameFix;
 
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {
   Gs = resolveNames(p);
-  p2 = paperSubst(p, name, e);
+  p2 = subst(p, name, e);
   return nameFix(#Prog, Gs, p2, resolveNames);
 }
 
@@ -34,47 +35,15 @@ FDef substFDef(FDef def, str name, Exp e) {
   return fdef(def.fsym, def.params, body);
 }
 
-Exp substExp(Exp exp, str name, Exp e) = 
-  top-down-break visit(exp) {
-    case let(x, e2, body) =>
-      let(x, substExp(e2, name, e), x == name ? body : substExp(body, name, e))
-    case var(x) =>
-      substVar(var(x), name, e)
+Exp substExp(var(y), str x, Exp e) = x == y ? e : var(y);
+Exp substExp(let(y, e1, e2), str x, Exp e) = let(y, substExp(e1, x, e), x == y ? e2 : substExp(e2, x, e));
+
+// want to use "for (Exp e2 <- e1) insert subE(e2, x, e)" as syntactic sugar
+default Exp substExp(Exp e1, str x, Exp e) =
+   top-down-break visit(e1) {
+    case Exp sub => substExp(sub, x, e) when sub != e1
+    case x => x when x != e1
   };
 
-Exp substVar(var(x), str name, Exp e) = e when x == name;
-Exp substVar(var(x), str name, Exp e) = var(x) when x != name;
-
-
-Prog mysubst2(Prog p, str name, Exp e) {
-  return visit (p) { 
-    case var(name) => e
-  }
-}
-
-Prog mysubst(Prog p, str name, Exp e) {
-  Exp subst(Exp subj) {
-    return top-down-break visit(subj) {
-      case let(x, e2, body) =>
-        let(x, subst(e2), x == name ? body : subst(body))  
-      case var(name) =>  e
-    }
-  }
-  fdefs = [ fdef(fn, ps, name in ps ? b : subst(b)) 
-            | fdef(fn, ps, b) <- p.fdefs ];
-  main = [ subst(exp) | Exp exp <- p.main ];
-  return prog(fdefs, main);
-}
-
-// only works for single vardefs in blocks.
-Prog paperSubst(Prog p, str name, Exp e) {
-  Exp subst(Exp subj) = top-down-break visit(subj) {
-      case let(n, e2, body) 
-         => let(n, subst(e2), n == name ? body : subst(body))
-      case var(name) =>  e
-  };
-  fdefs = [ fdef(fn, ps, name in ps ? b : subst(b)) | fdef(fn, ps, b) <- p.fdefs ];
-  return prog(fdefs, [ subst(exp) | Exp exp <- p.main ]);
-}
 
 
