@@ -19,14 +19,14 @@ syntax Exp = let: "let" FDef fdef "in" Exp body;
 data Exp = let(FDef fdef, Exp body);
 
 // pretty
-str pretty(let(FDef fdef, Exp body)) = "{ <pretty(fdef)> <pretty(body)> }";
+str pretty(let(FDef fdef, Exp body)) = "let <pretty(fdef)> in <pretty(body)> ";
 
 // name resolution
 Answer resolveNamesExp(let(FDef fdef, Exp body), Scope scope) {
   lscope = scope;
   
-  <<dV, dE>, _> = resolveNamesFDef(fdef, lscope);
   lscope = lscope + (fdef.fsym : getID(fdef.fsym));
+  <<dV, dE>, _> = resolveNamesFDef(fdef, lscope);
   
   <<V, E>, _> = resolveNamesExp(body, lscope);
   return <<V + dV, E + dE>, scope>;
@@ -61,11 +61,11 @@ Prog liftLocfun_(prog(fdefs, main), NameGraph ng) {
   return prog(fdefs + lifted, liftedMain);
 }
 
+Exp substCalls(str name, Exp e, list[str] vars, ng ) = visit (e) {
+  case call(cname, args) => call(cname, args + [var(v) | v <- vars])
+    when isRefOf(cname, name, ng), bprintln("Updating call <cname>")
+};
 Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
-  Exp substCalls(str name, Exp e, list[str] vars ) = visit (e) {
-    case call(cname, args) => call(cname, args + [var(v) | v <- vars])
-      when isRefOf(cname, name, ng), bprintln("Updating call <cname>")
-  };
   
   list[FDef] new = [];
   
@@ -73,8 +73,8 @@ Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
       case let(f:fdef(name, params, body), bexp): {
         println("Lifting <name>");
         free = dup([ n | /var(n) := body ] - name - params);
-        new += fdef(name, params + free, liftE(body));
-        insert liftE(substCalls(name, bexp, free ));
+        new += fdef(name, params + free, liftE(substCalls(name, body, free, ng )));
+        insert liftE(substCalls(name, bexp, free, ng ));
      }
   };
   
