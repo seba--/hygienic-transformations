@@ -13,7 +13,7 @@ Scope collectDefinitions(Prog p) =
   ( def.fsym: getID(def.fsym) | /FDef def := p );
 
 Answer resolveNamesFDef(FDef def, Scope scope) {
-  <<V, E>, _> = resolveNamesExp(def.body, scope + (p: getID(p) | p <- def.params));
+  <<V, E>, _> = resolveNamesExp(def.body, scope + (def.fsym : getID(def.fsym)) + (p: getID(p) | p <- def.params));
   return <<V + {getID(def.fsym)} + {getID(p) | p <- def.params},
            E>,
           scope + (def.fsym : getID(def.fsym))>;
