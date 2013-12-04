@@ -4,7 +4,10 @@ import lang::missgrant::base::AST;
 import lang::missgrant::base::Implode;
 import lang::missgrant::base::NameRel;
 import lang::missgrant::base::Unparse;
-
+import lang::simple::Compile;
+import lang::simple::Pretty;
+import lang::simple::AST;
+import lang::simple::NameRel;
 import name::HygienicCorrectness;
 import name::Relation;
 import name::NameFix;
@@ -50,20 +53,29 @@ bool testConcat(ctl1, ctl2, ctlConcat) {
 
 Controller missgrant = load(|project://Rascal-Hygiene/input/missgrant-final.ctl|);
 Controller misterjones = load(|project://Rascal-Hygiene/input/misterjones.ctl|);
+Controller doorsfinal = load(|project://Rascal-Hygiene/input/doors-final.ctl|);
+Controller doorsfinal2 = load(|project://Rascal-Hygiene/input/doors-final2.ctl|);
 
 Controller capturingConcat() = concatenate(missgrant, misterjones);
 test bool test1() = ! testConcat(missgrant, misterjones, capturingConcat());
 
-Controller fixedCapturingConcat() {
-  ctl = concatenate(missgrant, misterjones);
+Controller fixedCapturingConcat(Controller c1, Controller c2) {
+  ctl = concatenate(c1, c2);
 
-  G1 = resolveNames(missgrant);
-  G2 = resolveNames(misterjones);
+  G1 = resolveNames(c1);
+  G2 = resolveNames(c2);
   G12 = union(G1, G2);
   
   x = nameFix(#Controller, G12, ctl, resolveNames);
   println(unparse(x));
+  
+  Prog smpl = nameFix(#Prog, G12, compile(ctl), lang::simple::NameRel::resolveNames);
+  println(pretty(smpl));
     
   return x;
 }
-test bool test2() = testConcat(missgrant, misterjones, fixedCapturingConcat());
+test bool test2() = testConcat(missgrant, misterjones, 
+   fixedCapturingConcat(missgrant, misterjones));
+
+test bool test3() = testConcat(doorsfinal, doorsfinal2, 
+    fixedCapturingConcat(doorsfinal, doorsfinal2));
