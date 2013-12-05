@@ -42,7 +42,7 @@ Exp substExp(let(y, e1, e2), str x, Exp e) = let(y, substExp(e1, x, e), x == y ?
 default Exp substExp(Exp e1, str x, Exp e) =
    top-down-break visit(e1) {
     case Exp sub => substExp(sub, x, e) when sub != e1
-    case x => x when x != e1
+    //case var(x) => e 
   };
 
 
