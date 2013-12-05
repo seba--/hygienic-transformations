@@ -5,13 +5,14 @@ import List;
 
 import lang::missgrant::base::AST;
 import lang::simple::AST;
+import IO;
 
 Prog compile(Controller ctl) = compile(ctl.states);
 
 Prog compile(list[State] states) {
   return prog(
     states2constdefs(states)
-    + mapper(states, state2def)
+    + [state2def(s) | s <- states, bprintln(s)]
     + stateDispatch(states)
     , []);
 }
@@ -19,19 +20,19 @@ Prog compile(list[State] states) {
 Prog compile(list[State] states, list[str] events) {
   return prog(
     states2constdefs(states)
-    + mapper(states, state2def)
+    + [state2def(s) | s <- states ]
     + stateDispatch(states)
     , [triggerEvents(head(states), events)]);
 }
 
 
-FDef state2constdef(state(name,_,_), int i) = fdef(name, [], val(nat(i)));
+FDef state2constdef(state(str name,_,_), int i) = fdef(name, [], val(nat(i)));
 
 list[FDef] states2constdefs(list[State] states) {
   return [state2constdef(s,i) | <s,i> <- zip(states, [0..size(states)]) ];
 }
 
-FDef state2def(state(s,trans)) = fdef("<s.name>-dispatch", ["event"], transitions2condexp(trans, val(error("UnsupportedEvent"))));
+FDef state2def(state(s, _, trans)) = fdef("<s>-dispatch", ["event"], transitions2condexp(trans, val(error("UnsupportedEvent"))));
 
 
 // Maybe we will have to parse in the variable symbol "event" to enable hygiene.
