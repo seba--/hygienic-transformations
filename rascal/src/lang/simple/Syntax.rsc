@@ -16,6 +16,7 @@ syntax Exp = val: Val v
            > right sequ: Exp e1 ";" Exp e2
            | let: "let" Id x "=" Exp e "in" Exp body
            | bracket "(" Exp ")"
+           | \catch: "catch" "{" Exp "}"
            ;
 
 syntax Val = nat: Nat | string: String | error: "error" "(" String ")";
