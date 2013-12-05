@@ -71,6 +71,7 @@ Prog prog2 =
        [let("y", call("f", [val(nat(1))]),
               let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
                     call("f", [val(nat(1))])))]);
+Prog theProg2() = prog2;
 
 /* prog2 before local functions being lifted
 fun f(x) = x + 1;

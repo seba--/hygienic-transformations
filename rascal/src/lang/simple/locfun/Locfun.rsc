@@ -61,11 +61,11 @@ Prog liftLocfun_(prog(fdefs, main), NameGraph ng) {
   return prog(fdefs + lifted, liftedMain);
 }
 
-Exp substCalls(str name, Exp e, list[str] vars, ng ) = visit (e) {
+Exp extendCalls(str name, Exp e, list[str] vars, ng ) = visit (e) {
   case call(cname, args) => call(cname, args + [var(v) | v <- vars])
     when isRefOf(cname, name, ng), bprintln("Updating call <cname>")
 };
-Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
+Prog liftLocfunNested(prog(fdefs , main), NameGraph ng) {
   
   list[FDef] new = [];
   
@@ -73,8 +73,8 @@ Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
       case let(f:fdef(name, params, body), bexp): {
         println("Lifting <name>");
         free = dup([ n | /var(n) := body ] - name - params);
-        new += fdef(name, params + free, liftE(substCalls(name, body, free, ng )));
-        insert liftE(substCalls(name, bexp, free, ng ));
+        new += fdef(name, params + free, liftE(extendCalls(name, body, free, ng )));
+        insert liftE(extendCalls(name, bexp, free, ng ));
      }
   };
   
@@ -82,6 +82,19 @@ Prog liftLocfun(prog(fdefs , main), NameGraph ng) {
   return prog(fdefs + new, main);
 }
 
+// Assumption: local functions do not contain other local functions.
+// "liftLocfunNested" above gives an implementation supporting nested local functions. 
+Prog liftLocfun(prog(fdefs, main), G) {
+  lifted = [];
+  liftedMain = visit(main) {
+    case let(fdef(f, params, body),e2): {
+      free = dup([ n | /var(n) := body ] - f - params);
+      lifted += fdef(f, params + free, extendCalls(f, body, free, G));
+      insert extendCalls(f, e2, free, G );
+    }
+  };
+  return prog(fdefs + lifted, liftedMain); 
+}
 
 //@doc{Computes set of unbound variables in expression (as list).}
 //list[str] freevars(Exp e) {
