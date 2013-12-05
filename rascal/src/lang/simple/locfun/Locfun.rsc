@@ -86,7 +86,7 @@ Prog liftLocfunNested(prog(fdefs , main), NameGraph ng) {
 // "liftLocfunNested" above gives an implementation supporting nested local functions. 
 Prog liftLocfun(prog(fdefs, main), G) {
   lifted = [];
-  liftedMain = visit(main) {
+  liftedMain = top-down visit(main) {
     case let(fdef(f, params, body),e2): {
       free = dup([ n | /var(n) := body ] - f - params);
       lifted += fdef(f, params + free, extendCalls(f, body, free, G));

@@ -45,7 +45,7 @@ Exp transitions2condexp([t, *ts], Exp deflt) =
       , transitions2condexp(ts, deflt));
 
 FDef stateDispatch(list[State] states) = 
-  fdef("main-dispatch",
+  fdef("main",
          ["state", "event"], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
