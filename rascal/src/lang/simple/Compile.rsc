@@ -45,7 +45,7 @@ Exp transitions2condexp([t, *ts], Exp deflt) =
       , transitions2condexp(ts, deflt));
 
 FDef stateDispatch(list[State] states) = 
-  fdef("main",
+  fdef("main-dispatch-next-event",
          ["state", "event"], 
          stateDispatchCondexp(states, val(error("UnsupportedState"))));
 
@@ -60,6 +60,6 @@ Exp stateDispatchCondexp([s, *ss], Exp deflt) =
 Exp triggerEvents(State init, list[str] es) {
   return 
     ( vardecl("current", call(init.name, [])) 
-    | sequ(it, assign("current", call("trans-dispatch", [var("current"), val(string(e))])))
+    | sequ(it, assign("current", call("main-dispatch-next-event", [var("current"), val(string(e))])))
     | e <- es);
 }
