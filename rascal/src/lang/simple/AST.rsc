@@ -18,6 +18,7 @@ data Exp = val(Val v)
          | assign(str var, Exp e)
          | let(str x, Exp e, Exp body)
          | \catch(Exp e)
+         | \throw(Exp e)
          ;
 
 data Val = nat(int n) | string(str s) | error(str msg);

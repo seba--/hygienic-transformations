@@ -43,7 +43,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
   
   //println("Nsrc: <Nsrc>");
   //println("Nsyn: <Nsyn>");
-  
+
   return <Nsrc,Nsyn>;
 }
 
@@ -61,10 +61,13 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
   Gt = resolveT(t);
   //recordNameGraphFig(Gt, t);
   
+  //println("Source nodes: <Gs.V>");
+  //println("Target nodes: <Gt.V>");
   //println("Source edges: <Gs.E>");
   //println("Target edges: <Gt.E>");
   
-  allBadBindings = badBindings(Gs, Gt); 
+  allBadBindings = badBindings(Gs, Gt);
+   
   if (allBadBindings == ()) return t;
   
   <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings, nameAt);
