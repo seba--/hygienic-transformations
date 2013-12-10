@@ -12,6 +12,7 @@ syntax Exp = val: Val v
            | right times: Exp e1 "*" Exp e2 
            > right plus: Exp e1 "+" Exp e2 
            > non-assoc equ: Exp e1 "==" Exp e2
+           > left or: Exp e1 "||" Exp e2
            > assign: Id var "=" Exp e
            > right sequ: Exp e1 ";" Exp e2
            | let: "let" Id x "=" Exp e "in" Exp body

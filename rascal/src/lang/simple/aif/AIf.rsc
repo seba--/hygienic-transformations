@@ -20,6 +20,9 @@ Prog desugarAIf0(Prog p) = visit (p) { case Exp e => desugarAIf0(e) };
 
 Exp desugarAIf0(aif(c, t, e)) =
   let("it", c, cond(var("it"), t, e));
+
+Exp desugarAIf0(or(e1, e2)) 
+  = desugarAIf0(aif(e1, var("it"), e2));
   
 default Exp desugarAIf0(Exp e) = e;
 
@@ -28,6 +31,9 @@ Prog desugarAIf(Prog p) = visit (p) { case Exp e => desugarAIf(e) };
 Exp desugarAIf(aif(c, t, e)) =
   let("it", c, cond(var("it"), 
      allowCapture("it", t), allowCapture("it", e)));
+
+Exp desugarAIf(or(e1, e2)) 
+  = desugarAIf(aif(e1, var("it"), e2));
 
 default Exp desugarAIf(Exp e) = e;
 

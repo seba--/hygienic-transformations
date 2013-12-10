@@ -19,6 +19,7 @@ data Exp = val(Val v)
          | let(str x, Exp e, Exp body)
          | \catch(Exp e)
  		 | aif(Exp c, Exp t, Exp e)
+ 		 | or(Exp e1, Exp e2)
          ;
 
 data Val = nat(int n) | string(str s) | error(str msg);
