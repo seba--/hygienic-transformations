@@ -15,7 +15,7 @@ void printProg1() {
 }
 
 
-bool testProgFixed1() {
+test bool testProgFixed1() {
   p1 = prog1();
   G = resolveNames(p1);
   p2 = desugar0(p1);
@@ -24,10 +24,10 @@ bool testProgFixed1() {
   
   println(pretty(p2));
   println(pretty(p3));
-  return true;
+  return p2 != p3;
 }
 
-bool testProgFixed2() {
+test bool testProgFixed2() {
   p1 = prog1();
   G = resolveNames(p1);
   p2 = desugar(p1);
@@ -36,5 +36,5 @@ bool testProgFixed2() {
   
   println(pretty(p2));
   println(pretty(p3));
-  return true;
+  return p2 == p3;
 }

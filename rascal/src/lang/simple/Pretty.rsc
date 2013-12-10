@@ -29,6 +29,7 @@ str pretty(plus(e1,e2)) = "(<pretty(e1)> + <pretty(e2)>)";
 str pretty(sequ(e1,e2)) = "(<pretty(e1)>; <pretty(e2)>)";
 str pretty(equ(e1,e2)) = "(<pretty(e1)> == <pretty(e2)>)";
 str pretty(let(x,e,b)) = "let <x> = <pretty(e)> in <pretty(b)>";
+str pretty(\catch(e)) = "catch { <pretty(e)> }";
 
 str quoted(s) = {
   if (size(s) > 0 && s[0] == "\"")

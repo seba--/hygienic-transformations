@@ -19,8 +19,7 @@ syntax Exp = let: "let" FDef fdef "in" Exp body;
 data Exp = let(FDef fdef, Exp body);
 
 // pretty
-str pretty(let(FDef fdef, Exp body)) = "let <pretty(fdef)> in <pretty(body)> "
-  when bprintln("body = <body>");
+str pretty(let(FDef fdef, Exp body)) = "let <pretty(fdef)> in <pretty(body)> ";
 
 // name resolution
 Answer resolveNamesExp(let(FDef fdef, Exp body), Scope scope) {
