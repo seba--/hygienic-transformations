@@ -17,6 +17,7 @@ syntax Exp = val: Val v
            | let: "let" Id x "=" Exp e "in" Exp body
            | bracket "(" Exp ")"
            | \catch: "catch" "{" Exp "}"
+		   | aif: "aif" Exp c "then" Exp t "else" Exp e
            ;
 
 syntax Val = nat: Nat | string: String | error: "error" "(" String ")";

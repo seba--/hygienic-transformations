@@ -14,7 +14,6 @@ void printProg1() {
   println(pretty(desugar(prog1())));
 }
 
-
 test bool testProgFixed1() {
   p1 = prog1();
   G = resolveNames(p1);

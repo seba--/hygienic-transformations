@@ -38,6 +38,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
     if (vd in Vs && vd notin Nsrc)
       Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
     if (vd notin Vs && vd notin Nsyn) // vd in Vt \ Vs
+      // what if Vt == Vs, then nameFix won't terminate...
       Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == nameAt(vd, t));
   };
   
