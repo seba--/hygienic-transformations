@@ -66,7 +66,7 @@ test bool testProgAIfFixed4() {
 test bool testProgAIfFixed5() {
   p1 = prog3();
   G = resolveNames(p1);
-  p2 = desugarAIf0(p1);
+  p2 = desugarOrThenAIf(p1);
   
   p3 = nameFix(#Prog, G, p2, resolveNames); 
   
@@ -75,14 +75,32 @@ test bool testProgAIfFixed5() {
   return p2 == p3;
 }
 
+
 test bool testProgAIfFixed6() {
   p1 = prog3();
   G = resolveNames(p1);
-  p2 = desugarAIf(p1);
+  p2 = desugarOrThenAIf(p1);
   
   p3 = nameFix(#Prog, G, p2, resolveNames); 
   
   println(pretty(p2));
   println(pretty(p3));
+  return p2 == p3;
+}
+
+test bool testProgAIfFixed7() {
+  p1 = prog3();
+  G = resolveNames(p1);
+  p2 = desugarOr(p1);
+  p3 = nameFix(#Prog, G, p2, resolveNames);
+  G = resolveNames(p2);
+  p4 = desugarAIf0(p3);
+  p5 = nameFix(#Prog, G, p4, resolveNames);
+  
+  
+  println(pretty(p2));
+  println(pretty(p3));
+  println(pretty(p4));
+  println(pretty(p5));
   return p2 == p3;
 }
