@@ -30,7 +30,7 @@ These are the most important packages in the repository:
 * `rascal/format`: Example format descriptors for the Derric case study
 * `rascal/src`: Source code of name-fix and case studies
 * `rascal/src/name`: Implementation of name-fix and required data structures
-* `rascal/src/name/test`: Unit tests for all case studies.
+* `rascal/src/name/tests`: Unit tests for all case studies.
 * `rascal/src/lang/simple`: Implementation of the simple procedural language
 * `rascal/src/lang/java:`: Name analysis for Java using Eclipse JDT
 * `rascal/src/lang/missgrant:`: Implementation of the state-machine language
