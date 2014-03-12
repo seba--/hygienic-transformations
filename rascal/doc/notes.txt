@@ -1,5 +1,0 @@
-
-- Fowler assumes first and last states in the list are initial and final.
-- Desugaring of resetEvents.
-
-- More info: http://en.wikipedia.org/wiki/Finite_state_transducer
