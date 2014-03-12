@@ -18,7 +18,7 @@ import lang::derric::BuildValidator;
 import lang::derric::GenerateJava;
 import lang::derric::GenerateFactoryJava;
 
-import name::Relation;
+import name::NameGraph;
 import name::NameFixString;
 import name::IDs;
 import name::Gensym;

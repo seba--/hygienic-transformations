@@ -1,7 +1,7 @@
 module name::Figs
 
 import vis::Figure;
-import name::Relation;
+import name::NameGraph;
 import name::VisualizeRelation;
 import IO;
 import vis::Render;

@@ -11,7 +11,7 @@ import lang::simple::NameRel;
 import lang::simple::Parse;
 import lang::simple::Pretty;
 
-import name::Relation;
+import name::NameGraph;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 import name::NameFix;

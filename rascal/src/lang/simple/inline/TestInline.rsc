@@ -12,7 +12,7 @@ import lang::simple::NameRel;
 import lang::simple::inline::Inline;
 
 import name::HygienicCorrectness;
-import name::Relation;
+import name::NameGraph;
 
 import Map;
 

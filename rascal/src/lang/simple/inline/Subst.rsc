@@ -7,7 +7,7 @@ import lang::simple::Pretty;
 import Node;
 import IO;
 
-import name::Relation;
+import name::NameGraph;
 import name::NameFix;
 
 Prog captureAvoidingSubst(Prog p, str name, Exp e) {

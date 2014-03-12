@@ -9,7 +9,7 @@ import lang::simple::Pretty;
 import lang::simple::AST;
 import lang::simple::NameRel;
 import name::HygienicCorrectness;
-import name::Relation;
+import name::NameGraph;
 import name::NameFix;
 
 import IO;

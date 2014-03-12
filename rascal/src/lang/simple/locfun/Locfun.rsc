@@ -6,7 +6,7 @@ extend lang::simple::NameRel;
 extend lang::simple::Pretty;
 
 import name::IDs;
-import name::Relation;
+import name::NameGraph;
 
 import IO;
 import Set;

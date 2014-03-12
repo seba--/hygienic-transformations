@@ -1,6 +1,6 @@
 module name::Gensym
 
-import name::Relation;
+import name::NameGraph;
 
 str gensym(str base, set[str] used) = gensym(base, used, 0);
 

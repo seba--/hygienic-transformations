@@ -8,7 +8,7 @@ import lang::java::NameRel;
 import lang::java::jdt::m3::Core;
 
 import name::TestString;
-import name::Relation;
+import name::NameGraph;
 import name::NameFixString;
 import name::IDs;
 import name::Gensym;

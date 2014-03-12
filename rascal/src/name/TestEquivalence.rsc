@@ -6,7 +6,7 @@ import lang::simple::Pretty;
 
 import name::IDs;
 import name::Equivalence;
-import name::Relation;
+import name::NameGraph;
 import name::NameFix;
 
 import IO;

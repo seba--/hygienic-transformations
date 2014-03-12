@@ -1,7 +1,7 @@
 module name::Equivalence
 
 import name::IDs;
-import name::Relation;
+import name::NameGraph;
 //import name::NameFix;
 
 import util::Maybe;

@@ -1,4 +1,4 @@
-module name::Relation
+module name::NameGraph
 
 import IO;
 import Set;

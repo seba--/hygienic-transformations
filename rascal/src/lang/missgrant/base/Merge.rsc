@@ -8,7 +8,7 @@ import IO;
 import List;
 import Set;
 import name::IDs;
-import name::Relation;
+import name::NameGraph;
 import name::HygienicCorrectness;
 
 

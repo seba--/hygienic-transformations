@@ -1,8 +1,8 @@
 module name::NameFix
 
 import name::IDs;
+import name::NameGraph;
 import name::Gensym;
-import name::Relation;
 import name::Figs;
 
 import IO;

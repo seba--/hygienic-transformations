@@ -2,7 +2,7 @@ module lang::missgrant::base::NameRel
 
 import lang::missgrant::base::AST;
 
-import name::Relation;
+import name::NameGraph;
 import name::IDs;
 
 

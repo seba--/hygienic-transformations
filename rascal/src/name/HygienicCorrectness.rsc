@@ -1,6 +1,6 @@
 module name::HygienicCorrectness
 
-import name::Relation;
+import name::NameGraph;
 import name::NameFix;
 
 import IO;

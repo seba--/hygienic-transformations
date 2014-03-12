@@ -1,6 +1,6 @@
 module name::VisualizeRelation
 
-import name::Relation;
+import name::NameGraph;
 import vis::Figure;
 import vis::KeySym;
 import vis::Render;

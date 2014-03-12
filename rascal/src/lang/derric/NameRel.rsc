@@ -3,7 +3,7 @@ module lang::derric::NameRel
 import lang::derric::FileFormat;
 import String;
 import name::IDs;
-import name::Relation;
+import name::NameGraph;
 
 NameGraph resolveNames(FileFormat frm) {
   structs = collectStructs(frm);

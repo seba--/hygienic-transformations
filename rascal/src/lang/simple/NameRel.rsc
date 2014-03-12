@@ -1,7 +1,7 @@
 module lang::simple::NameRel
 
 import lang::simple::AST;
-import name::Relation;
+import name::NameGraph;
 import name::IDs;
 
 import IO;
