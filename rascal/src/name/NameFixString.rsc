@@ -19,9 +19,9 @@ import IO;
 //}
 
 
-@doc{
+/*
 This applies a (definition-)renaming to a string (represent as an lrel with origins). 
-}
+*/
 lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst) {
   src = for (<just(loc l), str x> <- src) {
     if ({l} in subst) {
@@ -51,16 +51,15 @@ str nameAtString(ID n, lrel[Maybe[loc], str] t) {
 
 
 lrel[Maybe[loc], str] nameFixString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT, loc outFile) 
-  = nameFix(Gs, t, renameString, resolveT, str(ID n, lrel[Maybe[loc], str] t) {
+  = nameFix(Gs, t, resolveT, renameString, str(ID n, lrel[Maybe[loc], str] t) {
      return nameAtString(n, t); //reconstruct(t, outFile));
      // |project://generated-missgrant/src/MissGrant.java|  
   });
 
-@doc{
-
+/*
 This function maps (target language) name-IDs to (source or meta program) origins
 through the reconstructed result origins.
-}
+*/
 NameGraph insertSourceNames(NameGraph targetGraph, lrel[loc, loc, str] reconOrgs, loc orgLoc) {
   return visit (targetGraph) {
     case loc l => sourceLoc
@@ -69,12 +68,11 @@ NameGraph insertSourceNames(NameGraph targetGraph, lrel[loc, loc, str] reconOrgs
 }
 
 
-@doc{
-
+/*
 An lrel coming from origins()) maps (source or meta program) origins to 
 output string fragments. This functions reconstructs the source locations
 of each chunk according to occurence in the output. 
-}
+*/
 lrel[loc, loc, str] reconstruct(lrel[Maybe[loc], str] orgs, loc src) {
   cur = |<src.scheme>://<src.authority><src.path>|(0, 0, <1, 0>, <1,0>);
  
