@@ -49,8 +49,15 @@ The following files contain the data structures required by name-fix:
 
 Name-fix itself is defined in file `rascal/src/name/NameFix.rsc`. The code almost literally corresponds to the code in the paper.
 
-Finally, we provide a wrapper of name-fix to support name-fixing for transformations that use lexical strings to represent the generated code. This wrapper is defined in `rascal/src/name/NameFixString.rsc`. We use to fix names in generated Java code, which is represented as strings.
+Finally, we provide a wrapper of name-fix to support name-fixing for transformations that use lexical strings to represent the generated code. This wrapper is defined in `rascal/src/name/NameFixString.rsc`. We use this wrapper to fix names in generated string-based Java code.
 
+
+## Running name-fix
+
+
+
+
+## Case studies
 
 
 
