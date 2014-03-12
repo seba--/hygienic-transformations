@@ -45,13 +45,13 @@ void visualizeCompiled1() = renderNames(names1());
 set[Edge] check1() {
   m = statemachine1();
   p = compile(m);
-  return badBindings(resolveNames(m), resolveNames(p));
+  return findCapture(resolveNames(m), resolveNames(p));
 }
 
 set[Edge] check2() {
   m = statemachine1illcompiled();
   p = compile(m);
-  return badBindings(resolveNames(m), resolveNames(p));
+  return findCapture(resolveNames(m), resolveNames(p));
 }
 
 
@@ -107,7 +107,7 @@ Prog renameProg3() {
 //  sNames = resolveNames(m);
 //  tNames = resolveNames(p);
 //  p2 = nameFix(sNames, tNames, p, name2var);
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
 //  return p2;
 //}
 //
@@ -118,7 +118,7 @@ Prog renameProg3() {
 //  tNames = resolveNames(p);
 //  p2 = nameFix(sNames, tNames, p, name2var);
 //  //println(pretty(p2));
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
+//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
 //  return p2;
 //}
 
@@ -128,7 +128,7 @@ Prog renameProg3() {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   p2 = nameFix(#Prog, sNames, p, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
   return p2;
 }
 
@@ -138,14 +138,14 @@ Prog renameProg3() {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   p2 = nameFix(#Prog, sNames, p, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
   return p2;
 }
 
 //set[Link] check2() {
 //  m = statemachine1illcompiled();
 //  p = compile(m);
-//  return badBindings(resolveNames(m), resolveNames(p));
+//  return findCapture(resolveNames(m), resolveNames(p));
 //}
 
 //test bool rand(Controller m) {

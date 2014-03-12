@@ -4,7 +4,7 @@ import lang::simple::AST;
 import lang::simple::NameRel;
 import lang::simple::Pretty;
 
-import name::Names;
+import name::IDs;
 import name::Equivalence;
 import name::Relation;
 import name::NameFix;

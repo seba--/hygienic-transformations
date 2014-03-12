@@ -5,7 +5,7 @@ import List;
 import Set;
 import util::Maybe;
 import name::Relation;
-import name::Names;
+import name::IDs;
 import name::Gensym;
 import name::HygienicCorrectness;
 import name::NameFix;

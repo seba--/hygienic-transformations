@@ -10,7 +10,7 @@ import lang::java::jdt::m3::Core;
 import name::TestString;
 import name::Relation;
 import name::NameFixString;
-import name::Names;
+import name::IDs;
 import name::Gensym;
 import name::HygienicCorrectness;
 import util::Maybe;

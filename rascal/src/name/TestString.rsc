@@ -16,7 +16,7 @@ import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 import name::NameFix;
-import name::Names;
+import name::IDs;
 
 import IO;
 import Set;
@@ -43,13 +43,13 @@ NameGraph names1() = resolveNames(compiled1());
 Edges check1() {
   m = statemachine1();
   p = compiled1();
-  return badBindings(resolveNames(m), resolveNames(p));
+  return findCapture(resolveNames(m), resolveNames(p));
 }
 
 Edges check2() {
   m = statemachine1illcompiled();
   p = compiled1ill();
-  return badBindings(resolveNames(m), resolveNames(p));
+  return findCapture(resolveNames(m), resolveNames(p));
 }
 
 Controller renameS1() {
@@ -96,7 +96,7 @@ Prog theNameFix(Controller m) {
   sNames = resolveNames(m);
   tNames = resolveNames(p);
   p2 = nameFix(#Prog, sNames, p, resolveNames);
-  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <badBindings(sNames, resolveNames(p2))>";
+  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
   return p2;
 }
 

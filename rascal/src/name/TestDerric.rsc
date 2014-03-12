@@ -20,7 +20,7 @@ import lang::derric::GenerateFactoryJava;
 
 import name::Relation;
 import name::NameFixString;
-import name::Names;
+import name::IDs;
 import name::Gensym;
 import name::HygienicCorrectness;
 import util::Maybe;

@@ -1,6 +1,6 @@
 module name::Equivalence
 
-import name::Names;
+import name::IDs;
 import name::Relation;
 //import name::NameFix;
 

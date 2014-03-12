@@ -3,7 +3,7 @@ module name::Relation
 import IO;
 import Set;
 
-import name::Names;
+import name::IDs;
 
 alias Edge = tuple[ID use, ID def];
 alias Edges = map[ID use, ID def];

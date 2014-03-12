@@ -3,7 +3,7 @@ module lang::missgrant::base::NameRel
 import lang::missgrant::base::AST;
 
 import name::Relation;
-import name::Names;
+import name::IDs;
 
 
 map[str,ID] collectStates(Controller ctl) =

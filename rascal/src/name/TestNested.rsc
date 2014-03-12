@@ -15,7 +15,7 @@ import name::Relation;
 import name::HygienicCorrectness;
 import name::VisualizeRelation;
 import name::NameFix;
-import name::Names;
+import name::IDs;
 
 import IO;
 

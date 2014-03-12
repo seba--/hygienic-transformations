@@ -5,7 +5,7 @@ import lang::simple::AST;
 extend lang::simple::NameRel;
 extend lang::simple::Pretty;
 
-import name::Names;
+import name::IDs;
 import name::Relation;
 
 import IO;

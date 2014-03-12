@@ -7,7 +7,7 @@ import lang::missgrant::base::Unparse;
 import IO;
 import List;
 import Set;
-import name::Names;
+import name::IDs;
 import name::Relation;
 import name::HygienicCorrectness;
 

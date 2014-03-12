@@ -2,7 +2,7 @@ module lang::derric::NameRel
 
 import lang::derric::FileFormat;
 import String;
-import name::Names;
+import name::IDs;
 import name::Relation;
 
 NameGraph resolveNames(FileFormat frm) {

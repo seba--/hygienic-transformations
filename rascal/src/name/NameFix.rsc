@@ -1,10 +1,10 @@
 module name::NameFix
 
+import name::IDs;
 import name::Gensym;
-import name::HygienicCorrectness;
 import name::Relation;
 import name::Figs;
-import name::Names;
+
 import IO;
 import Map;
 import String;
@@ -17,7 +17,7 @@ import String;
 }
 
 
-Edges badBindings(<Vs,Es>, <Vt,Et>) {
+Edges findCapture(<Vs,Es>, <Vt,Et>) {
   notPreserveVar1 =    (v:Et[v] | v <- Et<0>, v in Vs, v in Es, Es[v] != Et[v]);
   notPreserveVar2 =    (v:Et[v] | v <- Et<0>, v in Vs, v notin Es, v != Et[v]);
   notPreserveDef  =    (v:Et[v] | v <- Et<0>, v notin Vs, Et[v] in Vs);
@@ -29,16 +29,15 @@ Edges badBindings(<Vs,Es>, <Vt,Et>) {
   return notPreserveVar1 + notPreserveVar2 + notPreserveDef;
 }
 
-tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, str(ID, &T) nameAt) {
+tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, findCapture, str(ID, &T) nameAt) {
   Nsrc = ();
   Nsyn = ();
   
-  for (vd <- badBindings<1>) {
+  for (vd <- findCapture<1>) {
     fresh = gensym(nameAt(vd, t), allNames(Vt, t) + Nsrc<1> + Nsyn<1>);
     if (vd in Vs && vd notin Nsrc)
       Nsrc += (vd:fresh) + (v:fresh | v <- Es<0>, Es[v] == vd);
     if (vd notin Vs && vd notin Nsyn) // vd in Vt \ Vs
-      // what if Vt == Vs, then nameFix won't terminate...
       Nsyn += (v:fresh | v <- Vt - Vs, nameAt(v, t) == nameAt(vd, t));
   };
   
@@ -51,8 +50,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
 
 
 
-&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) 
-  = x // vvvvv work around Rascal bug.
+&T nameFix(type[&T<:node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT) = x // work around Rascal bug.
   when resetFigs(), 
        &T x := nameFix(Gs, t, rename, resolveT, nameAt),
        renderFigs();
@@ -67,11 +65,11 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, badBindings, s
   //println("Source edges: <Gs.E>");
   //println("Target edges: <Gt.E>");
   
-  allBadBindings = badBindings(Gs, Gt);
+  captured = findCapture(Gs, Gt);
    
-  if (allBadBindings == ()) return t;
+  if (captured == ()) return t;
   
-  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, allBadBindings, nameAt);
+  <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, captured, nameAt);
   &T t_new = rename(t, Nsrc + Nsyn);
   
   return nameFix(Gs, t_new, rename, resolveT, nameAt);

@@ -1,7 +1,7 @@
 module lang::java::NameRel
 
 import name::Relation;
-import name::Names;
+import name::IDs;
 
 import lang::java::jdt::m3::Core;
 

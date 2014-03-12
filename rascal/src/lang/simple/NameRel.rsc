@@ -2,7 +2,7 @@ module lang::simple::NameRel
 
 import lang::simple::AST;
 import name::Relation;
-import name::Names;
+import name::IDs;
 
 import IO;
 

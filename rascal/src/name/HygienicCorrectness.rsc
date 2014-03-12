@@ -30,7 +30,7 @@ Edges synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
 }
 
 bool isCompiledHygienically(NameGraph Gs, NameGraph Gt) =
-  badBindings(Gs, Gt) == () && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
+  findCapture(Gs, Gt) == () && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
 
 
 
