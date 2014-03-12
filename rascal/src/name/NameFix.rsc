@@ -74,6 +74,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, findCapture, s
 */
 &T nameFix(NameGraph Gs, &T t, NameGraph(&T) resolveT,
            &T(&T t, map[ID,str] subst) renameF, str(ID, &T) nameAtF) {
+
   Gt = resolveT(t);
   //recordNameGraphFig(Gt, t);  // for displaying name graphs
   
