@@ -23,12 +23,12 @@ Figure toFigure(NameGraph G, &T t) {
      hint("layered"), width(900), /*height(1000),*/ gap(70));
 }
 
-str idString({l}) {
+str idString([l]) {
   return "line <l.begin.line>";
 }
 str idString(id) = "syn";
 
-bool isSyn({l}) = false;
+bool isSyn([l]) = false;
 bool isSyn(id) = true;
 
 void renderNames(NameGraph names, &T t) = 
