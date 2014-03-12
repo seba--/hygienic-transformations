@@ -1,4 +1,4 @@
-module name::Names
+module name::IDs
 
 import String;
 import util::Maybe;
@@ -6,6 +6,4 @@ import util::Maybe;
 alias ID = list[loc];
 
 ID getID(str x) = [ l | <just(loc l), _> <- origins(x) ];
-  //originsOnly(x);
-
 str setID(str x, ID orgs) = setOrigins(x, orgs);
