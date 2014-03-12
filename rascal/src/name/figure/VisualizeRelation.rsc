@@ -1,4 +1,4 @@
-module name::VisualizeRelation
+module name::figure::VisualizeRelation
 
 import name::NameGraph;
 import vis::Figure;

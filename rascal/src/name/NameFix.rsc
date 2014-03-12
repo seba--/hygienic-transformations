@@ -3,7 +3,8 @@ module name::NameFix
 import name::IDs;
 import name::NameGraph;
 import name::Gensym;
-import name::Figs;
+
+import name::figure::Figs;
 
 import IO;
 import Map;
@@ -76,6 +77,7 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, findCapture, s
            &T(&T t, map[ID,str] subst) renameF, str(ID, &T) nameAtF) {
 
   Gt = resolveT(t);
+  
   //recordNameGraphFig(Gt, t);  // for displaying name graphs
   
   //println("Source nodes: <Gs.V>");

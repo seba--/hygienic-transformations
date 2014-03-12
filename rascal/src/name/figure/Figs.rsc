@@ -1,8 +1,8 @@
-module name::Figs
+module name::figure::Figs
 
 import vis::Figure;
 import name::NameGraph;
-import name::VisualizeRelation;
+import name::figure::VisualizeRelation;
 import IO;
 import vis::Render;
 
