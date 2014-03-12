@@ -1,4 +1,4 @@
-module name::TestDoor
+module name::tests::TestDoor
 
 import lang::missgrant::base::AST;
 import lang::missgrant::base::Implode;
@@ -13,7 +13,7 @@ import lang::simple::Pretty;
 
 import name::NameGraph;
 import name::HygienicCorrectness;
-import name::VisualizeRelation;
+import name::figure::VisualizeRelation;
 import name::NameFix;
 
 import IO;

@@ -1,4 +1,4 @@
-module name::TestDerric
+module name::tests::TestDerric
 
 
 import lang::java::NameRel;

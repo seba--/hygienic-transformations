@@ -1,4 +1,4 @@
-module name::Unbound
+module name::attic::Unbound
 
 str UNBOUND = "UNBOUND";
 loc UNBOUND_loc = |rascall://name::Unbound|;

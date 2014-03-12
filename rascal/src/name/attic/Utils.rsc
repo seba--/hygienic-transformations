@@ -1,4 +1,4 @@
-module name::Utils
+module name::attic::Utils
 
 import String;
 import Node;

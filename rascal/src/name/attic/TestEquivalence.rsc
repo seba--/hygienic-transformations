@@ -1,11 +1,11 @@
-module name::TestEquivalence
+module name::attic::TestEquivalence
 
 import lang::simple::AST;
 import lang::simple::NameRel;
 import lang::simple::Pretty;
 
 import name::IDs;
-import name::Equivalence;
+import name::attic::Equivalence;
 import name::NameGraph;
 import name::NameFix;
 

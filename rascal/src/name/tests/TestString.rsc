@@ -1,4 +1,4 @@
-module name::TestString
+module name::tests::TestString
 
 
 import lang::missgrant::base::AST;
@@ -14,7 +14,7 @@ import lang::simple::Pretty;
 
 import name::NameGraph;
 import name::HygienicCorrectness;
-import name::VisualizeRelation;
+import name::figure::VisualizeRelation;
 import name::NameFix;
 import name::IDs;
 

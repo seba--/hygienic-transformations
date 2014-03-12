@@ -1,4 +1,4 @@
-module name::Equivalence
+module name::attic::Equivalence
 
 import name::IDs;
 import name::NameGraph;

@@ -1,4 +1,4 @@
-module name::TestJava
+module name::tests::TestJava
 
 import lang::missgrant::base::Compile;
 import lang::missgrant::base::AST;
@@ -7,7 +7,7 @@ import lang::missgrant::base::NameRel;
 import lang::java::NameRel;
 import lang::java::jdt::m3::Core;
 
-import name::TestString;
+import name::tests::TestString;
 import name::NameGraph;
 import name::NameFixString;
 import name::IDs;
