@@ -92,5 +92,5 @@ tuple[map[ID,str],map[ID,str]] compRenamings(<Vs,Es>, <Vt,Et>, t, findCapture, s
   <Nsrc,Nsyn> = compRenamings(Gs, Gt, t, capture, nameAtF);
   &T t_new = renameF(t, Nsrc + Nsyn);
   
-  return nameFix(Gs, t_new, resolveT, rename, nameAtF);
+  return nameFix(Gs, t_new, resolveT, renameF, nameAtF);
 }
