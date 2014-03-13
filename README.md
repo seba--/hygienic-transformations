@@ -50,7 +50,7 @@ instructions).
 
 - Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
 
-- Clone the following repository: (https://github.com/tvdstorm/hygienic-transformations-ECOOP14)[https://github.com/tvdstorm/hygienic-transformations-ECOOP14]
+- Clone the following repository: [https://github.com/tvdstorm/hygienic-transformations-ECOOP14]
 
 - From within the new Eclipse, go to Help->Install new software; click
   on Add.. and select local. Browse to the `update-site` directory of
@@ -74,10 +74,8 @@ The two most important folders are `src/name` and
 `src/name/tests`. The former contains the implementation of name-fix
 and the latter contains unit tests for all case studies.
 
-These are the most important packages in the repository:
+These are the most important folders in the repository:
 
-* `rascal`: Rascal Eclipse project with the name-fix algorithm and all case
-  studies
 * `input`: Example state machines
 * `output`: Generated state machines
 * `format`: Example format descriptors for the Derric case study
