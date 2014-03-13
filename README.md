@@ -112,44 +112,43 @@ function `nameFix` in this file.  The interface for `nameFix` is
 ```
 
 A call to `nameFix` on tree-based program representation should conform to
-this interface.  Note that there is a second sligtly more complicated
-interface for `nameFix`.  It is for string-based program representation,
-though it is not meant to be called directly.  Instead, the wrapper
-`nameFixString` provided in `rascal/src/name/NameFixString.rsc` should be
-preferred.  Since `nameFixString` mirrors this simpler interface of `nameFix`
-shown above, the instructions on calling `nameFix` given here also apply when
-calling `nameFixString`.
+this interface.  Note that `nameFix` has a second sligtly more complicated
+interface.  It is for string-based program representation, but not meant to be
+called directly.  Instead, the wrapper `nameFixString` provided in
+`rascal/src/name/NameFixString.rsc` should be preferred.  Since
+`nameFixString` mirrors this simpler interface of `nameFix` shown above, the
+instructions on calling `nameFix` given below also apply when calling
+`nameFixString`.
 
 First, note that `nameFix` is parametric over the target program
-representation, as indicated by the type variable `T` introduced by `&`.
+representation, as indicated by the type variable `&T`.
 
-This type variable is further constrained to be subtype of Rascal's built-in
-tree type `node`.
-
-Second, `nameFix` expects four arguments.  The second is expected to be the
+Second, `nameFix` expects four arguments.  The second is supposed to be the
 name graph (to be bound to the parameter `Gs`) of the source program, the
 third the target program (to be bound to `t`), and the fourth a name analyzer
-(as a function, to be bound to `resolveT`) of the target language.  The first
-argument is expected to be a subtype of Rascal's built-in tree type `node`, as
+(as a function, to be bound to `resolveT`) for the target language.  The first
+argument is supposed to be a subtype of Rascal's built-in tree type `node`, as
 constrained by `&T <: node`.  More precisely, it should be a _reifed_ type, as
 required by `type[ ]`.  This declaration together with a device to reify a
 type (see below) is needed to turn a type to a value so as to be passed as
-argument, because normal types are not values in Rascal.  Essentially this
-supports finely-distinguished return types.
+argument, because normal types are not treaded as values in Rascal.
+Essentially this supports more finely-distinguished return types.
 
 We now illustrate how to call `nameFix` through a running example of compiling
 a state machine specification to a simple procedural program.  This should
 suffice to demonstrate the general work flow.
 
 1.  Start the Rascal console in Eclipse from the menu Rascal > Start Console
-    after openning the project.
+    after openning the project.  The prompt `rascal>` indicates that the
+    console has been successfully launched.
 
 2.  In the console, import all modules relevant to the syntax of the source
-    and target language.  These include the definitions of their concrete
-    syntax, abstract syntax tree, parsers, pretty printers, name analyzers,
-    compilers.  For our particular example, call the source language SMSL
-    (State Machine Specification Language) and the target language SPL (Simple
-    Procedural Language), we need run the following import statements:
+    and the target language.  These usually include the definitions of their
+    concrete syntax, abstract syntax, parsers, pretty printers, name
+    analyzers, compilers, etc.  For our particular example, call the source
+    language SMSL (State Machine Specification Language) and the target
+    language SPL (Simple Procedural Language), we need run the following
+    import statements (for brevity, all the replies are ommited):
 
     ```
     rascal> import lang::missgrant::base::AST;  // AST definition for SMSL
@@ -162,11 +161,8 @@ suffice to demonstrate the general work flow.
     rascal> import lang::simple::NameRel;  // Name analysis for SPL
     ```
 
-    `rascal> ` is the prompt of the Rascal console.  For brevity, its replies
-    are ommited.
-
-    With all these modules imported.  We can try to `load` (defined in
-    `lang::missgrant::base::Implode`) a sample state-machine specification
+    With all these modules imported.  We can try to `load` (a function defined
+    in `lang::missgrant::base::Implode`) a sample state-machine specification
     identified by the URI `|project://Rascal-Hygiene/input/missgrant.ctl|`.
 
     ```
@@ -189,7 +185,7 @@ suffice to demonstrate the general work flow.
 4.  As an optional step, we can calculate the name graph of the compiled
     program `p`, and then use the function `isCompiledHygienically` defined in
     `name::HygienicCorrectness` (of course before using it we need first
-    import the module) to check whether the compilation is hygienic so as to
+    import this module) to check whether the compilation is hygienic so as to
     decide whether we need call `nameFix`:
 
     ```
@@ -211,8 +207,8 @@ suffice to demonstrate the general work flow.
     ```
 
     Recall that the first argument to `nameFix` should be a reified type.  The
-    operator `#` turns the type `Prog` to a value.  Again note the overloaded
-    `resolveNames` is the one for SPL.
+    operator `#` turns the type `Prog` of the target program to a value.
+    Again note the overloaded `resolveNames` is the one for SPL.
 
 6.  At last, we can verify that `nameFix` indeed eliminates all captures and
     produces a program respecting hygiene by calling `isCompiledHygienically`
