@@ -1,0 +1,6 @@
+// remove this function an namefix does not terminate
+// when doing desugar0
+// with fun throw() = 3; top-level throw gets renamed when doing namefix after desugar.
+catch {
+  5 + throw()
+}

@@ -1,0 +1,4 @@
+
+define foo(x) = x + x;
+define bar(foo) = bar(foo);
+x = foo(bar(2))

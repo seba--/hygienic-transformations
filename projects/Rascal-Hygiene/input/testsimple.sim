@@ -1,0 +1,4 @@
+fun foo(x) = x + x;
+fun bar(foo) = bar(foo);
+
+x = foo(bar(2))
