@@ -221,14 +221,30 @@ suffice to demonstrate the general work flow.
 
 ## Case studies
 
+The above instructions show how to run name-fix interactively in the Rascal
+console.  Alternatively, we may want to save the an interactive session into a
+Rascal module for regression test.  We do this for all our case studies.
+These test modules reside in the directory `rascal/src/name/tests`:
 
+- `rascal/src/name/tests/Test.rsc`: tests for some state machines coming
+  together with the state-machine language implementation
+- `rascal/src/name/tests/TestDerric.rsc`: tests for the Derric language
+- `rascal/src/name/tests/TestDoor.rsc`: tests for the door state machine
+- `rascal/src/name/tests/TestJava.rsc`: tests for the Java language
+- `rascal/src/name/tests/TestNested.rsc`: tests for the simple procedural
+  language
+- `rascal/src/name/tests/TestString.rsc`: tests for _WHAT_?
 
+To run these tests, simply import them in the Rascal console.  For example,
 
+```
+rascal> import name::tests::Test;
+```
 
-
-
-
-
-
-
+will import all the definitions in the file `rascal/src/name/tests/Test.rsc`.
+A _nullary_ function definition in the module usually wraps a test.  Calling
+such a function runs the test.  For example, in `Test.rsc`, the nullary
+function `nameFix1` wraps the interactive test we have seen above.  Executing
+`nameFix1();` in the Rascal console reruns the test.  Tests for all our case
+studies can be run like this.
 
