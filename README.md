@@ -84,7 +84,7 @@ The following files contain the data structures required by name-fix:
   the later, `&T` is a type variable `T` and `str` is Rascal's native string
   type.
 * `rascal/src/name/Gensym.rsc`: Defines a gensym function `gensym :
-  (str,set[str]) -> str` that takes a base name and a set of used name and
+  (str, set[str]) -> str` that takes a base name and a set of used name and
   returns a fresh name not yet used. The fresh name has the form `base_n`
   where `n` is an integer.
 * `rascal/src/name/figure/Figs.rsc`: Defines support for visualizing name
@@ -92,7 +92,7 @@ The following files contain the data structures required by name-fix:
   algorithm (remove the comments), Rascal will show the original name graph at
   the top and below the name-fixed name graph.
 
-Name-fix itself is defined in file `rascal/src/name/NameFix.rsc`. The code
+Name-fix itself is defined in the file `rascal/src/name/NameFix.rsc`. The code
 almost literally corresponds to the code in the paper.
 
 Finally, we provide a wrapper of name-fix to support name-fixing for
@@ -103,8 +103,125 @@ to fix names in generated string-based Java code.
 
 ## Running name-fix
 
+The implementation of the name-fix algorithm resides in the file
+`rascal/src/name/NameFix.rsc`.  To run name-fix boils down to call the Rascal
+function `nameFix` in this file.  The interface for `nameFix` is
 
+```
+&T nameFix(type[&T <: node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT)
+```
 
+A call to `nameFix` on tree-based program representation should conform to
+this interface.  Note that there is a second sligtly more complicated
+interface for `nameFix`.  It is for string-based program representation,
+though it is not meant to be called directly.  Instead, the wrapper
+`nameFixString` provided in `rascal/src/name/NameFixString.rsc` should be
+preferred.  Since `nameFixString` mirrors this simpler interface of `nameFix`
+shown above, the instructions on calling `nameFix` given here also apply when
+calling `nameFixString`.
+
+First, note that `nameFix` is parametric over the target program
+representation, as indicated by the type variable `T` introduced by `&`.
+
+This type variable is further constrained to be subtype of Rascal's built-in
+tree type `node`.
+
+Second, `nameFix` expects four arguments.  The second is expected to be the
+name graph (to be bound to the parameter `Gs`) of the source program, the
+third the target program (to be bound to `t`), and the fourth a name analyzer
+(as a function, to be bound to `resolveT`) of the target language.  The first
+argument is expected to be a subtype of Rascal's built-in tree type `node`, as
+constrained by `&T <: node`.  More precisely, it should be a _reifed_ type, as
+required by `type[ ]`.  This declaration together with a device to reify a
+type (see below) is needed to turn a type to a value so as to be passed as
+argument, because normal types are not values in Rascal.  Essentially this
+supports finely-distinguished return types.
+
+We now illustrate how to call `nameFix` through a running example of compiling
+a state machine specification to a simple procedural program.  This should
+suffice to demonstrate the general work flow.
+
+1.  Start the Rascal console in Eclipse from the menu Rascal > Start Console
+    after openning the project.
+
+2.  In the console, import all modules relevant to the syntax of the source
+    and target language.  These include the definitions of their concrete
+    syntax, abstract syntax tree, parsers, pretty printers, name analyzers,
+    compilers.  For our particular example, call the source language SMSL
+    (State Machine Specification Language) and the target language SPL (Simple
+    Procedural Language), we need run the following import statements:
+
+    ```
+    rascal> import lang::missgrant::base::AST;  // AST definition for SMSL
+    rascal> import lang::missgrant::base::Implode;  // Rascal tree to SMSL AST
+    rascal> import lang::missgrant::base::NameRel;  // Name analysis for SMSL
+
+    rascal> import lang::simple::AST;  // AST definition for SPL
+    rascal> import lang::simple::Compile;  // Compiler from SMSL to SPL
+    rascal> import lang::simple::Implode;  // Rascal tree to SPL AST
+    rascal> import lang::simple::NameRel;  // Name analysis for SPL
+    ```
+
+    `rascal> ` is the prompt of the Rascal console.  For brevity, its replies
+    are ommited.
+
+    With all these modules imported.  We can try to `load` (defined in
+    `lang::missgrant::base::Implode`) a sample state-machine specification
+    identified by the URI `|project://Rascal-Hygiene/input/missgrant.ctl|`.
+
+    ```
+    rascal> m = load(|project://Rascal-Hygiene/input/missgrant.ctl|);
+    ```
+
+    We can go ahead compiling the loaded program:
+
+    ```
+    rascal> Prog p = compile(m);
+    ```
+
+3.  Before we can call `nameFix` on the compiled program `p`, we need the name
+    graph of the source program `m`.  It can be readily calculated:
+
+    ```
+    rascal> sNames = resolveNames(m);
+    ```
+
+4.  As an optional step, we can calculate the name graph of the compiled
+    program `p`, and then use the function `isCompiledHygienically` defined in
+    `name::HygienicCorrectness` (of course before using it we need first
+    import the module) to check whether the compilation is hygienic so as to
+    decide whether we need call `nameFix`:
+
+    ```
+    rascal> tNames = resolveNames(p);
+    rascal> import name::HygienicCorrectness;
+    rascal> isCompiledHygienically(sNames, tNames);
+    ```
+
+    Note that the name `resolveNames` is overloaded.  For the sample SMSL
+    program we chose, its compilation happens to be hygienic.  But we can
+    anyway call `nameFix` on `p` because of the identity of `nameFix` on
+    capture-free programs.
+
+5.  Now we can call `nameFix` on `p`.
+
+    ```
+    rascal> import name::NameFix;
+    rascal> p2 = nameFix(#Prog, sNames, p, resolveNames);
+    ```
+
+    Recall that the first argument to `nameFix` should be a reified type.  The
+    operator `#` turns the type `Prog` to a value.  Again note the overloaded
+    `resolveNames` is the one for SPL.
+
+6.  At last, we can verify that `nameFix` indeed eliminates all captures and
+    produces a program respecting hygiene by calling `isCompiledHygienically`
+    again but this time on the name graph of the source program and that of
+    the new program `p2`:
+
+    ```
+    rascal> isCompiledHygienically(sNames, resolveNames(p2));
+    ```
 
 ## Case studies
 
