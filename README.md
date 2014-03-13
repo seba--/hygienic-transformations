@@ -46,28 +46,50 @@ run by typing `:test` into the Rascal console (see below for detailed
 instructions).
 
 
-## Repository outline
+## Installation instructions
 
-The two most important folders are `rascal/src/name` and
-`rascal/src/name/tests`. The former contains the implementation of name-fix
+- Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
+
+- Clone the following repository: (https://github.com/tvdstorm/hygienic-transformations-ECOOP14)[https://github.com/tvdstorm/hygienic-transformations-ECOOP14]
+
+- From within the new Eclipse, go to Help->Install new software; click
+  on Add.. and select local. Browse to the `update-site` directory of
+  the cloned repository and press Ok. After giving a name to the
+  update site (doesn't matter what name), you'll be able to select
+  Rascal for installation. Finish the process by clicking yes when
+  asked to restart Eclipse.
+
+- In the restarted Eclipse, go to the File menu, and select
+  Import... As root directory, select the `projects` directory in the
+  cloned repo. Import all three projects there. You're now set up to
+  explore the code, execute the tests and invoke `name-fix`.
+
+
+## Project outline
+
+The main code is stored in project Rascal-Hygiene. Below we summarize
+its contents.
+
+The two most important folders are `src/name` and
+`src/name/tests`. The former contains the implementation of name-fix
 and the latter contains unit tests for all case studies.
 
 These are the most important packages in the repository:
 
 * `rascal`: Rascal Eclipse project with the name-fix algorithm and all case
   studies
-* `rascal/input`: Example state machines
-* `rascal/output`: Generated state machines
-* `rascal/format`: Example format descriptors for the Derric case study
-* `rascal/src`: Source code of name-fix and case studies
-* `rascal/src/name`: Implementation of name-fix and required data structures
-* `rascal/src/name/tests`: Unit tests for all case studies.
-* `rascal/src/lang/simple`: Implementation of the simple procedural language
-* `rascal/src/lang/java:`: Name analysis for Java using Eclipse JDT
-* `rascal/src/lang/missgrant:`: Implementation of the state-machine language
-* `rascal/src/lang/derric`: Implementation of the Derric language (copied),
+* `input`: Example state machines
+* `output`: Generated state machines
+* `format`: Example format descriptors for the Derric case study
+* `src`: Source code of name-fix and case studies
+* `src/name`: Implementation of name-fix and required data structures
+* `src/name/tests`: Unit tests for all case studies.
+* `src/lang/simple`: Implementation of the simple procedural language
+* `src/lang/java:`: Name analysis for Java using Eclipse JDT
+* `src/lang/missgrant:`: Implementation of the state-machine language
+* `src/lang/derric`: Implementation of the Derric language (copied),
   see [derric-lang.org](http://derric-lang.org)
-* `rascal/src/org/derric_lang`: Implementation of the Derric language
+* `src/org/derric_lang`: runtime classes needed for compiling the Derric language
   (copied), see [derric-lang.org](http://derric-lang.org)
 
 
@@ -75,36 +97,36 @@ These are the most important packages in the repository:
 
 The following files contain the data structures required by name-fix:
 
-* `rascal/src/name/IDs.rsc`: Defines variable IDs as a list of source-code
+* `src/name/IDs.rsc`: Defines variable IDs as a list of source-code
   locations through string origins.
-* `rascal/src/name/NameGraph.rsc`: Defines a name graph similar to the paper
+* `src/name/NameGraph.rsc`: Defines a name graph similar to the paper
   as a set of variable IDs (the nodes) and a mapping from node to node (the
   edges). We define a number of auxiliary functions for querying name graphs,
   such as `refOf : (ID, NameGraph) -> ID` or `nameAt : (ID, &T) -> str`. In
   the later, `&T` is a type variable `T` and `str` is Rascal's native string
   type.
-* `rascal/src/name/Gensym.rsc`: Defines a gensym function `gensym :
+* `src/name/Gensym.rsc`: Defines a gensym function `gensym :
   (str, set[str]) -> str` that takes a base name and a set of used name and
   returns a fresh name not yet used. The fresh name has the form `base_n`
   where `n` is an integer.
-* `rascal/src/name/figure/Figs.rsc`: Defines support for visualizing name
+* `src/name/figure/Figs.rsc`: Defines support for visualizing name
   graphs. If the call to `recordNameGraphFig` is included in the name-fix
   algorithm (remove the comments), Rascal will show the original name graph at
   the top and below the name-fixed name graph.
 
-Name-fix itself is defined in the file `rascal/src/name/NameFix.rsc`. The code
+Name-fix itself is defined in the file `src/name/NameFix.rsc`. The code
 almost literally corresponds to the code in the paper.
 
 Finally, we provide a wrapper of name-fix to support name-fixing for
 transformations that use lexical strings to represent the generated code. This
-wrapper is defined in `rascal/src/name/NameFixString.rsc`. We use this wrapper
+wrapper is defined in `src/name/NameFixString.rsc`. We use this wrapper
 to fix names in generated string-based Java code.
 
 
 ## Running name-fix
 
 The implementation of the name-fix algorithm resides in the file
-`rascal/src/name/NameFix.rsc`.  To run name-fix boils down to call the Rascal
+`src/name/NameFix.rsc`.  To run name-fix boils down to call the Rascal
 function `nameFix` in this file.  The interface for `nameFix` is
 
 ```
@@ -115,7 +137,7 @@ A call to `nameFix` on tree-based program representation should conform to
 this interface.  Note that `nameFix` has a second sligtly more complicated
 interface.  It is for string-based program representation, but not meant to be
 called directly.  Instead, the wrapper `nameFixString` provided in
-`rascal/src/name/NameFixString.rsc` should be preferred.  Since
+`src/name/NameFixString.rsc` should be preferred.  Since
 `nameFixString` mirrors this simpler interface of `nameFix` shown above, the
 instructions on calling `nameFix` given below also apply when calling
 `nameFixString`.
@@ -224,16 +246,16 @@ suffice to demonstrate the general work flow.
 The above instructions show how to run name-fix interactively in the Rascal
 console.  Alternatively, we may want to save the an interactive session into a
 Rascal module for regression test.  We do this for all our case studies.
-These test modules reside in the directory `rascal/src/name/tests`:
+These test modules reside in the directory `src/name/tests`:
 
-- `rascal/src/name/tests/Test.rsc`: tests for some state machines coming
+- `src/name/tests/Test.rsc`: tests for some state machines coming
   together with the state-machine language implementation
-- `rascal/src/name/tests/TestDerric.rsc`: tests for the Derric language
-- `rascal/src/name/tests/TestDoor.rsc`: tests for the door state machine
-- `rascal/src/name/tests/TestJava.rsc`: tests for the Java language
-- `rascal/src/name/tests/TestNested.rsc`: tests for the simple procedural
+- `src/name/tests/TestDerric.rsc`: tests for the Derric language
+- `src/name/tests/TestDoor.rsc`: tests for the door state machine
+- `src/name/tests/TestJava.rsc`: tests for the Java language
+- `src/name/tests/TestNested.rsc`: tests for the simple procedural
   language
-- `rascal/src/name/tests/TestString.rsc`: tests for _WHAT_?
+- `src/name/tests/TestString.rsc`: tests for _WHAT_?
 
 To run these tests, simply import them in the Rascal console.  For example,
 
@@ -241,7 +263,7 @@ To run these tests, simply import them in the Rascal console.  For example,
 rascal> import name::tests::Test;
 ```
 
-will import all the definitions in the file `rascal/src/name/tests/Test.rsc`.
+will import all the definitions in the file `src/name/tests/Test.rsc`.
 A _nullary_ function definition in the module usually wraps a test.  Calling
 such a function runs the test.  For example, in `Test.rsc`, the nullary
 function `nameFix1` wraps the interactive test we have seen above.  Executing
