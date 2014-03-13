@@ -24,9 +24,9 @@ This applies a (definition-)renaming to a string (represent as an lrel with orig
 */
 lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst) {
   src = for (<just(loc l), str x> <- src) {
-    if ({l} in subst) {
+    if ([l] in subst) {
       //println("Renaming <l>");
-      append <just(l), subst[{l}]>;
+      append <just(l), subst[[l]]>;
     }
     else {
       append <just(l), x>;
@@ -38,14 +38,15 @@ lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst)
 
 str nameAtString(ID n, lrel[Maybe[loc], str] t) {
   //println("Search for name: <n>");
-  for (<just(loc l1), /*loc l2, */ str x> <- t) {
-    //println("Loc l1 = <l1>, l2 = <l2>");
-    if ({l1} == n /* || {l2} == n */) {
+  for (<just(loc l1), str x> <- t) {
+    //println("Loc l1 = <l1>");
+    if ([l1] == n) {
       //println("Found it: <x>");
       return x;
     }
-  }
+  } // |project://Rascal-Hygiene/formats/minbad.derric|(256,1,<21,2>,<21,3>)
   // Non-existing name.... (TODO?)
+  //println("No name");
   return "";
 }
 
