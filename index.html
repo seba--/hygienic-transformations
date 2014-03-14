@@ -125,7 +125,9 @@ import name::tests::TestNested;</code></pre>
 <p>Modules <code>lang::missgrant::base::AST</code>, <code>lang::missgrant::base::Implode</code>, <code>lang::missgrant::base::NameRel</code>.</p>
 <p>Function <code>compile</code> in module <code>lang::missgrant::base::Compile</code> for compilation to Java and in module <code>lang::simple::Compile</code> for compilation to PROC.</p>
 <p>Test modules <code>name::tests::TestStatemachineJava</code> and <code>name::tests::TestStatemachineSimple</code>.</p>
-<h4 id="compilation-to-java">Compilation to Java</h4>
+<h5 id="compilation-to-proc">Compilation to PROC</h5>
+<p>See the walk-through above.</p>
+<h5 id="compilation-to-java">Compilation to Java</h5>
 <p>Test module <code>name::tests::TestStatemachineJava</code>.</p>
 <p>The previous case-study with state machines compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates.</p>
 <p>An example of a state machine that causes problems is <code>input/doors1-java-ill.ctl</code>. The reason is that it employs names that are also used by the compiler to implement the state machine. After importing the test module, invoke the function <code>compileIllCompiled1javaToDisk()</code> to inspect the incorrectly generated code.</p>
