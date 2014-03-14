@@ -251,7 +251,7 @@ suffice to demonstrate the general work flow.
 ## Case studies
 
 The above instructions show how to run name-fix interactively in the Rascal
-console.  Alternatively, we may want to save the an interactive session into a
+console.  Alternatively, we may want to save an interactive session into a
 Rascal module for regression test.  We do this for all our case studies.
 These test modules reside in the directory `src/name/tests`:
 
