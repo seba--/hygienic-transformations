@@ -278,7 +278,40 @@ suffice to demonstrate the general work flow.
 ## Case studies
 
 The above instructions show how to run name-fix interactively in the Rascal
-console.  Alternatively, we may want to save an interactive session into a
+console. Here we outline the main functions for each case study. We also have defined unit tests for each case study, which shows example usages of the involved functions. To run the unit tests defined in a module, import the module in the Rascal console and run
+
+    rascal> :test 
+
+The test definition in the module will be highlighted according to outcome of the test. Module `name::tests::AllTests` collects all tests.
+
+
+### Substitution
+
+Module `lang::simple::inline::Subst`.
+
+Functions `subst` and `captureAvoidingSubst`, plus variants for the different syntactic forms of PROC.
+
+Test module `name::tests::TestSubst`.
+
+### Inlining
+
+Module `lang::simple::inline::Inlining`.
+
+Functions `inline`, `captureAvoidingInline`, and `captureAvoidingInline2`. Function `captureAvoidingInline2` implements capture-avoiding inlining via capture-avoiding substitution, whereas function `captureAvoidingInline` calls name-fix directly.
+
+Test module `name::tests::TestInline`
+
+### Lambda lifting
+
+### State machines
+
+### Derric
+
+
+
+### attic
+
+Alternatively, we may want to save an interactive session into a
 Rascal module for regression test.  We do this for all our case studies.
 These test modules reside in the directory `src/name/tests`:
 
