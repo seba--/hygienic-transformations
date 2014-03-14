@@ -53,17 +53,17 @@ instructions).
 - Clone the following repository:
   [https://github.com/tvdstorm/hygienic-transformations-ECOOP14]
 
-- From within the new Eclipse, go to Help > Install new software; click
-  on Add.. and select local. Browse to the `update-site` directory of
-  the cloned repository and press Ok. After giving a name to the
-  update site (doesn't matter what name), you'll be able to select
-  Rascal for installation. Finish the process by clicking yes when
-  asked to restart Eclipse.
+- From within the new Eclipse, go to Help > Install New Software...; click on
+  Add... and then Local...; browse to the `update-site` directory of the
+  cloned repository and press OK. After giving a name to the update site
+  (whatever doesn't matter), you'll be able to select Rascal for installation.
+  Finish the process by clicking on Yes when asked to restart Eclipse.
 
 - In the restarted Eclipse, go to the File menu, and select
-  Import... As root directory, select the `projects` directory in the
-  cloned repo. Import all three projects there. You're now set up to
-  explore the code, execute the tests and invoke `name-fix`.
+  Import..., then Gerneral > Existing Projects into Workspace, as root
+  directory, select the `projects` directory in the cloned repo. Import all
+  three projects there. You're now set up to explore the code, execute the
+  tests and invoke `name-fix`.
 
 
 ## Project outline
