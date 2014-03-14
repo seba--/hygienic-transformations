@@ -12,7 +12,7 @@ Prog compile(Controller ctl) = compile(ctl.states);
 Prog compile(list[State] states) {
   return prog(
     states2constdefs(states)
-    + [state2def(s) | s <- states, bprintln(s)]
+    + [state2def(s) | s <- states ]
     + stateDispatch(states)
     , []);
 }
