@@ -17,15 +17,8 @@ Prog captureAvoidingInline(Prog p, list[str] names) {
   return nameFix(#Prog, Gs, p2, resolveNames);
 }
 
-
 Prog captureAvoidingInline(Prog p, str name) = captureAvoidingInline(p, [name]); 
-//{
-//  if ({def} := { d | d <- p.fdefs, d.fsym == name}) {
-//    Gs = resolveNames(p);
-//  	p2 = inline(p, def);
-//    return nameFix(#Prog, Gs, p2, resolveNames);
-// }
-//}
+
 
 Prog captureAvoidingInline2(Prog p, str name) {
   if ({def} := { d | d <- p.fdefs, d.fsym == name})
