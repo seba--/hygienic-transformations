@@ -26,12 +26,14 @@ bool isRefOf(str u, str d, NameGraph G) {
 
 bool isFree(str v, NameGraph G) = getID(v) notin G.E;
 
-str nameAt(ID n, &T t) = 
+str nameAt(ID n, &T t) { 
   visit(t) {
     case str x: 
       if (getID(x) == n)
         return x;
   };
+  return "NOT_FOUND";
+}
 
 //set[str] namesOf(NameGraph G) = G.N<1>;
 
