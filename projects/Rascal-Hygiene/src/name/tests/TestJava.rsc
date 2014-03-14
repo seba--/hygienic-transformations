@@ -22,17 +22,17 @@ import List;
  * (This is needed (as of now) to get name analysis from JDT.)
  */
 
-str output = "generated-missgrant";
+str missGrantOutput = "generated-missgrant";
 str missGrantClass = "MissGrant";
 
 
 str compile1java() = compile(missGrantClass, statemachine1());
 
 void compile1javaToDisk() {
-  writeFile(|project://<output>/src/<missGrantClass>.java|, compile1java());
+  writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, compile1java());
 }
 
-NameGraph javaNames1() = m3toNameGraph(createM3FromEclipseProject(|project://<output>|));
+NameGraph javaNames1() = m3toNameGraph(createM3FromEclipseProject(|project://<missGrantOutput>|));
 
 
 Controller illCompiled1java() = 
@@ -41,32 +41,32 @@ Controller illCompiled1java() =
 str compileIllCompiled1java() = compile(missGrantClass, illCompiled1java());
 
 void compileIllCompiled1javaToDisk() {
-  writeFile(|project://<output>/src/<missGrantClass>.java|, compileIllCompiled1java());
+  writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, compileIllCompiled1java());
 }
 
 NameGraph illCompiled1Names() = resolveNames(illCompiled1java());
 
 NameGraph illCompiled1javaNames() {
-  return m3toNameGraph(createM3FromEclipseProject(|project://<output>|));
+  return m3toNameGraph(createM3FromEclipseProject(|project://<missGrantOutput>|));
 }
 
 NameGraph reconNames() = 
    insertSourceNames(illCompiled1javaNames(), 
      reconstruct(origins(compileIllCompiled1java()),
-         |project://<output>/src/<missGrantClass>.java|), 
+         |project://<missGrantOutput>/src/<missGrantClass>.java|), 
          |project://Rascal-Hygiene/input/illcompiledjava.ctl|); 
 
 NameGraph resolveJava(lrel[Maybe[loc], str] src) {
-  writeFile(|project://<output>/src/<missGrantClass>.java|, ("" | it + x | x <- src<1> ));
-  return insertSourceNames(m3toNameGraph(createM3FromEclipseProject(|project://<output>|)), 
+  writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, ("" | it + x | x <- src<1> ));
+  return insertSourceNames(m3toNameGraph(createM3FromEclipseProject(|project://<missGrantOutput>|)), 
      reconstruct(src,
-         |project://<output>/src/<missGrantClass>.java|), 
+         |project://<missGrantOutput>/src/<missGrantClass>.java|), 
          |project://Rascal-Hygiene/input/illcompiledjava.ctl|);
 }
 
 lrel[Maybe[loc], str] fixIllCompiledJava1() { 
   compileIllCompiled1javaToDisk(); // start clean;
-  outFile = |project://<output>/src/<missGrantClass>.java|;
+  outFile = |project://<missGrantOutput>/src/<missGrantClass>.java|;
   orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(outFile, newSource);
@@ -79,6 +79,6 @@ test bool testIllCompiled1() {
 }
 
 void compileIllCompiled1javaToDisk() {
-  writeFile(|project://<output>/src/<missGrantClass>.java|, compileIllCompiled1java());
+  writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, compileIllCompiled1java());
 }
 
