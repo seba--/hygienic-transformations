@@ -32,6 +32,8 @@ str nameAt(ID n, &T t) {
       if (getID(x) == n)
         return x;
   };
+  println("Name not found: ID = <n>, t = ");
+  iprintln(t);
   return "NOT_FOUND";
 }
 

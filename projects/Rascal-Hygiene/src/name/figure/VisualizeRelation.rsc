@@ -26,10 +26,10 @@ Figure toFigure(NameGraph G, &T t) {
 str idString([l]) {
   return "line <l.begin.line>";
 }
-str idString(id) = "syn";
+default str idString(id) = "syn";
 
 bool isSyn([l]) = false;
-bool isSyn(id) = true;
+default bool isSyn(id) = true;
 
 void renderNames(NameGraph names, &T t) = 
   render(toFigure(names, t));
