@@ -10,12 +10,12 @@ import name::NameFix;
 import IO;
 
 
-Exp exp1 =
+private Exp liftExp1() =
   let("y", val(nat(1)),
         let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
               call("f", [val(nat(1))])));
 
-Prog prog1 = prog([], [exp1]);
+private Prog liftProg1 = prog([], [liftExp1()]);
 
 /* prog1 before local functions being lifted
 {
@@ -27,7 +27,7 @@ Prog prog1 = prog([], [exp1]);
 }
 */
 
-Prog liftProg1() = liftLocfun(prog1, resolveNames(prog1));
+private Prog liftedProg1() = liftLocfun(liftProg1, resolveNames(liftProg1));
 
 /* prog1 after local functions being lifted
 fun f(x, y) = f(x + y, y);
@@ -38,40 +38,30 @@ fun f(x, y) = f(x + y, y);
 }
 */
 
+test bool testLift1() {
+  Gs = resolveNames(liftProg1);
+  Gt = resolveNames(liftedProg1());
+  return !isCompiledHygienically(Gs, Gt);
+}
 
 
-
-
-test bool test1() {
-  Gs = resolveNames(prog1);
-  liftedProg1 = liftProg1();
-  Gt = resolveNames(liftedProg1);
-  //iprintln(Gs);
-  //iprintln(Gt);
+test bool testLiftFixed1() {
+  Gs = resolveNames(liftProg1);
+  lp = liftedProg1();
+  println("Lifted:\n<pretty(lp)>");
+  fixedProg1 = nameFix(#Prog, Gs, lp, resolveNames);
+  Gt = resolveNames(fixedProg1);
+  println("Fixed:\n<pretty(fixedProg1)>");
   return isCompiledHygienically(Gs, Gt);
 }
 
-Prog liftFixProg1() {
-  Gs = resolveNames(prog1);
-  return nameFix(#Prog, Gs, liftProg1(), resolveNames);
-}
 
-test bool testFixed1() {
-  Gs = resolveNames(prog1);
-  liftedProg1 = liftProg1();
-  println("Lifted:\n<pretty(liftedProg1)>");
-  fixedProg1 = nameFix(#Prog, Gs, liftedProg1, resolveNames);
-  println("Fixed:\n<pretty(fixedProg1)>");
-  return liftedProg1 == fixedProg1;
-}
-
-
-Prog prog2 =
+private Prog liftProg2 =
   prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))],
        [let("y", call("f", [val(nat(1))]),
               let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
                     call("f", [val(nat(1))])))]);
-Prog theProg2() = prog2;
+private Prog theProg2() = liftProg2;
 
 /* prog2 before local functions being lifted
 fun f(x) = x + 1;
@@ -85,7 +75,7 @@ fun f(x) = x + 1;
 }
 */
 
-Prog liftProg2() = liftLocfun(prog2, resolveNames(prog2));
+private Prog liftedProg2() = liftLocfun(liftProg2, resolveNames(liftProg2));
 
 /* prog2 after local functions being lifted
 fun f(x) = x + 1;
@@ -98,25 +88,25 @@ fun f(x, y) = f(x + y, y);
 }
 */
 
-test bool test2() {
-  Gs = resolveNames(prog2);
-  liftedProg2 = liftProg2();
-  Gt = resolveNames(liftedProg2);
+test bool testLift2() {
+  Gs = resolveNames(liftProg2);
+  lp = liftedProg2();
+  Gt = resolveNames(lp);
   //iprintln(Gs);
   //iprintln(Gt);
   return !isCompiledHygienically(Gs, Gt);
 }
 
-Prog liftFixProg2() {
-  Gs = resolveNames(prog2);
-  return nameFix(#Prog, Gs, liftProg2(), resolveNames);
+private Prog liftFixProg2() {
+  Gs = resolveNames(liftProg2);
+  return nameFix(#Prog, Gs, liftedProg2(), resolveNames);
 }
 
-test bool testFixed2() {
-  Gs = resolveNames(prog2);
-  liftedProg2 = liftProg2();
-  println("Lifted:\n<pretty(liftedProg2)>");
-  fixedProg2 = nameFix(#Prog, Gs, liftedProg2, resolveNames);
+test bool testLiftFixed2() {
+  Gs = resolveNames(liftProg2);
+  lp = liftedProg2();
+  println("Lifted:\n<pretty(lp)>");
+  fixedProg2 = nameFix(#Prog, Gs, lp, resolveNames);
   println("Fixed:\n<pretty(fixedProg2)>");
   Gt = resolveNames(fixedProg2);
   return isCompiledHygienically(Gs, Gt);
@@ -124,7 +114,7 @@ test bool testFixed2() {
 
 
 
-Exp exp3 =
+private Exp exp3 =
   let("y", call("f", [val(nat(10))]),
         let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
             let(fdef("g", ["x"], call("f", [plus(var("y"), plus(var("x"), val(nat(1))))])),
@@ -133,7 +123,7 @@ Exp exp3 =
                 call("g", [val(nat(3))]))
                )));
 
-Prog prog3 = prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))], [exp3]);
+private Prog prog3 = prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))], [exp3]);
 
 
 /* prog3 before local functions being lifted
@@ -149,7 +139,7 @@ fun f(x) = x + 1;
 }
 */
 
-Prog liftProg3() = liftLocfun(prog3, resolveNames(prog3));
+private Prog liftProg3() = liftLocfun(prog3, resolveNames(prog3));
 
 
 test bool test3() {
@@ -161,7 +151,7 @@ test bool test3() {
   return !isCompiledHygienically(Gs, Gt);
 }
 
-Prog liftFixProg3() {
+private Prog liftFixProg3() {
   Gs = resolveNames(prog3);
   return nameFix(#Prog, Gs, liftProg3(), resolveNames);
 }

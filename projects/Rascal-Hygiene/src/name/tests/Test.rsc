@@ -1,6 +1,5 @@
 module name::tests::Test
 
-
 import lang::missgrant::base::AST;
 import lang::missgrant::base::Implode;
 import lang::missgrant::base::NameRel;
@@ -101,26 +100,7 @@ Prog renameProg3() {
   return rename(resolveNames(p), p, d0@location, new);
 }
 
-//Prog nameFix1() {
-//  m = statemachine1();
-//  p = compile(m);
-//  sNames = resolveNames(m);
-//  tNames = resolveNames(p);
-//  p2 = nameFix(sNames, tNames, p, name2var);
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
-//  return p2;
-//}
-//
-//Prog nameFix2() {
-//  m = statemachine1illcompiled();
-//  p = compile(m);
-//  sNames = resolveNames(m);
-//  tNames = resolveNames(p);
-//  p2 = nameFix(sNames, tNames, p, name2var);
-//  //println(pretty(p2));
-//  assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
-//  return p2;
-//}
+
 
 &T nameFix1() {
   m = statemachine1();
@@ -141,17 +121,3 @@ Prog renameProg3() {
   assert isCompiledHygienically(sNames, resolveNames(p2)) : "unhygienic links: <findCapture(sNames, resolveNames(p2))>";
   return p2;
 }
-
-//set[Link] check2() {
-//  m = statemachine1illcompiled();
-//  p = compile(m);
-//  return findCapture(resolveNames(m), resolveNames(p));
-//}
-
-//test bool rand(Controller m) {
-//  p = compile(m);
-//  sNames = resolveNames(m);
-//  tNames = resolveNames(p);
-//  p2 = nameFix(m, p, resolveNames, resolveNames, name2var);
-//  return isCompiledHygienically(sNames, resolveNames(p2));
-//} 
