@@ -315,36 +315,19 @@ Test module `name::tests::TestInline`
 
 ### Lambda lifting
 
+Module `lang::simple::locfun::Locfun`.
+
+Function `liftLocfun`.
+
+Test module `name::tests::TestLambLift`.
+
 ### State machines
 
+Modules `lang::missgrant::base::AST`, `lang::missgrant::base::Implode`, `lang::missgrant::base::NameRel`.
+
+Function `compile` in module `lang::missgrant::base::Compile` for compilation to Java and in module `lang::simple::Compile` for compilation to PROC.
+
+Test modules `name::tests::TestStatemachineJava` and `name::tests::TestStatemachineSimple`.
+
 ### Derric
-
-
-
-### attic
-
-Alternatively, we may want to save an interactive session into a
-Rascal module for regression test.  We do this for all our case studies.
-These test modules reside in the directory `src/name/tests`:
-
-- `src/name/tests/Test.rsc`: tests for some state machines coming
-  together with the state-machine language implementation
-- `src/name/tests/TestDerric.rsc`: tests for the Derric language
-- `src/name/tests/TestDoor.rsc`: tests for the door state machine
-- `src/name/tests/TestJava.rsc`: tests for the Java language
-- `src/name/tests/TestNested.rsc`: tests for the simple procedural
-  language
-
-To run these tests, simply import them in the Rascal console.  For example,
-
-```
-rascal> import name::tests::Test;
-```
-
-will import all the definitions in the file `src/name/tests/Test.rsc`.
-A _nullary_ function definition in the module usually wraps a test.  Calling
-such a function runs the test.  For example, in `Test.rsc`, the nullary
-function `nameFix1` wraps the interactive test we have seen above.  Executing
-`nameFix1();` in the Rascal console reruns the test.  Tests for all our case
-studies can be run like this. Alternatively, all tests in scope can be run with the Rascal console command `:test`.
 
