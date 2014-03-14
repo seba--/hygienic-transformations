@@ -246,7 +246,8 @@ console. Here we outline the main functions for each case study. We also have de
 
     rascal> :test 
 
-The test definition in the module will be highlighted according to outcome of the test.
+The test definition in the module will be highlighted according to outcome of the test. Module `name::tests::AllTests` collects all tests.
+
 
 ### Substitution
 
@@ -265,6 +266,11 @@ Functions `inline`, `captureAvoidingInline`, and `captureAvoidingInline2`. Funct
 Test module `name::tests::TestInline`
 
 ### Lambda lifting
+
+### State machines
+
+### Derric
+
 
 
 ### attic
