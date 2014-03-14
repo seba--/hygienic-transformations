@@ -1,4 +1,4 @@
-module lang::simple::inline::TestSubst
+module name::tests::TestSubst
 
 import IO;
 

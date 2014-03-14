@@ -1,4 +1,4 @@
-module lang::simple::locfun::Tests
+module name::tests::TestLambLift
 
 import lang::simple::AST;
 import lang::simple::Pretty;

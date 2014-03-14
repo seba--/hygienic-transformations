@@ -1,4 +1,4 @@
-module lang::simple::inline::TestInline
+module name::tests::TestInline
 
 import IO;
 import Set;
