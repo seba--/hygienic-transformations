@@ -123,36 +123,37 @@ to fix names in generated string-based Java code.
 
 ## Running name-fix
 
+To run Rascal code, start the Rascal console in Eclipse from the menu Rascal > Start Console. The prompt `rascal>` indicates that the console has been successfully launched.
+
 The implementation of the name-fix algorithm resides in the file
-`src/name/NameFix.rsc`.  To run name-fix boils down to call the Rascal
-function `nameFix` in this file.  The interface for `nameFix` is
+`src/name/NameFix.rsc`. The signature of `nameFix` for tree-based program transformations is as follows:
 
 ```
 &T nameFix(type[&T <: node] astType, NameGraph Gs, &T t, NameGraph(&T) resolveT)
 ```
 
-A call to `nameFix` on tree-based program representation should conform to
-this interface.  Note that `nameFix` has a second sligtly more complicated
-interface.  It is for string-based program representation, but not meant to be
-called directly.  Instead, the wrapper `nameFixString` provided in
-`src/name/NameFixString.rsc` should be preferred.  Since
-`nameFixString` mirrors this simpler interface of `nameFix` shown above, the
-instructions on calling `nameFix` given below also apply when calling
-`nameFixString`.
+We explain how to call this function below. Note that the actual implementation of the name-fix algorithm resides in an overloaded definition of `nameFix` that has a sligtly more complicated singature, because it is parametric over name-lookup and renaming functions. We use this to support name-fix on strings, as implemented by function `nameFixString` in `src/name/NameFixString.rsc`.
 
-First, note that `nameFix` is parametric over the target program
-representation, as indicated by the type variable `&T`.
+Here is a complete example application of `nameFix`, that you can copy and paste to the Rascal console to run. A longer walk through appears below.
 
-Second, `nameFix` expects four arguments.  The second is supposed to be the
-name graph (to be bound to the parameter `Gs`) of the source program, the
-third the target program (to be bound to `t`), and the fourth a name analyzer
-(as a function, to be bound to `resolveT`) for the target language.  The first
-argument is supposed to be a subtype of Rascal's built-in tree type `node`, as
-constrained by `&T <: node`.  More precisely, it should be a _reifed_ type, as
-required by `type[ ]`.  This declaration together with a device to reify a
-type (see below) is needed to turn a type to a value so as to be passed as
-argument, because normal types are not treaded as values in Rascal.
-Essentially this supports more finely-distinguished return types.
+    import lang::missgrant::base::AST;
+    import lang::missgrant::base::Implode;
+    import lang::missgrant::base::NameRel;
+    import lang::simple::AST;
+    import lang::simple::Compile;
+    import lang::simple::NameRel;
+    import name::NameGraph;
+    import name::NameFix;
+
+    Controller machine = load(|project://Rascal-Hygiene/input/door1.ctl|);
+    NameGraph Gmachine = resolveNames(machine);
+    Prog p = compile(machine);
+    Prog pfixed = nameFix(#Prog, Gmachine, p, resolveNames)
+
+This program first parses the statemachine from file `input/door1.ctl` into the AST `machine`. Function `resolveNames` is overloaded and can be used for state-machine ASTs of type `Controller` as well as for program ASTs of type `Prog`. We first use `resolveNames` it to compute the name graph of the state machine. Then we compile the state machine to procedural code. Finally, we call `nameFix`: The first argument is the type of the generated program, the second argument is the name graph of the source program, the third argument is the generated program, and the fourth argument is a function that computes the name graph of target-language prorgrams.
+
+
+### Detailed walk through
 
 We now illustrate how to call `nameFix` through a running example of compiling
 a state machine specification to a simple procedural program.  This should
@@ -162,29 +163,20 @@ suffice to demonstrate the general work flow.
     after openning the project.  The prompt `rascal>` indicates that the
     console has been successfully launched.
 
-2.  In the console, import all modules relevant to the syntax of the source
-    and the target language.  These usually include the definitions of their
-    concrete syntax, abstract syntax, parsers, pretty printers, name
-    analyzers, compilers, etc.  For our particular example, call the source
-    language SMSL (State Machine Specification Language) and the target
-    language SPL (Simple Procedural Language), we need run the following
-    import statements (for brevity, all the replies are ommited):
+2.  In the console, import all modules relevant to the syntax of the source and the target language.  These usually include the definitions of their concrete syntax, abstract syntax, parsers, pretty printers, name analyzers, compilers, etc.  In this example, we use state machines (SM) as source language and simple procedural programs (PROC) as target languages. These are the same languages used in Section 1 of the paper. We need the following modules:
 
-    ```
-    rascal> import lang::missgrant::base::AST;  // AST definition for SMSL
-    rascal> import lang::missgrant::base::Implode;  // Rascal tree to SMSL AST
-    rascal> import lang::missgrant::base::NameRel;  // Name analysis for SMSL
+        rascal> import lang::missgrant::base::AST;  // AST definition for SM
+        rascal> import lang::missgrant::base::Implode;  // Parser for SM
+        rascal> import lang::missgrant::base::NameRel;  // Name analysis for SM
+    
+        rascal> import lang::simple::AST;  // AST definition for PROC
+        rascal> import lang::simple::Compile;  // Compiler from SM to PROC
+        rascal> import lang::simple::Implode;  // Parser for PROC
+        rascal> import lang::simple::NameRel;  // Name analysis for PROC
+        rascal> import lang::simple::Pretty;  // Pretty printing for PROC
+    
 
-    rascal> import lang::simple::AST;  // AST definition for SPL
-    rascal> import lang::simple::Compile;  // Compiler from SMSL to SPL
-    rascal> import lang::simple::Implode;  // Rascal tree to SPL AST
-    rascal> import lang::simple::NameRel;  // Name analysis for SPL
-    rascal> import lang::simple::Pretty;  // Pretty printing for SPL
-    ```
-
-    With all these modules imported.  We can try to `load` (a function defined
-    in `lang::missgrant::base::Implode`) a sample state-machine specification
-    identified by the URI `|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|`. As the name suggests, compiling this program leads to inadvertent name capture.
+3. Folder `Rascal-Hygiene/input` contains example state machines. We can parse and load an existing state machine using function `load` (defined in `lang::missgrant::base::Implode`). For example, as the name suggests, compiling `missgrant-illcompiled.ctl` leads to inadvertent variable capture.
 
     ```
     rascal> m = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);
@@ -201,6 +193,8 @@ suffice to demonstrate the general work flow.
     ```
     rascal> println(pretty(p));
     ```
+    
+    You can see the variable capture in the duplicate declaration of variable `idle-dispatch`.
 
 3.  Before we can call `nameFix` on the compiled program `p`, we need the name
     graph of the source program `m`.  It can be readily calculated:
@@ -208,21 +202,20 @@ suffice to demonstrate the general work flow.
     ```
     rascal> sNames = resolveNames(m);
     ```
+    
+    A name graph is a set nodes and a mapping between nodes (the edges). You can click locations in the Rascal console to navigate to the referrenced source code and explore the name graph.
 
 4.  As an optional step, we can calculate the name graph of the compiled
-    program `p`, and then use the function `isCompiledHygienically` defined in
-    `name::HygienicCorrectness` (of course before using it we need first
-    import this module) to check whether the compilation is hygienic so as to
-    decide whether we need call `nameFix`:
+program `p`, and then use the function `isCompiledHygienically` defined in
+`name::HygienicCorrectness` to verify that the compilation was indeed     unhygienic.
 
-    ```
-    rascal> tNames = resolveNames(p);
-    rascal> import name::HygienicCorrectness;
-    rascal> isCompiledHygienically(sNames, tNames);
-    ```
+    
+        rascal> import name::HygienicCorrectness;
+        rascal> tNames = resolveNames(p);
+        rascal> isCompiledHygienically(sNames, tNames); // returns false
+    
 
-    Note that the name `resolveNames` is overloaded.  For the sample SMSL
-    program we chose, as the result of `isCompiledHygienically` suggests, compiling this sampe state machin is not hygienic. 
+    Note that the name `resolveNames` is overloaded.
 
 5.  Now we can call `nameFix` on `p`.
 
@@ -233,19 +226,17 @@ suffice to demonstrate the general work flow.
 
     Recall that the first argument to `nameFix` should be a reified type.  The
     operator `#` turns the type `Prog` of the target program to a value.
-    Again note the overloaded `resolveNames` is the one for SPL. Again, you can inspect the fixed program using the pretty printer:
+    Again note the overloaded `resolveNames` we pass to `nameFix` is the one for PROC. Again, you can inspect the fixed program using the pretty printer:
     
     ```
     rascal> println(pretty(p2));
     ```
 
 6.  At last, we can verify that `nameFix` indeed eliminates all captures and
-    produces a program respecting hygiene by calling `isCompiledHygienically`
-    again but this time on the name graph of the source program and that of
-    the new program `p2`:
+produces a program respecting the source-program bindings by calling `isCompiledHygienically` for the fixed program `p2`:
 
     ```
-    rascal> isCompiledHygienically(sNames, resolveNames(p2));
+    rascal> isCompiledHygienically(sNames, resolveNames(p2)); // returns true
     ```
 
 ## Case studies
