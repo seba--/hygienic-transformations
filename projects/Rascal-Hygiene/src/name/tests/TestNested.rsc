@@ -19,16 +19,16 @@ import name::IDs;
 
 import IO;
 
-loc progloc = |project://Rascal-Hygiene/input/testnested.sim|;
+private loc progloc = |project://Rascal-Hygiene/input/testnested.sim|;
 
-str x1def = "x";
-str x1use = "x";
-str x2def = "x";
-str x2use = "x";
-str x3def = "x";
-str x3use = "x";
+private str x1def = "x";
+private str x1use = "x";
+private str x2def = "x";
+private str x2use = "x";
+private str x3def = "x";
+private str x3use = "x";
 
-str testprog =
+private str testprog =
   "{var <x1def> = 1; <x1use> + {var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}}";
 Prog theProg =
   prog([],
@@ -38,11 +38,11 @@ Prog theProg =
                          plus(var(x2use),
                               let(x3def, val(nat(1)),
                                     var(x3use))))))]);
-Prog prog() = theProg;
-NameGraph resolve() = resolveNames(prog());
+private Prog testProg() = theProg;
+private NameGraph resolve() = resolveNames(testProg());
 
 
-str testprog2 =
+private str testprog2 =
   "{var <x1def> = 1; <x1use>};{var <x2def> = 1; <x2use> + {var <x3def> = 1; <x3use>}}";
 Prog theProg2 =
   prog([],
@@ -53,187 +53,187 @@ Prog theProg2 =
                 plus(var(x2use),
                      let(x3def, val(nat(1)),
                            var(x3use)))))]);
-Prog prog2() = theProg2;
-NameGraph resolve2() = resolveNames(prog2());
+private Prog testProg2() = theProg2;
+private NameGraph resolve2() = resolveNames(testProg2());
 
-Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
+private Prog fixAndPrint(NameGraph g, Prog p, NameGraph(Prog) resolve) {
   p2 = nameFix(#Prog, g, p, resolve);
   println("fixed: <pretty(p2)>");
   return p2;
 }
 
-NameGraph sNames1() {
+private NameGraph sNames1() {
   Vs = {getID(x3def), getID(x3use)};
   Es = (getID(x3use):getID(x3def));
   return <Vs,Es>;
 }
-Prog fix1() {
-  Prog p = prog();
+private Prog fix1() {
+  Prog p = testProg();
   NameGraph tNames = resolveNames(p);
   return fixAndPrint(sNames1(), p, resolveNames);
 }
-test bool test1() {
+test bool testNest1() {
   return isCompiledHygienically(sNames1(), resolveNames(fix1()));
 }
 
-NameGraph sNames2() {
+private NameGraph sNames2() {
   Vs = {getID(x2def), getID(x3use)};
   Es = (getID(x3use):getID(x2def));
   return <Vs,Es>;
 }
-Prog fix2() {
-  Prog p = prog();
+private Prog fix2() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames2(), p, resolveNames);
 }
-test bool test2() {
+test bool testNest2() {
   return isCompiledHygienically(sNames2(), resolveNames(fix2()));
 }
 
 
-NameGraph sNames3() {
+private NameGraph sNames3() {
   Vs = {getID(x1def), getID(x3use)};
   Es = (getID(x3use):getID(x1def));
   return <Vs,Es>;
 }
-Prog fix3() {
-  Prog p = prog();
+private Prog fix3() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames3(), p, resolveNames);
 }
-test bool test3() {
+test bool testNest3() {
   return isCompiledHygienically(sNames3(), resolveNames(fix3()));
 }
 
-NameGraph sNames4() {
+private NameGraph sNames4() {
   Vs = {getID(x1def), getID(x2use)};
   Es = (getID(x2use):getID(x1def));
   return <Vs,Es>;
 }
-Prog fix4() {
-  Prog p = prog();
+private Prog fix4() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames4(), p, resolveNames);
 }
-test bool test4() {
+test bool testNest4() {
   return isCompiledHygienically(sNames4(), resolveNames(fix4()));
 }
 
 
-NameGraph sNames5() {
+private NameGraph sNames5() {
   Vs = {getID(x2def)};
   Es = ();
   return <Vs,Es>;
 }
-Prog fix5() {
-  Prog p = prog();
+private Prog fix5() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames5(), p, resolveNames);
 }
-test bool test5() {
+test bool testNest5() {
   return isCompiledHygienically(sNames5(), resolveNames(fix5()));
 }
 
-NameGraph sNames6() {
+private NameGraph sNames6() {
   Vs = {getID(x2def),getID(x2use),getID(x3def),getID(x3use)};
   Es = (getID(x3use):getID(x2def));
   return <Vs,Es>;
 }
-Prog fix6() {
-  Prog p = prog();
+private Prog fix6() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames6(), p, resolveNames);
 }
-test bool test6() {
+test bool testNest6() {
   return isCompiledHygienically(sNames6(), resolveNames(fix6()));
 }
 
-NameGraph sNames7() {
+private NameGraph sNames7() {
   Vs = {getID(x2use),getID(x3def)};
   Es = (getID(x2use):getID(x3def));
   return <Vs,Es>;
 }
-Prog fix7() {
-  Prog p = prog();
+private Prog fix7() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames7(), p, resolveNames);
 }
-test bool test7() {
+test bool testNest7() {
   return isCompiledHygienically(sNames7(), resolveNames(fix7()));
 }
 
 
-NameGraph sNames8() {
+private NameGraph sNames8() {
   Vs = {getID(x2use),getID(x3def),getID(x1def)};
   Es = (getID(x2use):getID(x3def));
   return <Vs,Es>;
 }
-Prog fix8() {
-  Prog p = prog();
+private Prog fix8() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames8(), p, resolveNames);
 }
-test bool test8() {
+test bool testNest8() {
   return isCompiledHygienically(sNames8(), resolveNames(fix8()));
 }
 
-NameGraph sNames9() {
+private NameGraph sNames9() {
   Vs = {getID(x2use),getID(x3def),getID(x1def),getID(x3use)};
   Es = (getID(x2use):getID(x3def));
   return <Vs,Es>;
 }
-Prog fix9() {
-  Prog p = prog();
+private Prog fix9() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames9(), p, resolveNames);
 }
-test bool test9() {
+test bool testNest9() {
   return isCompiledHygienically(sNames9(), resolveNames(fix9()));
 }
 
-NameGraph sNames10() {
+private NameGraph sNames10() {
   Vs = {getID(x1use),getID(x3def)};
   Es = (getID(x1use):getID(x3def));
   return <Vs,Es>;
 }
-Prog fix10() {
-  Prog p = prog();
+private Prog fix10() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames10(), p, resolveNames);
 }
-test bool test10() {
+test bool testNest10() {
   return isCompiledHygienically(sNames10(), resolveNames(fix10()));
 }
 
 // requires three consecutive renamings (recursive calls of fix)
-NameGraph sNames11() {
+private NameGraph sNames11() {
   Vs = {getID(x2def),getID(x2use),getID(x3def),getID(x3use)};
   Es = (getID(x2use):getID(x2def));
   return <Vs,Es>;
 }
-Prog fix11() {
-  Prog p = prog();
+private Prog fix11() {
+  Prog p = testProg();
   tNames = resolveNames(p);
   return fixAndPrint(sNames11(), p, resolveNames);
 }
-test bool test11() {
+test bool testNest11() {
   return isCompiledHygienically(sNames11(), resolveNames(fix11()));
 }
 
 
 // test 12 illustrates that name-fix may introduce free variable if
-// use and definition are in separate scopes. [note: test uses prog2()]
-NameGraph sNames12() {
+// use and definition are in separate scopes. [note: test uses testProg2()]
+private NameGraph sNames12() {
   Vs = {getID(x1def), getID(x3use)};
   Es = (getID(x3use):getID(x1def));
   return <Vs,Es>;
 }
-Prog fix12() {
-  Prog p = prog2();
+private Prog fix12() {
+  Prog p = testProg2();
   tNames = resolveNames(p);
   return fixAndPrint(sNames12(), p, resolveNames);
 }
-test bool test12() {
+test bool testNest12() {
   return isCompiledHygienically(sNames12(), resolveNames(fix12()));
 }
 

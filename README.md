@@ -51,7 +51,7 @@ instructions).
 - Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
 
 - Clone the following repository:
-  [https://github.com/tvdstorm/hygienic-transformations-ECOOP14]
+  [https://github.com/tvdstorm/hygienic-transformations-ECOOP14](https://github.com/tvdstorm/hygienic-transformations-ECOOP14)
 
 - From within the new Eclipse, go to Help > Install New Software...; click on
   Add... and then Local...; browse to the `update-site` directory of the
@@ -322,7 +322,6 @@ These test modules reside in the directory `src/name/tests`:
 - `src/name/tests/TestJava.rsc`: tests for the Java language
 - `src/name/tests/TestNested.rsc`: tests for the simple procedural
   language
-- `src/name/tests/TestString.rsc`: tests for _WHAT_?
 
 To run these tests, simply import them in the Rascal console.  For example,
 
@@ -335,5 +334,5 @@ A _nullary_ function definition in the module usually wraps a test.  Calling
 such a function runs the test.  For example, in `Test.rsc`, the nullary
 function `nameFix1` wraps the interactive test we have seen above.  Executing
 `nameFix1();` in the Rascal console reruns the test.  Tests for all our case
-studies can be run like this.
+studies can be run like this. Alternatively, all tests in scope can be run with the Rascal console command `:test`.
 

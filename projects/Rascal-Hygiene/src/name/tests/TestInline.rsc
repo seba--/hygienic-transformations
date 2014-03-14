@@ -16,31 +16,31 @@ import name::NameGraph;
 
 import Map;
 
-loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
-str source() = "fun zero() = 0; 
+private loc testfile = |project://Rascal-Hygiene/output/testinline.sim|;
+private str source() = "fun zero() = 0; 
                'fun succ(x) = let n = 1 in x + n; 
                'let n = free + 5 in 
                '  succ(succ(n + free + zero()))
                '";
                
-loc testfile2 = |project://Rascal-Hygiene/output/testinline2.sim|;
-str source2() = "fun zero() = 0; 
+private loc testfile2 = |project://Rascal-Hygiene/output/testinline2.sim|;
+private str source2() = "fun zero() = 0; 
                 'fun double(x) = let n = 0 in (n = x; n + n);
                 'let  n = free + 5 in
                 '  double(double(n + free + zero()))
                 '";
 
 
-loc testfile3 = |project://Rascal-Hygiene/output/testinline3.sim|;
-str source3() = "fun zero() = 0; 
+private loc testfile3 = |project://Rascal-Hygiene/output/testinline3.sim|;
+private str source3() = "fun zero() = 0; 
                 'fun succ(x) = let n = 1 in x + n + zero();
                 'fun zero() = 2; 
                 'let n = free + 5 in 
                 '  succ(succ(n + free + zero()))
                 '";
 
-loc andOrFile = |project://Rascal-Hygiene/output/andOr.sim|;
-str andOrSource() =   
+private loc andOrFile = |project://Rascal-Hygiene/output/andOr.sim|;
+private str andOrSource() =   
                 "fun or(x, y) =  let tmp = x in if tmp == 0 then y else tmp;
                 'fun and(x, y) = !or(!x, !y);
                 'let or = 1 in
@@ -48,17 +48,18 @@ str andOrSource() =
                 '    and(or, tmp)
                 '";
 
-Prog load(loc file, str code) {
+private Prog load(loc file, str code) {
   writeFile(file, code);
-  return load(file);
+  return lang::simple::Implode::load(file);
 }
-Prog prog() = load(testfile, source());
-Prog prog2() = load(testfile2, source2());
-Prog prog3() = load(testfile3, source3());
-Prog andOr() = load(andOrFile, andOrSource());
 
-Prog inline1() {
-  x = inline(prog(), "zero");
+private Prog inlineProg() = load(testfile, source());
+private Prog inlineProg2() = load(testfile2, source2());
+private Prog inlineProg3() = load(testfile3, source3());
+private Prog andOr() = load(andOrFile, andOrSource());
+
+private Prog inline1() {
+  x = inline(inlineProg(), "zero");
   println(pretty(x));
   return x;
 }
@@ -66,20 +67,20 @@ test bool testInline1() {
   return count(val(nat(0)), inline1()) == 2;
 }
 
-Prog inline2() {
-  x = inline(prog(), "succ");
+private Prog inline2() {
+  x = inline(inlineProg(), "succ");
   println(pretty(x));
   return x;
 }
 test bool testInline2() {
   p = inline2();
   nvars = count(var("n"), p);
-  hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
   return nvars == 4 && !hygienic;
 }
 
-Prog inline3() {
-  x = captureAvoidingInline(prog(), "succ");
+private Prog inline3() {
+  x = captureAvoidingInline(inlineProg(), "succ");
   println(pretty(x));
   return x;
 }
@@ -87,7 +88,7 @@ test bool testInline3() {
   p = inline3();
   nvars = count(var("n"), p);
   nRenamed = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E) };
@@ -103,20 +104,20 @@ test bool testInline3() {
   return nvars == 1 && nRenamed == 3 && hygienic && allRenamedDefsHaveOneRef;
 }
 
-Prog inline4() {
-  x = inline(prog2(), "double");
+private Prog inline4() {
+  x = inline(inlineProg2(), "double");
   println(pretty(x));
   return x;
 }
 test bool testInline4() {
   p = inline4();
   nvars = count(var("n"), p);
-  hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
   return nvars == 7 && !hygienic;
 }
 
-Prog inline5() {
-  x = captureAvoidingInline(prog2(), "double");
+private Prog inline5() {
+  x = captureAvoidingInline(inlineProg2(), "double");
   println(pretty(x));
   return x;
 }
@@ -124,7 +125,7 @@ test bool testInline5() {
   p = inline5();
   nvars = count(var("n"), p);
   nRenamed = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E)};
@@ -134,31 +135,31 @@ test bool testInline5() {
   return nvars == 1 && nRenamed == 6 && hygienic && allRenamedDefsHaveThreeRefs;
 }
 
-Prog inline6() {
-  x = captureAvoidingInline2(prog(), "succ");
+private Prog inline6() {
+  x = captureAvoidingInline2(inlineProg(), "succ");
   println(pretty(x));
   return x;
 }
 test bool testInline6() {
   p = inline6();
-  hygienic = isCompiledHygienically(resolveNames(prog()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
   return hygienic;  
 }
 
-Prog inline7() {
-  x = captureAvoidingInline2(prog2(), "double");
+private Prog inline7() {
+  x = captureAvoidingInline2(inlineProg2(), "double");
   println(pretty(x));
   return x;
 }
 test bool testInline7() {
   p = inline7();
-  hygienic = isCompiledHygienically(resolveNames(prog2()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
   return hygienic;
 }
 
 
-Prog inline8() {
-  x = captureAvoidingInline(prog3(), "succ");
+private Prog inline8() {
+  x = captureAvoidingInline(inlineProg3(), "succ");
   println(pretty(x));
   return x;
 }
@@ -166,7 +167,7 @@ test bool testInline8() {
   p = inline8();
   nvars = count(var("n"), p) + count(call("zero", []), p);
   nRenamed = count(var("n_0"), p) + count(call("zero_0", []), p);
-  hygienic = isCompiledHygienically(resolveNames(prog3()),resolveNames(p));
+  hygienic = isCompiledHygienically(resolveNames(inlineProg3()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name in {"n_0", "zero_0"}, d in range(G.E)};
@@ -180,7 +181,7 @@ test bool testInline8() {
   return nvars == 4 && nRenamed == 4 && hygienic && allRenamedDefsHaveOneRef;
 }
 
-Prog inlineAnd() {
+private Prog inlineAnd() {
   x = captureAvoidingInline(andOr(), "and");
   //x = captureAvoidingInline(x, "or");
   println(pretty(x));
@@ -192,7 +193,7 @@ test bool testInlineAnd() {
   return hygienic;
 }
 
-Prog inlineImplies() {
+private Prog inlineImplies() {
   x = captureAvoidingInline(andOr(), "implies");
   //x = captureAvoidingInline(x, "or");
   println(pretty(x));
@@ -204,7 +205,7 @@ test bool testInlineImplies() {
   return hygienic;
 }
 
-Prog inlineAndThenOr() {
+private Prog inlineAndThenOr() {
   println("input:");
   println(pretty(andOr()));
 
@@ -228,7 +229,7 @@ test bool testInlineAndThenOr() {
   return hygienic;
 }
 
-Prog inlineAndThenOrThenNot() {
+private Prog inlineAndThenOrThenNot() {
   x = captureAvoidingInline(andOr(), "and");
   x = captureAvoidingInline(x, "or");
   x = captureAvoidingInline(x, "not");
@@ -242,7 +243,7 @@ test bool testInlineAndThenOrThenNot() {
 }
 
 
-Prog inlineOr() {
+private Prog inlineOr() {
   x = captureAvoidingInline(andOr(), "or");
   //x = captureAvoidingInline(x, "or");
   println(pretty(x));
@@ -255,7 +256,7 @@ test bool testInlineOr() {
 }
 
 
-Prog inlineOrThenAnd() {
+private Prog inlineOrThenAnd() {
   x = captureAvoidingInline(andOr(), "or");
   x = captureAvoidingInline(x, "and");
   println(pretty(x));
@@ -268,7 +269,7 @@ test bool testInlineOrThenAnd() {
 }
 
 
-int count(&T t, &U here) {
+private int count(&T t, &U here) {
   i = 0;
   visit(here) {
     case &T t2: if (t == t2) i = i + 1;
