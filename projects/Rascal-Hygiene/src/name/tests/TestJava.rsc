@@ -36,7 +36,8 @@ void compile1javaToDisk() {
 NameGraph javaNames1() = m3toNameGraph(createM3FromEclipseProject(|project://<output>|));
 
 
-Controller illCompiled1java() = load(|project://Rascal-Hygiene/input/doors1-java-ill.ctl|);
+Controller illCompiled1java() = 
+  lang::missgrant::base::Implode::load(|project://Rascal-Hygiene/input/doors1-java-ill.ctl|);
 
 str compileIllCompiled1java() = compile(missGrantClass, illCompiled1java());
 
