@@ -49,8 +49,8 @@ Prog compiled2() {
 NameGraph namesCompiled1() = resolveNames(compiled1());
 NameGraph namesCompiled2() = resolveNames(compiled2());
 
-void visNamesCompiled1() = renderNames(namesCompiled1());
-void visNamesCompiled2() = renderNames(namesCompiled2());
+void visNamesCompiled1() = renderNames(namesCompiled1(), compiled1());
+void visNamesCompiled2() = renderNames(namesCompiled2(), compiled2());
 
 Prog fixed1() {
   Prog p = nameFix(#Prog, names1(), compiled1(), resolveNames);
@@ -66,5 +66,5 @@ Prog fixed2() {
 NameGraph namesFixed1() = resolveNames(fixed1());
 NameGraph namesFixed2() = resolveNames(fixed2());
 
-void visNamesFixed1() = renderNames(namesFixed1());
-void visNamesFixed2() = renderNames(namesFixed2());
+void visNamesFixed1() = renderNames(namesFixed1(), fixed1());
+void visNamesFixed2() = renderNames(namesFixed2(), fixed2());
