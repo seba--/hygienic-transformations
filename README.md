@@ -48,22 +48,23 @@ instructions).
 
 ## Installation instructions
 
-- Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
+1.  Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
 
-- Clone the following repository:
-  [https://github.com/tvdstorm/hygienic-transformations-ECOOP14](https://github.com/tvdstorm/hygienic-transformations-ECOOP14)
+2.  Clone the following repository:
+    [https://github.com/tvdstorm/hygienic-transformations-ECOOP14](https://github.com/tvdstorm/hygienic-transformations-ECOOP14)
 
-- From within the new Eclipse, go to Help > Install New Software...; click on
-  Add... and then Local...; browse to the `update-site` directory of the
-  cloned repository and press OK. After giving a name to the update site
-  (whatever doesn't matter), you'll be able to select Rascal for installation.
-  Finish the process by clicking on Yes when asked to restart Eclipse.
+3.  From within the new Eclipse, go to Help > Install New Software...; click
+    on Add... and then Local...; browse to the `update-site` directory of the
+    cloned repository and press OK. After giving a name to the update site
+    (whatever doesn't matter), you'll be able to select Rascal for
+    installation.  Finish the process by clicking on Yes when asked to restart
+    Eclipse.
 
-- In the restarted Eclipse, go to the File menu, and select
-  Import..., then Gerneral > Existing Projects into Workspace, as root
-  directory, select the `projects` directory in the cloned repo. Import all
-  three projects there. You're now set up to explore the code, execute the
-  tests and invoke `name-fix`.
+4.  In the restarted Eclipse, go to the File menu, and select Import..., then
+    Gerneral > Existing Projects into Workspace, as root directory, select the
+    `projects` directory in the cloned repo. Import all three projects there.
+    You're now set up to explore the code, execute the tests and invoke
+    `name-fix`.
 
 
 ## Project outline
