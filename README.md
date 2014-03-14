@@ -283,7 +283,18 @@ console. Here we outline the main functions for each case study. We also have de
 
     rascal> :test 
 
-The test definition in the module will be highlighted according to outcome of the test. Module `name::tests::AllTests` collects all tests.
+The test definition in the module will be highlighted according to outcome of the test. To run all tests, execute `:test` after copy-pasting the following snippet into the console:
+
+```
+import name::tests::Test;
+import name::tests::TestDerric;
+import name::tests::TestDoor;
+import name::tests::TestInline;
+import name::tests::TestJava;
+import name::tests::TestLambLift;
+import name::tests::TestNested;
+import name::tests::TestSubst;
+```
 
 
 ### Substitution
