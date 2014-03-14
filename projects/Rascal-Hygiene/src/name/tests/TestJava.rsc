@@ -7,7 +7,6 @@ import lang::missgrant::base::NameRel;
 import lang::java::NameRel;
 import lang::java::jdt::m3::Core;
 
-import name::tests::TestString;
 import name::NameGraph;
 import name::NameFixString;
 import name::IDs;
@@ -58,7 +57,6 @@ NameGraph reconNames() =
          |project://Rascal-Hygiene/input/illcompiledjava.ctl|); 
 
 NameGraph resolveJava(lrel[Maybe[loc], str] src) {
-  // Ugh, make this nice..
   writeFile(|project://<output>/src/<missGrantClass>.java|, ("" | it + x | x <- src<1> ));
   return insertSourceNames(m3toNameGraph(createM3FromEclipseProject(|project://<output>|)), 
      reconstruct(src,

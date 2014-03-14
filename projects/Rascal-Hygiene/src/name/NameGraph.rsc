@@ -37,9 +37,6 @@ str nameAt(ID n, &T t) {
   return "NOT_FOUND";
 }
 
-//set[str] namesOf(NameGraph G) = G.N<1>;
-
-//set[ID] idsOf(NameGraph G) = G.N<0>;
 set[ID] idsOf(&T t) = ({} | it + {getID(x)} | /str x <- t);
 
 set[ID] defsOf(NameGraph G) = G.E.def;

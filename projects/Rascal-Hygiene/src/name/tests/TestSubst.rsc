@@ -59,7 +59,7 @@ private Prog subst3() {
 test bool testSubst3() {
   p = subst3();
   nvars = count(var("n"), p);
-  hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
+  bool hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
   return nvars == 4 && !hygienic;
 }
 
@@ -74,15 +74,15 @@ test bool testSubst4() {
   p = subst4();
   nvars = count(var("n"), p);
   renamedVars = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
+  bool hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
   
   return nvars == 3 && renamedVars == 1 && hygienic;
 }
 
 private Prog subst5() {
-  x = "x";
-  e = times(val(nat(2)), var("n"));
-  x2 = captureAvoidingSubst(substProg(), x, e);
+  str x = "x";
+  Exp e = times(val(nat(2)), var("n"));
+  Prog x2 = captureAvoidingSubst(substProg(), x, e);
   println(pretty(x2));
   return x2;
 }
@@ -90,7 +90,7 @@ test bool testSubst5() {
   p = subst5();
   nvars = count(var("n"), p);
   renamedVars = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
+  bool hygienic = isCompiledHygienically(resolveNames(substProg()),resolveNames(p));
   
   return nvars == 3 && renamedVars == 1 && hygienic;
 }

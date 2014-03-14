@@ -11,21 +11,12 @@ import name::HygienicCorrectness;
 import name::NameFix;
 import IO;
 
-//&T rename(&T t, map[ID,str] subst) {
-//  return visit (t) {
-//    case str x => setID(subst[getID(x)], getID(x)) 
-//      when getID(x) in subst
-//  };
-//}
-
-
 /*
 This applies a (definition-)renaming to a string (represent as an lrel with origins). 
 */
 lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst) {
   src = for (<just(loc l), str x> <- src) {
     if ([l] in subst) {
-      //println("Renaming <l>");
       append <just(l), subst[[l]]>;
     }
     else {
@@ -37,24 +28,19 @@ lrel[Maybe[loc], str] renameString(lrel[Maybe[loc], str] src, map[ID,str] subst)
 
 
 str nameAtString(ID n, lrel[Maybe[loc], str] t) {
-  //println("Search for name: <n>");
   for (<just(loc l1), str x> <- t) {
-    //println("Loc l1 = <l1>");
     if ([l1] == n) {
-      //println("Found it: <x>");
       return x;
     }
-  } // |project://Rascal-Hygiene/formats/minbad.derric|(256,1,<21,2>,<21,3>)
-  // Non-existing name.... (TODO?)
-  //println("No name");
+  } 
+  // Non-existing name...
   return "";
 }
 
 
 lrel[Maybe[loc], str] nameFixString(NameGraph Gs, lrel[Maybe[loc], str] t, NameGraph(lrel[Maybe[loc], str]) resolveT, loc outFile) 
   = nameFix(Gs, t, resolveT, renameString, str(ID n, lrel[Maybe[loc], str] t) {
-     return nameAtString(n, t); //reconstruct(t, outFile));
-     // |project://generated-missgrant/src/MissGrant.java|  
+     return nameAtString(n, t); 
   });
 
 /*
