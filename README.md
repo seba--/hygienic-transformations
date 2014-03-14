@@ -319,7 +319,47 @@ Test module `name::tests::TestInline`
 
 ### Derric
 
+Test module `name::tests::TestDerric`.
 
+Derric is domain-specific language (DSL) for describing (binary) file formats.  It is used to generate digital forensics analysis tools, such as file carvers. Example file format descriptions can be found in the folder `formats`. The format `minbad.derric` contains a description that, when run through the Derric compiler, produces valid Java code, but with the wrong semantics due to name capturing. 
+
+After importing the test module `name::tests::TestDerric`, you can inspect the incorrect code in the package `org.derric_lang.validator.generated` in the `src` folder of the output project `generated-derric`. To see the result, execute:
+
+```
+rascal> writeMinbadCompiled();
+```
+
+(Tip: press Ctrl-Shift-f or Cmd-Shift-f to format the code). As can be seen from the yellow marker, the private field `x` is never read. The reason can be found in method `S1`:
+
+```
+		long x;
+		x = _input.unsigned().byteOrder(BIG_ENDIAN).readInteger(8);
+		org.derric_lang.validator.ValueSet vs2 = new org.derric_lang.validator.ValueSet();
+		vs2.addEquals(0);
+		if (!vs2.equals(x))
+			return noMatch();
+``` 
+
+The local variable `x` shadows the field. As a result the expression `vs2.equals(x)` uses the wrong `x`.
+
+To see the fixed code run:
+
+```
+rascal> testMinBad();
+```
+
+The relevant code in `S1` now reads:
+
+```
+		long x_0;
+		x_0 = _input.unsigned().byteOrder(BIG_ENDIAN).readInteger(8);
+		org.derric_lang.validator.ValueSet vs2 = new org.derric_lang.validator.ValueSet();
+		vs2.addEquals(0);
+		if (!vs2.equals(x_0))
+			return noMatch();
+```
+
+Note how the local `x` is renamed to `x_0`; as a result the `equals` expression now correctly uses the field `x`.
 
 ### attic
 
