@@ -68,7 +68,7 @@ instructions).
 ## Project outline
 
 The main code is stored in project Rascal-Hygiene. Below we summarize
-its contents.
+its contents. For now you can ignore the projects `generated-derric` and `generated-missgrant`; these are used analyzing generated code in the case studies. 
 
 The two most important folders are `src/name` and
 `src/name/tests`. The former contains the implementation of name-fix
@@ -179,20 +179,27 @@ suffice to demonstrate the general work flow.
     rascal> import lang::simple::Compile;  // Compiler from SMSL to SPL
     rascal> import lang::simple::Implode;  // Rascal tree to SPL AST
     rascal> import lang::simple::NameRel;  // Name analysis for SPL
+    rascal> import lang::simple::Pretty;  // Pretty printing for SPL
     ```
 
     With all these modules imported.  We can try to `load` (a function defined
     in `lang::missgrant::base::Implode`) a sample state-machine specification
-    identified by the URI `|project://Rascal-Hygiene/input/missgrant.ctl|`.
+    identified by the URI `|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|`. As the name suggests, compiling this program leads to inadvertent name capture.
 
     ```
-    rascal> m = load(|project://Rascal-Hygiene/input/missgrant.ctl|);
+    rascal> m = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);
     ```
 
     We can go ahead compiling the loaded program:
 
     ```
     rascal> Prog p = compile(m);
+    ```
+    
+    To inspect the textual representation of `p`, call the pretty printer:
+    
+    ```
+    rascal> println(pretty(p));
     ```
 
 3.  Before we can call `nameFix` on the compiled program `p`, we need the name
@@ -215,9 +222,7 @@ suffice to demonstrate the general work flow.
     ```
 
     Note that the name `resolveNames` is overloaded.  For the sample SMSL
-    program we chose, its compilation happens to be hygienic.  But we can
-    anyway call `nameFix` on `p` because of the identity of `nameFix` on
-    capture-free programs.
+    program we chose, as the result of `isCompiledHygienically` suggests, compiling this sampe state machin is not hygienic. 
 
 5.  Now we can call `nameFix` on `p`.
 
@@ -228,7 +233,11 @@ suffice to demonstrate the general work flow.
 
     Recall that the first argument to `nameFix` should be a reified type.  The
     operator `#` turns the type `Prog` of the target program to a value.
-    Again note the overloaded `resolveNames` is the one for SPL.
+    Again note the overloaded `resolveNames` is the one for SPL. Again, you can inspect the fixed program using the pretty printer:
+    
+    ```
+    rascal> println(pretty(p2));
+    ```
 
 6.  At last, we can verify that `nameFix` indeed eliminates all captures and
     produces a program respecting hygiene by calling `isCompiledHygienically`
