@@ -317,6 +317,28 @@ Test module `name::tests::TestInline`
 
 ### State machines
 
+Module `lang::missgrant::base::Compile`.
+
+Test module `name::tests::TestJava`.
+
+The basic examples in of the paper involved compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates. 
+
+An example of a state machine that causes problems is `input/doors1-java-ill.ctl`. The reason is that it employs names that are also used by the compiler to implement the state machine. After importing the test module, invoke the function `compileIllCompiled1javaToDisk()` to inspect the incorrectly generated code. 
+
+```
+rascal> import name::tests::TestJava;
+rascal> compileIllCompiled1javaToDisk();
+```
+
+The output can be found in the `src` folder of the `generated-missgrant` project. As you will see, there are two compiler errors and various warnings. These are all caused by inadvertent name capture: in the run method, the synthesized names `current` and `token` capture the references to the constant declarations corresponding to the `current` and `token` states respectively. 
+
+To see the repaired result, execute:
+```
+rascal> testIllCompiled1();
+```
+
+After running `name-fix` the synthesized names are renamed to `current_0` and `token_0` and name capture is avoided. 
+
 ### Derric
 
 Test module `name::tests::TestDerric`.
@@ -326,6 +348,7 @@ Derric is domain-specific language (DSL) for describing (binary) file formats.  
 After importing the test module `name::tests::TestDerric`, you can inspect the incorrect code in the package `org.derric_lang.validator.generated` in the `src` folder of the output project `generated-derric`. To see the result, execute:
 
 ```
+rascal> import name::tests::TestDerric;
 rascal> writeMinbadCompiled();
 ```
 
@@ -348,7 +371,7 @@ To see the fixed code run:
 rascal> testMinBad();
 ```
 
-The relevant code in `S1` now reads:
+The relevant code in the generated code now reads:
 
 ```
 		long x_0;
