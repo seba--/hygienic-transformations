@@ -286,14 +286,13 @@ console. Here we outline the main functions for each case study. We also have de
 The test definition in the module will be highlighted according to outcome of the test. To run all tests, execute `:test` after copy-pasting the following snippet into the console:
 
 ```
-import name::tests::Test;
-import name::tests::TestDerric;
-import name::tests::TestDoor;
-import name::tests::TestInline;
-import name::tests::TestJava;
-import name::tests::TestLambLift;
-import name::tests::TestNested;
 import name::tests::TestSubst;
+import name::tests::TestInline;
+import name::tests::TestLambLift;
+import name::tests::TestStatemachineJava;
+import name::tests::TestStatemachineSimple;
+import name::tests::TestDerric;
+import name::tests::TestNested;
 ```
 
 
@@ -313,13 +312,20 @@ Functions `inline`, `captureAvoidingInline`, and `captureAvoidingInline2`. Funct
 
 Test module `name::tests::TestInline`
 
-### Lambda lifting
 
 ### State machines
 
+Modules `lang::missgrant::base::AST`, `lang::missgrant::base::Implode`, `lang::missgrant::base::NameRel`.
+
+Function `compile` in module `lang::missgrant::base::Compile` for compilation to Java and in module `lang::simple::Compile` for compilation to PROC.
+
+Test modules `name::tests::TestStatemachineJava` and `name::tests::TestStatemachineSimple`.
+
 Module `lang::missgrant::base::Compile`.
 
-Test module `name::tests::TestJava`.
+#### Compilation to Java
+
+Test module `name::tests::TestStatemachineJava`.
 
 The basic examples in of the paper involved compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates. 
 
@@ -384,30 +390,13 @@ The relevant code in the generated code now reads:
 
 Note how the local `x` is renamed to `x_0`; as a result the `equals` expression now correctly uses the field `x`.
 
-### attic
+### Lambda lifting
 
-Alternatively, we may want to save an interactive session into a
-Rascal module for regression test.  We do this for all our case studies.
-These test modules reside in the directory `src/name/tests`:
+Module `lang::simple::locfun::Locfun`.
 
-- `src/name/tests/Test.rsc`: tests for some state machines coming
-  together with the state-machine language implementation
-- `src/name/tests/TestDerric.rsc`: tests for the Derric language
-- `src/name/tests/TestDoor.rsc`: tests for the door state machine
-- `src/name/tests/TestJava.rsc`: tests for the Java language
-- `src/name/tests/TestNested.rsc`: tests for the simple procedural
-  language
+Function `liftLocfun`.
 
-To run these tests, simply import them in the Rascal console.  For example,
+Test module `name::tests::TestLambLift`.
 
-```
-rascal> import name::tests::Test;
-```
 
-will import all the definitions in the file `src/name/tests/Test.rsc`.
-A _nullary_ function definition in the module usually wraps a test.  Calling
-such a function runs the test.  For example, in `Test.rsc`, the nullary
-function `nameFix1` wraps the interactive test we have seen above.  Executing
-`nameFix1();` in the Rascal console reruns the test.  Tests for all our case
-studies can be run like this. Alternatively, all tests in scope can be run with the Rascal console command `:test`.
 
