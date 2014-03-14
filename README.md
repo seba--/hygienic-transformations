@@ -312,6 +312,14 @@ Functions `inline`, `captureAvoidingInline`, and `captureAvoidingInline2`. Funct
 
 Test module `name::tests::TestInline`
 
+### Lambda lifting
+
+Module `lang::simple::locfun::Locfun`.
+
+Function `liftLocfun`.
+
+Test module `name::tests::TestLambLift`.
+
 
 ### State machines
 
@@ -321,18 +329,16 @@ Function `compile` in module `lang::missgrant::base::Compile` for compilation to
 
 Test modules `name::tests::TestStatemachineJava` and `name::tests::TestStatemachineSimple`.
 
-Module `lang::missgrant::base::Compile`.
-
 #### Compilation to Java
 
 Test module `name::tests::TestStatemachineJava`.
 
-The basic examples in of the paper involved compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates. 
+The previous case-study with state machines compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates. 
 
 An example of a state machine that causes problems is `input/doors1-java-ill.ctl`. The reason is that it employs names that are also used by the compiler to implement the state machine. After importing the test module, invoke the function `compileIllCompiled1javaToDisk()` to inspect the incorrectly generated code. 
 
 ```
-rascal> import name::tests::TestJava;
+rascal> import name::tests::TestStatemachineJava;
 rascal> compileIllCompiled1javaToDisk();
 ```
 
@@ -390,13 +396,6 @@ The relevant code in the generated code now reads:
 
 Note how the local `x` is renamed to `x_0`; as a result the `equals` expression now correctly uses the field `x`.
 
-### Lambda lifting
-
-Module `lang::simple::locfun::Locfun`.
-
-Function `liftLocfun`.
-
-Test module `name::tests::TestLambLift`.
 
 
 
