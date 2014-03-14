@@ -1,0 +1,161 @@
+<h1 id="capture-avoiding-and-hygienic-program-transformations">Capture-avoiding and Hygienic Program Transformations</h1>
+<p>By Sebastian Erdweg, Tijs van der Storm, and Yi Dai.</p>
+<p>Accompanying our article to appear at ECOOP'14.</p>
+<h2 id="summary">Summary</h2>
+<p>Program transformations in terms of abstract syntax trees compromise referential integrity by introducing variable capture. Variable capture occurs when in the generated program a variable declaration accidentally shadows the intended target of a variable reference. Existing transformation systems either do not guarantee the avoidance of variable capture or impair the implementation of transformations.</p>
+<p>We present an algorithm called name-fix that automatically eliminates variable capture from a generated program by systematically renaming variables. name-fix is guided by a graph representation of the binding structure of a program, and requires name-resolution algorithms for the source language and the target language of a transformation. name-fix is generic and works for arbitrary transformations in any transformation system that supports origin tracking for names. We verify the correctness of name-fix and identify an interesting class of transformations for which name-fix provides hygiene. We demonstrate the applicability of name-fix for implementing capture-avoiding substitution, inlining, lambda lifting, and compilers for two domain-specific languages.</p>
+<h2 id="rascal">Rascal</h2>
+<p>The name-fix algorithm and our case studies are implemented in the Rascal metaprogramming language (<a href="http://rascal-mpl.org">rascal-mpl.org</a>). API documentation for standard Rascal functions and types is available online (<a href="http://tutor.rascal-mpl.org/Rascal/Rascal.html">http://tutor.rascal-mpl.org/Rascal/Rascal.html</a>). In this project, we particularly use Rascal's support for <a href="http://tutor.rascal-mpl.org/Rascal/Rascal.html#/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">syntax definitions and parsing</a>. Program transformations and the name-fix algorithm itself are standard Rascal <a href="http://tutor.rascal-mpl.org/Rascal/Rascal.html#/Rascal/Concepts/Functions/Functions.html">functions</a>.</p>
+<p>We also use Rascal's support for unit testing and quickchecking. In particular, Rascal interprets function that use the modifier <code>test</code> as test specification. If the function takes arguments, Rascal will randomly generate arguments for testing (similar to quickcheck). All loaded unit tests can be run by typing <code>:test</code> into the Rascal console (see below for detailed instructions).</p>
+<h2 id="installation-instructions">Installation instructions</h2>
+<ol style="list-style-type: decimal">
+<li><p>Install a fresh <a href="http://www.eclipse.org">Eclipse</a>, version Kepler.</p></li>
+<li><p>Clone the following repository: <a href="https://github.com/tvdstorm/hygienic-transformations-ECOOP14">https://github.com/tvdstorm/hygienic-transformations-ECOOP14</a></p></li>
+<li><p>From within the new Eclipse, go to Help &gt; Install New Software...; click on Add... and then Local...; browse to the <code>update-site</code> directory of the cloned repository and press OK. After giving a name to the update site (whatever doesn't matter), you'll be able to select Rascal for installation. Finish the process by clicking on Yes when asked to restart Eclipse.</p></li>
+<li><p>In the restarted Eclipse, go to the File menu, and select Import..., then Gerneral &gt; Existing Projects into Workspace, as root directory, select the <code>projects</code> directory in the cloned repo. Import all three projects there. You're now set up to explore the code, execute the tests and invoke <code>name-fix</code>.</p></li>
+</ol>
+<h2 id="project-outline">Project outline</h2>
+<p>The main code is stored in project Rascal-Hygiene. Below we summarize its contents. For now you can ignore the projects <code>generated-derric</code> and <code>generated-missgrant</code>; these are used analyzing generated code in the case studies.</p>
+<p>The two most important folders are <code>src/name</code> and <code>src/name/tests</code>. The former contains the implementation of name-fix and the latter contains unit tests for all case studies.</p>
+<p>These are the most important folders in the repository:</p>
+<ul>
+<li><code>input</code>: Example state machines</li>
+<li><code>output</code>: Generated state machines</li>
+<li><code>format</code>: Example format descriptors for the Derric case study</li>
+<li><code>src</code>: Source code of name-fix and case studies</li>
+<li><code>src/name</code>: Implementation of name-fix and required data structures</li>
+<li><code>src/name/tests</code>: Unit tests for all case studies.</li>
+<li><code>src/lang/simple</code>: Implementation of the simple procedural language</li>
+<li><code>src/lang/java:</code>: Name analysis for Java using Eclipse JDT</li>
+<li><code>src/lang/missgrant:</code>: Implementation of the state-machine language</li>
+<li><code>src/lang/derric</code>: Implementation of the Derric language (copied), see <a href="http://derric-lang.org">derric-lang.org</a></li>
+<li><code>src/org/derric_lang</code>: runtime classes needed for compiling the Derric language (copied), see <a href="http://derric-lang.org">derric-lang.org</a></li>
+</ul>
+<h2 id="name-fix-data-structures-and-algorithm">Name-fix: data structures and algorithm</h2>
+<p>The following files contain the data structures required by name-fix:</p>
+<ul>
+<li><code>src/name/IDs.rsc</code>: Defines variable IDs as a list of source-code locations through string origins.</li>
+<li><code>src/name/NameGraph.rsc</code>: Defines a name graph similar to the paper as a set of variable IDs (the nodes) and a mapping from node to node (the edges). We define a number of auxiliary functions for querying name graphs, such as <code>refOf : (ID, NameGraph) -&gt; ID</code> or <code>nameAt : (ID, &amp;T) -&gt; str</code>. In the later, <code>&amp;T</code> is a type variable <code>T</code> and <code>str</code> is Rascal's native string type.</li>
+<li><code>src/name/Gensym.rsc</code>: Defines a gensym function <code>gensym : (str, set[str])   -&gt; str</code> that takes a base name and a set of used name and returns a fresh name not yet used. The fresh name has the form <code>base_n</code> where <code>n</code> is an integer.</li>
+<li><code>src/name/figure/Figs.rsc</code>: Defines support for visualizing name graphs. If the call to <code>recordNameGraphFig</code> is included in the name-fix algorithm (remove the comments), Rascal will show the original name graph at the top and below the name-fixed name graph.</li>
+</ul>
+<p>Name-fix itself is defined in the file <code>src/name/NameFix.rsc</code>. The code almost literally corresponds to the code in the paper.</p>
+<p>Finally, we provide a wrapper of name-fix to support name-fixing for transformations that use lexical strings to represent the generated code. This wrapper is defined in <code>src/name/NameFixString.rsc</code>. We use this wrapper to fix names in generated string-based Java code.</p>
+<h2 id="running-name-fix">Running name-fix</h2>
+<p>To run Rascal code, start the Rascal console in Eclipse from the menu Rascal &gt; Start Console. The prompt <code>rascal&gt;</code> indicates that the console has been successfully launched.</p>
+<p>The implementation of the name-fix algorithm resides in the file <code>src/name/NameFix.rsc</code>. The signature of <code>nameFix</code> for tree-based program transformations is as follows:</p>
+<pre><code>&amp;T nameFix(type[&amp;T &lt;: node] astType, NameGraph Gs, &amp;T t, NameGraph(&amp;T) resolveT)</code></pre>
+<p>We explain how to call this function below. Note that the actual implementation of the name-fix algorithm unfolds in an overloaded definition of <code>nameFix</code> that has a sligtly more complicated singature, because it is parametric over name-lookup and renaming functions. We use this to support name-fix on strings, as implemented by the function <code>nameFixString</code> in <code>src/name/NameFixString.rsc</code>.</p>
+<p>Here is a complete example application of <code>nameFix</code>, that you can copy and paste to the Rascal console to run. A longer walk through appears below.</p>
+<pre><code>import lang::missgrant::base::AST;
+import lang::missgrant::base::Implode;
+import lang::missgrant::base::NameRel;
+import lang::simple::AST;
+import lang::simple::Compile;
+import lang::simple::NameRel;
+import name::NameGraph;
+import name::NameFix;
+
+Controller machine = load(|project://Rascal-Hygiene/input/door1.ctl|);
+NameGraph Gmachine = resolveNames(machine);
+Prog p = compile(machine);
+Prog pfixed = nameFix(#Prog, Gmachine, p, resolveNames);</code></pre>
+<p>This program first parses the statemachine from file <code>input/door1.ctl</code> into the AST <code>machine</code>. Function <code>resolveNames</code> is overloaded and can be used for state-machine ASTs of type <code>Controller</code> as well as for program ASTs of type <code>Prog</code>. We first use <code>resolveNames</code> to compute the name graph of the state machine. Then we compile the state machine to procedural code. Finally, we call <code>nameFix</code>: The first argument is the type of the generated program, the second argument is the name graph of the source program, the third argument is the generated program, and the fourth argument is a function that computes the name graph of target-language prorgrams.</p>
+<h3 id="detailed-walk-through">Detailed walk through</h3>
+<p>We now illustrate how to call <code>nameFix</code> through a running example of compiling a state machine specification to a simple procedural program. This should suffice to demonstrate the general work flow.</p>
+<ol style="list-style-type: decimal">
+<li><p>Start the Rascal console in Eclipse from the menu Rascal &gt; Start Console after openning the project. The prompt <code>rascal&gt;</code> indicates that the console has been successfully launched.</p></li>
+<li><p>In the console, import all modules relevant to the syntax of the source and the target language. These usually include the definitions of their concrete syntax, abstract syntax, parsers, pretty printers, name analyzers, compilers, etc. In this example, we use state machines (SM) as source language and simple procedural programs (PROC) as target languages. These are the same languages used in Section 1 of the paper. We need the following modules:</p>
+<pre><code>rascal&gt; import lang::missgrant::base::AST;  // AST definition for SM
+rascal&gt; import lang::missgrant::base::Implode;  // Parser for SM
+rascal&gt; import lang::missgrant::base::NameRel;  // Name analysis for SM
+
+rascal&gt; import lang::simple::AST;  // AST definition for PROC
+rascal&gt; import lang::simple::Compile;  // Compiler from SM to PROC
+rascal&gt; import lang::simple::Implode;  // Parser for PROC
+rascal&gt; import lang::simple::NameRel;  // Name analysis for PROC
+rascal&gt; import lang::simple::Pretty;  // Pretty printing for PROC</code></pre></li>
+<li><p>Folder <code>Rascal-Hygiene/input</code> contains example state machines. We can parse and load an existing state machine using function <code>load</code> (defined in <code>lang::missgrant::base::Implode</code>). For example, as the name suggests, compiling <code>missgrant-illcompiled.ctl</code> leads to inadvertent variable capture.</p>
+<pre><code>rascal&gt; m = load(|project://Rascal-Hygiene/input/missgrant-illcompiled.ctl|);</code></pre>
+<p>We can go ahead compiling the loaded program:</p>
+<pre><code>rascal&gt; Prog p = compile(m);</code></pre>
+<p>To inspect the textual representation of <code>p</code>, call the pretty printer:</p>
+<pre><code>rascal&gt; println(pretty(p));</code></pre>
+<p>You can see the variable capture in the duplicate declaration of variable <code>idle-dispatch</code>.</p></li>
+<li><p>Before we can call <code>nameFix</code> on the compiled program <code>p</code>, we need the name graph of the source program <code>m</code>. It can be readily calculated:</p>
+<pre><code>rascal&gt; sNames = resolveNames(m);</code></pre>
+<p>A name graph is a set of nodes and a mapping between nodes (the edges). You can click locations in the Rascal console to navigate to the referrenced source code and explore the name graph.</p></li>
+<li><p>As an optional step, we can calculate the name graph of the compiled program <code>p</code>, and then use the function <code>isCompiledHygienically</code> defined in <code>name::HygienicCorrectness</code> to verify that the compilation was indeed unhygienic.</p>
+<pre><code>rascal&gt; import name::HygienicCorrectness;
+rascal&gt; tNames = resolveNames(p);
+rascal&gt; isCompiledHygienically(sNames, tNames); // returns false</code></pre>
+<p>Note that the name <code>resolveNames</code> is overloaded.</p></li>
+<li><p>Now we can call <code>nameFix</code> on <code>p</code>.</p>
+<pre><code>rascal&gt; import name::NameFix;
+rascal&gt; p2 = nameFix(#Prog, sNames, p, resolveNames);</code></pre>
+<p>Recall that the first argument to <code>nameFix</code> should be a reified type. The operator <code>#</code> turns the type <code>Prog</code> of the target program to a value. Note again the overloaded <code>resolveNames</code> we pass to <code>nameFix</code> is the one for PROC. Again, you can inspect the fixed program using the pretty printer:</p>
+<pre><code>rascal&gt; println(pretty(p2));</code></pre></li>
+<li><p>At last, we can verify that <code>nameFix</code> indeed eliminates all captures and produces a program respecting the source-program bindings by calling <code>isCompiledHygienically</code> for the fixed program <code>p2</code>:</p>
+<pre><code>rascal&gt; isCompiledHygienically(sNames, resolveNames(p2));  // returns true</code></pre></li>
+</ol>
+<h2 id="case-studies">Case studies</h2>
+<p>The above instructions show how to run name-fix interactively in the Rascal console. Here we outline the main functions for each case study. We also have defined unit tests for each case study, which shows example usages of the involved functions. To run the unit tests defined in a module, import the module in the Rascal console and run</p>
+<pre><code>rascal&gt; :test </code></pre>
+<p>The test definition in the module will be highlighted according to outcome of the test. To run all tests, execute <code>:test</code> after copy-pasting the following snippet into the console:</p>
+<pre><code>import name::tests::TestSubst;
+import name::tests::TestInline;
+import name::tests::TestLambLift;
+import name::tests::TestStatemachineJava;
+import name::tests::TestStatemachineSimple;
+import name::tests::TestDerric;
+import name::tests::TestNested;</code></pre>
+<h3 id="substitution">Substitution</h3>
+<p>Module <code>lang::simple::inline::Subst</code>.</p>
+<p>Functions <code>subst</code> and <code>captureAvoidingSubst</code>, plus variants for the different syntactic forms of PROC.</p>
+<p>Test module <code>name::tests::TestSubst</code>.</p>
+<h3 id="inlining">Inlining</h3>
+<p>Module <code>lang::simple::inline::Inlining</code>.</p>
+<p>Functions <code>inline</code>, <code>captureAvoidingInline</code>, and <code>captureAvoidingInline2</code>. Function <code>captureAvoidingInline2</code> implements capture-avoiding inlining via capture-avoiding substitution, whereas function <code>captureAvoidingInline</code> calls name-fix directly.</p>
+<p>Test module <code>name::tests::TestInline</code></p>
+<h3 id="lambda-lifting">Lambda lifting</h3>
+<p>Module <code>lang::simple::locfun::Locfun</code>.</p>
+<p>Function <code>liftLocfun</code>.</p>
+<p>Test module <code>name::tests::TestLambLift</code>.</p>
+<h3 id="state-machines">State machines</h3>
+<p>Modules <code>lang::missgrant::base::AST</code>, <code>lang::missgrant::base::Implode</code>, <code>lang::missgrant::base::NameRel</code>.</p>
+<p>Function <code>compile</code> in module <code>lang::missgrant::base::Compile</code> for compilation to Java and in module <code>lang::simple::Compile</code> for compilation to PROC.</p>
+<p>Test modules <code>name::tests::TestStatemachineJava</code> and <code>name::tests::TestStatemachineSimple</code>.</p>
+<h4 id="compilation-to-java">Compilation to Java</h4>
+<p>Test module <code>name::tests::TestStatemachineJava</code>.</p>
+<p>The previous case-study with state machines compiling the simple state machine language to a simple imperative language. In this case study, the state machines are compiled to Java using string templates.</p>
+<p>An example of a state machine that causes problems is <code>input/doors1-java-ill.ctl</code>. The reason is that it employs names that are also used by the compiler to implement the state machine. After importing the test module, invoke the function <code>compileIllCompiled1javaToDisk()</code> to inspect the incorrectly generated code.</p>
+<pre><code>rascal&gt; import name::tests::TestStatemachineJava;
+rascal&gt; compileIllCompiled1javaToDisk();</code></pre>
+<p>The output can be found in the <code>src</code> folder of the <code>generated-missgrant</code> project. As you will see, there are two compiler errors and various warnings. These are all caused by inadvertent name capture: in the run method, the synthesized names <code>current</code> and <code>token</code> capture the references to the constant declarations corresponding to the <code>current</code> and <code>token</code> states respectively.</p>
+<p>To see the repaired result, execute:</p>
+<pre><code>rascal&gt; testIllCompiled1();</code></pre>
+<p>After running <code>name-fix</code> the synthesized names are renamed to <code>current_0</code> and <code>token_0</code> and name capture is avoided.</p>
+<h3 id="derric">Derric</h3>
+<p>Test module <code>name::tests::TestDerric</code>.</p>
+<p>Derric is domain-specific language (DSL) for describing (binary) file formats. It is used to generate digital forensics analysis tools, such as file carvers. Example file format descriptions can be found in the folder <code>formats</code>. The format <code>minbad.derric</code> contains a description that, when run through the Derric compiler, produces valid Java code, but with the wrong semantics due to name capturing.</p>
+<p>After importing the test module <code>name::tests::TestDerric</code>, you can inspect the incorrect code in the package <code>org.derric_lang.validator.generated</code> in the <code>src</code> folder of the output project <code>generated-derric</code>. To see the result, execute:</p>
+<pre><code>rascal&gt; import name::tests::TestDerric;
+rascal&gt; writeMinbadCompiled();</code></pre>
+<p>(Tip: press Ctrl-Shift-f or Cmd-Shift-f to format the code). As can be seen from the yellow marker, the private field <code>x</code> is never read. The reason can be found in method <code>S1</code>:</p>
+<pre><code>        long x;
+        x = _input.unsigned().byteOrder(BIG_ENDIAN).readInteger(8);
+        org.derric_lang.validator.ValueSet vs2 = new org.derric_lang.validator.ValueSet();
+        vs2.addEquals(0);
+        if (!vs2.equals(x))
+            return noMatch();</code></pre>
+<p>The local variable <code>x</code> shadows the field. As a result the expression <code>vs2.equals(x)</code> uses the wrong <code>x</code>.</p>
+<p>To see the fixed code run:</p>
+<pre><code>rascal&gt; testMinBad();</code></pre>
+<p>The relevant code in the generated code now reads:</p>
+<pre><code>        long x_0;
+        x_0 = _input.unsigned().byteOrder(BIG_ENDIAN).readInteger(8);
+        org.derric_lang.validator.ValueSet vs2 = new org.derric_lang.validator.ValueSet();
+        vs2.addEquals(0);
+        if (!vs2.equals(x_0))
+            return noMatch();</code></pre>
+<p>Note how the local <code>x</code> is renamed to <code>x_0</code>; as a result the <code>equals</code> expression now correctly uses the field <code>x</code>.</p>
