@@ -329,7 +329,11 @@ Function `compile` in module `lang::missgrant::base::Compile` for compilation to
 
 Test modules `name::tests::TestStatemachineJava` and `name::tests::TestStatemachineSimple`.
 
-#### Compilation to Java
+##### Compilation to PROC
+
+See the walk-through above.
+
+##### Compilation to Java
 
 Test module `name::tests::TestStatemachineJava`.
 
