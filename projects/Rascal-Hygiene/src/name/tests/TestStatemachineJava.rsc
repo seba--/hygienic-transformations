@@ -1,4 +1,4 @@
-module name::tests::TestJava
+module name::tests::TestStatemachineJava
 
 import lang::missgrant::base::Compile;
 import lang::missgrant::base::AST;
