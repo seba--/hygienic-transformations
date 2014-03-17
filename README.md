@@ -48,6 +48,8 @@ instructions).
 
 ## Installation instructions
 
+0.  Install JDK 1.7 from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html).
+
 1.  Install a fresh [Eclipse](http://www.eclipse.org), version Kepler.
 
 2.  The unzipped artifact contains a full clone of the following repository:
