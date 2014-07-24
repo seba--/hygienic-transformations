@@ -73,7 +73,7 @@ private Prog fix1() {
   return fixAndPrint(sNames1(), p, resolveNames);
 }
 test bool testNest1() {
-  return isCompiledHygienically(sNames1(), resolveNames(fix1()));
+  return isHygienic(sNames1(), resolveNames(fix1()));
 }
 
 private NameGraph sNames2() {
@@ -87,7 +87,7 @@ private Prog fix2() {
   return fixAndPrint(sNames2(), p, resolveNames);
 }
 test bool testNest2() {
-  return isCompiledHygienically(sNames2(), resolveNames(fix2()));
+  return isHygienic(sNames2(), resolveNames(fix2()));
 }
 
 
@@ -102,7 +102,7 @@ private Prog fix3() {
   return fixAndPrint(sNames3(), p, resolveNames);
 }
 test bool testNest3() {
-  return isCompiledHygienically(sNames3(), resolveNames(fix3()));
+  return isHygienic(sNames3(), resolveNames(fix3()));
 }
 
 private NameGraph sNames4() {
@@ -116,7 +116,7 @@ private Prog fix4() {
   return fixAndPrint(sNames4(), p, resolveNames);
 }
 test bool testNest4() {
-  return isCompiledHygienically(sNames4(), resolveNames(fix4()));
+  return isHygienic(sNames4(), resolveNames(fix4()));
 }
 
 
@@ -131,7 +131,7 @@ private Prog fix5() {
   return fixAndPrint(sNames5(), p, resolveNames);
 }
 test bool testNest5() {
-  return isCompiledHygienically(sNames5(), resolveNames(fix5()));
+  return isHygienic(sNames5(), resolveNames(fix5()));
 }
 
 private NameGraph sNames6() {
@@ -145,7 +145,7 @@ private Prog fix6() {
   return fixAndPrint(sNames6(), p, resolveNames);
 }
 test bool testNest6() {
-  return isCompiledHygienically(sNames6(), resolveNames(fix6()));
+  return isHygienic(sNames6(), resolveNames(fix6()));
 }
 
 private NameGraph sNames7() {
@@ -159,7 +159,7 @@ private Prog fix7() {
   return fixAndPrint(sNames7(), p, resolveNames);
 }
 test bool testNest7() {
-  return isCompiledHygienically(sNames7(), resolveNames(fix7()));
+  return isHygienic(sNames7(), resolveNames(fix7()));
 }
 
 
@@ -174,7 +174,7 @@ private Prog fix8() {
   return fixAndPrint(sNames8(), p, resolveNames);
 }
 test bool testNest8() {
-  return isCompiledHygienically(sNames8(), resolveNames(fix8()));
+  return isHygienic(sNames8(), resolveNames(fix8()));
 }
 
 private NameGraph sNames9() {
@@ -188,7 +188,7 @@ private Prog fix9() {
   return fixAndPrint(sNames9(), p, resolveNames);
 }
 test bool testNest9() {
-  return isCompiledHygienically(sNames9(), resolveNames(fix9()));
+  return isHygienic(sNames9(), resolveNames(fix9()));
 }
 
 private NameGraph sNames10() {
@@ -202,7 +202,7 @@ private Prog fix10() {
   return fixAndPrint(sNames10(), p, resolveNames);
 }
 test bool testNest10() {
-  return isCompiledHygienically(sNames10(), resolveNames(fix10()));
+  return isHygienic(sNames10(), resolveNames(fix10()));
 }
 
 // requires three consecutive renamings (recursive calls of fix)
@@ -217,7 +217,7 @@ private Prog fix11() {
   return fixAndPrint(sNames11(), p, resolveNames);
 }
 test bool testNest11() {
-  return isCompiledHygienically(sNames11(), resolveNames(fix11()));
+  return isHygienic(sNames11(), resolveNames(fix11()));
 }
 
 
@@ -234,6 +234,6 @@ private Prog fix12() {
   return fixAndPrint(sNames12(), p, resolveNames);
 }
 test bool testNest12() {
-  return isCompiledHygienically(sNames12(), resolveNames(fix12()));
+  return isHygienic(sNames12(), resolveNames(fix12()));
 }
 

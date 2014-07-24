@@ -39,7 +39,7 @@ fun f(x, y) = f(x + y, y);
 test bool testLift1() {
   Gs = resolveNames(liftProg1);
   Gt = resolveNames(liftedProg1());
-  return !isCompiledHygienically(Gs, Gt);
+  return !isHygienic(Gs, Gt);
 }
 
 
@@ -52,7 +52,7 @@ test bool testLiftFixed1() {
   fixedProg1 = nameFix(#Prog, Gs, lp, resolveNames);
   Gt = resolveNames(fixedProg1);
   println("Fixed:\n<pretty(fixedProg1)>");
-  return isCompiledHygienically(Gs, Gt);
+  return isHygienic(Gs, Gt);
 }
 
 
@@ -94,7 +94,7 @@ test bool testLift2() {
   Gt = resolveNames(lp);
   //iprintln(Gs);
   //iprintln(Gt);
-  return !isCompiledHygienically(Gs, Gt);
+  return !isHygienic(Gs, Gt);
 }
 
 private Prog liftFixProg2() {
@@ -109,7 +109,7 @@ test bool testLiftFixed2() {
   fixedProg2 = nameFix(#Prog, Gs, lp, resolveNames);
   println("Fixed:\n<pretty(fixedProg2)>");
   Gt = resolveNames(fixedProg2);
-  return isCompiledHygienically(Gs, Gt);
+  return isHygienic(Gs, Gt);
 }
 
 
@@ -148,7 +148,7 @@ test bool test3() {
   Gt = resolveNames(liftedProg3);
   //iprintln(Gs);
   //iprintln(Gt);
-  return !isCompiledHygienically(Gs, Gt);
+  return !isHygienic(Gs, Gt);
 }
 
 private Prog liftFixProg3() {
@@ -163,6 +163,6 @@ test bool testFixed3() {
   fixedProg3 = nameFix(#Prog, Gs, liftedProg3, resolveNames);
   println("Fixed:\n<pretty(fixedProg3)>");
   Gt = resolveNames(fixedProg3);
-  return isCompiledHygienically(Gs, Gt);
+  return isHygienic(Gs, Gt);
 }
 

@@ -75,7 +75,7 @@ private Prog inline2() {
 test bool testInline2() {
   p = inline2();
   nvars = count(var("n"), p);
-  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg()),resolveNames(p));
   return nvars == 4 && !hygienic;
 }
 
@@ -88,7 +88,7 @@ test bool testInline3() {
   p = inline3();
   nvars = count(var("n"), p);
   nRenamed = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E) };
@@ -112,7 +112,7 @@ private Prog inline4() {
 test bool testInline4() {
   p = inline4();
   nvars = count(var("n"), p);
-  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg2()),resolveNames(p));
   return nvars == 7 && !hygienic;
 }
 
@@ -125,7 +125,7 @@ test bool testInline5() {
   p = inline5();
   nvars = count(var("n"), p);
   nRenamed = count(var("n_0"), p);
-  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg2()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name == "n_0", d in range(G.E)};
@@ -142,7 +142,7 @@ private Prog inline6() {
 }
 test bool testInline6() {
   p = inline6();
-  hygienic = isCompiledHygienically(resolveNames(inlineProg()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg()),resolveNames(p));
   return hygienic;  
 }
 
@@ -153,7 +153,7 @@ private Prog inline7() {
 }
 test bool testInline7() {
   p = inline7();
-  hygienic = isCompiledHygienically(resolveNames(inlineProg2()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg2()),resolveNames(p));
   return hygienic;
 }
 
@@ -167,7 +167,7 @@ test bool testInline8() {
   p = inline8();
   nvars = count(var("n"), p) + count(call("zero", []), p);
   nRenamed = count(var("n_0"), p) + count(call("zero_0", []), p);
-  hygienic = isCompiledHygienically(resolveNames(inlineProg3()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(inlineProg3()),resolveNames(p));
   
   G = resolveNames(p);
   renamedDefs = { d | <d,name> <- piOf(G, p), name in {"n_0", "zero_0"}, d in range(G.E)};
@@ -189,7 +189,7 @@ private Prog inlineAnd() {
 }
 test bool testInlineAnd() {
   p = inlineAnd();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 
@@ -201,7 +201,7 @@ private Prog inlineImplies() {
 }
 test bool testInlineImplies() {
   p = inlineImplies();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 
@@ -225,7 +225,7 @@ private Prog inlineAndThenOr() {
 }
 test bool testInlineAndThenOr() {
   p = inlineAndThenOr();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 
@@ -238,7 +238,7 @@ private Prog inlineAndThenOrThenNot() {
 }
 test bool testInlineAndThenOrThenNot() {
   p = inlineAndThenOrThenNot();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 
@@ -251,7 +251,7 @@ private Prog inlineOr() {
 }
 test bool testInlineOr() {
   p = inlineOr();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 
@@ -264,7 +264,7 @@ private Prog inlineOrThenAnd() {
 }
 test bool testInlineOrThenAnd() {
   p = inlineOrThenAnd();
-  hygienic = isCompiledHygienically(resolveNames(andOr()),resolveNames(p));
+  hygienic = isHygienic(resolveNames(andOr()),resolveNames(p));
   return hygienic;
 }
 

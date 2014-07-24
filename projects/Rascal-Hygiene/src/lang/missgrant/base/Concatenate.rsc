@@ -48,7 +48,7 @@ bool testConcat(ctl1, ctl2, ctlConcat) {
   
   G = resolveNames(ctlConcat);
 
-  return isCompiledHygienically(G12, G);  
+  return isHygienic(G12, G);  
 }
 
 Controller missgrant = load(|project://Rascal-Hygiene/input/missgrant-final.ctl|);

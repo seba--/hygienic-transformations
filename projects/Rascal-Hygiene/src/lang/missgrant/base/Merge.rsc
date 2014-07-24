@@ -73,6 +73,6 @@ void testIt() {
   println(unparse(m));
   ng1 = union(resolveNames(c1), resolveNames(c2));
   ng2 = resolveNames(m);
-  println(isCompiledHygienically(ng1, ng2)); 
+  println(isHygienic(ng1, ng2)); 
 }
 

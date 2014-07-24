@@ -131,7 +131,7 @@ lrel[Maybe[loc], str] fixMinBad() {
 
 test bool testMinBad() {
   newSource = fixMinBad();
-  return isCompiledHygienically(minbadNames(), 
+  return isHygienic(minbadNames(), 
      resolveJava(newSource, "MinbadValidator", |project://Rascal-Hygiene/formats/minbad.derric|));
 }
 

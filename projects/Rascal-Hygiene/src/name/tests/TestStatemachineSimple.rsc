@@ -70,16 +70,16 @@ NameGraph namesFixed1() = resolveNames(fixed1());
 NameGraph namesFixed2() = resolveNames(fixed2());
 
 test bool compile1isOK() {
-  return isCompiledHygienically(names1, namesCompiled1())
+  return isHygienic(names1, namesCompiled1())
       && namesCompiled1() == namesFixed1();
 }
 
 test bool compile2isNOK() {
-  return !isCompiledHygienically(names2, namesCompiled2());
+  return !isHygienic(names2, namesCompiled2());
 }
 
 test bool compile2fixIsOK() {
-  return isCompiledHygienically(names2, namesFixed2());
+  return isHygienic(names2, namesFixed2());
 }
 
 

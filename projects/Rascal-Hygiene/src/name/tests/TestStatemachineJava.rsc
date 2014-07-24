@@ -75,7 +75,7 @@ lrel[Maybe[loc], str] fixIllCompiledJava1() {
 
 test bool testIllCompiled1() {
   newSource = fixIllCompiledJava1();
-  return isCompiledHygienically(illCompiled1Names(), resolveJava(newSource));
+  return isHygienic(illCompiled1Names(), resolveJava(newSource));
 }
 
 void compileIllCompiled1javaToDisk() {

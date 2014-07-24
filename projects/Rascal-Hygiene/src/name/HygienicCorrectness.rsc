@@ -29,7 +29,7 @@ Edges synthesizedCaptured(NameGraph Gs, NameGraph Gt) {
   return (u:d | <u,d> <- Gt.E<0,1>, u notin Gs.V, d in Gs.V);
 }
 
-bool isCompiledHygienically(NameGraph Gs, NameGraph Gt) =
+bool isHygienic(NameGraph Gs, NameGraph Gt) =
   findCapture(Gs, Gt) == () && sourceNotPreserved(Gs, Gt) == () && synthesizedCaptured(Gs,Gt) == ();
 
 
