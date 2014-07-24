@@ -14,7 +14,7 @@ Exp norm(plus(e1, e2)) {
 }
 Exp norm(app(e1, e2)) {
   if (lambda(v, body):= norm(e1))
-    return norm(subst(body, v, e2));
+    return norm(safeSubst(body, v, e2));
   return app(e1, e2);
 }
 default Exp norm(e) = e;
