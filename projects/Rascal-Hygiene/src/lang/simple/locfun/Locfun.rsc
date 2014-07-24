@@ -1,9 +1,10 @@
 module lang::simple::locfun::Locfun
 
-import lang::simple::Syntax;
-import lang::simple::AST;
+extend lang::simple::Syntax;
+extend lang::simple::AST;
 extend lang::simple::NameRel;
 extend lang::simple::Pretty;
+extend lang::simple::Implode;
 
 import name::IDs;
 import name::NameGraph;

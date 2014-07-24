@@ -1,7 +1,5 @@
 module name::tests::TestLambLift
 
-import lang::simple::AST;
-import lang::simple::Pretty;
 import lang::simple::locfun::Locfun;
 
 import name::HygienicCorrectness;
@@ -10,7 +8,7 @@ import name::NameFix;
 import IO;
 
 
-private Exp liftExp1() =
+public Exp liftExp1() =
   let("y", val(nat(1)),
         let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
               call("f", [val(nat(1))])));
@@ -46,6 +44,8 @@ test bool testLift1() {
 
 
 test bool testLiftFixed1() {
+		  println(pretty(liftProg1));
+		  
   Gs = resolveNames(liftProg1);
   lp = liftedProg1();
   println("Lifted:\n<pretty(lp)>");
