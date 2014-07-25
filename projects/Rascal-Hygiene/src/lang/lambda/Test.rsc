@@ -17,7 +17,8 @@ test bool testNormalize3() = plus(var(_), nat(3)) := norm(testProg3);
 
 
 tuple[Exp,Exp] renamedGood(prog) {
-  app(app(lambda(yvar, lambda(zvar, _)), _), _) = prog;
+  yvar = prog.e1.e1.v;
+  zvar = prog.e1.e1.body.v;
   
   renamed1 = rename(prog, yvar, "foo");
   renamed2 = rename(renamed1, zvar, "bar");
@@ -32,7 +33,9 @@ test bool testRenamedGood2() = testRenamedGood(testProg2);
 test bool testRenamedGood3() = testRenamedGood(testProg3);
 
 Exp renamedBad(prog) {
-  app(app(lambda(yvar, lambda(zvar, _)), _), _) = prog;
+  yvar = prog.e1.e1.v;
+  zvar = prog.e1.e1.body.v;
+  
   return rename(prog, yvar, "z");
 }
 bool testRenamedBad(prog) {
