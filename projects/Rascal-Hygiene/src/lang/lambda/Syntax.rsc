@@ -8,8 +8,8 @@ keyword Reserved = "lambda" | "if" | "then" | "else";
 
 start syntax Exp = var: Id v
                  | nat: Nat n
-                 | right plus: Exp e1 "+" Exp e2
-                 > left app: Exp e1 Exp e2
+                 | left app: Exp e1 Exp e2
+                 > right plus: Exp e1 "+" Exp e2
                  > lambda: "lambda" Id v "." Exp body
                  | bracket "(" Exp ")";
 
@@ -24,9 +24,10 @@ data Exp = var(str v)
          | lambda(str v, Exp body)
          | app(Exp e1, Exp e2);
 
-Exp parse(str src) = implode(#Exp, parse(#start[Exp], src, |file:///|));
-Exp parseF(str src){
-  file = |project://Rascal-Hygiene/output/stdin.lambda|;
+int nextParse = 0;
+Exp parse(str src){
+  file = |project://Rascal-Hygiene/output/| + "stdin<nextParse>.lambda";
+  nextParse = nextParse + 1;
   writeFile(file, src);
   return implode(#Exp, parse(#start[Exp], src, file));
 }
