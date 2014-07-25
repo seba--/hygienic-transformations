@@ -25,10 +25,9 @@ Exp subst(var(v), w, e) = var(v);
 Exp subst(nat(n), w, e) = nat(n);
 Exp subst(plus(e1, e2), w, e) = plus(subst(e1, w, e), subst(e2, w, e));
 Exp subst(app(e1, e2), w, e) = app(subst(e1, w, e), subst(e2, w, e));
-Exp subst(lambda(v, body), w, e) {
-  if (v == w) return lambda(v, body);
-  else return lambda(v, subst(body, w, e));
-}
+Exp subst(lambda(v, body), v, e) = lambda(v, body);
+Exp subst(lambda(v, body), w, e) = lambda(v, subst(body, w, e));
+
 
 Exp safeSubst(e1, w, e) {
   G1 = resolve(e1);
