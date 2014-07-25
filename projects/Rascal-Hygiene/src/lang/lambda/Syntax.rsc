@@ -36,4 +36,4 @@ str print(var(v)) = v;
 str print(nat(n)) = "<n>";
 str print(plus(e1, e2)) = "(<print(e1)> + <print(e2)>)";
 str print(app(e1, e2)) = "(<print(e1)> <print(e2)>)";
-str print(lambda(v, body)) = "lambda <v>. <print(body)>";
+str print(lambda(v, body)) = "(lambda <v>. <print(body)>)";

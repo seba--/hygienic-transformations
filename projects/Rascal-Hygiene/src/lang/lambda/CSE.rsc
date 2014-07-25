@@ -9,6 +9,7 @@ import IO;
 import List;
 import Map;
 import util::Maybe;
+import util::Bag;
 
 bool equal(Exp e1, Exp e2) {
   <V1,E1> = resolve(e1);
@@ -55,43 +56,31 @@ map[Exp, int] expressionCounts(Exp e, NameGraph G) {
 }
 
 alias RepExp = Exp;
+alias ElimVars = Bag[str];
+anno ElimVars Exp @ eliminated;
 
 Exp CSE(Exp e) {
   G = resolve(e);
   allcounts = expressionCounts(e, G);
   counts = (rep:count | <rep,count> <- allcounts<0,1>, count >= 2, shouldReplace(rep));
+  newvars = (rep:makeNewvar() | rep <- counts);
   
-  map[RepExp, str] newvars = ();
-  map[Exp, list[str]] eliminatedVars = ();
-
   return bottom-up visit(e) {
     case Exp sub: {
-      if (just(<elimVar,newvarsNew>) := eliminateCommon(sub, newvars, counts, G)) {
-        newvars = newvarsNew;
-        res = var(elimVar);
-        eliminatedVars += (res:[elimVar]);
-        insert res;
-      }
+      if (just(elimVar) := eliminateCommon(sub, newvars, counts, G))
+        insert var(elimVar)[@eliminated=makeBag([elimVar])];
       else {
-        thisElimCount = [];
-        for (Exp subsub <- sub)
-          thisElimCount += eliminatedVars[subsub];
-        eliminatedVars += (sub:thisElimCount);
+        sub = propagateEliminated(sub);
         
         res = sub;
-        for (elimVar <- toSet(thisElimCount)) {
-          elimVarCount = size([e2 | e2 <- thisElimCount, e2 == elimVar]);
-          rep = [k | <k,v> <- newvars<0,1>, v == elimVar][0]; 
-          targetCount = counts[rep];
-          
-          if(targetCount == elimVarCount) {
-            res = app(lambda(elimVar, sub), rep);
-            resElimCount = [v | v <- thisElimCount, v != elimVar];
-            eliminatedVars += (res:resElimCount);
-            insert res;
+        for (rep <- newvars) {
+          elimVar = newvars[rep];
+          if(elimVar in sub@eliminated && sub@eliminated[elimVar] == counts[rep]) {
+            res = app(lambda(elimVar, res), rep);
+            res@eliminated = delete(sub@eliminated, elimVar);
           }
         }
-        
+        insert res;
       }
     }
   };
@@ -108,7 +97,7 @@ bool shouldReplace(plus(e1, e2)) = true;
 bool shouldReplace(app(e1, e2)) = true;
 default bool shouldReplace(e) = false;
 
-Maybe[tuple[str, map[Exp, str]]] eliminateCommon(Exp sub, map[Exp, str] newvars, map[Exp, int] counts, NameGraph G) {
+Maybe[str] eliminateCommon(Exp sub, map[Exp, str] newvars, map[Exp, int] counts, NameGraph G) {
   if ([rep] := [rep | rep <- counts, equal(rep, sub, G)]) {
     str newvar;
     if (rep in newvars)
@@ -117,7 +106,7 @@ Maybe[tuple[str, map[Exp, str]]] eliminateCommon(Exp sub, map[Exp, str] newvars,
       newvar = makeNewvar();
       newvars += (rep:newvar);
     }
-    return just(<newvar, newvars>);
+    return just(newvar);
   }
   return nothing();
 }
@@ -129,4 +118,12 @@ Exp bindEliminated(Exp e, map[Exp, str] newvars) {
       e = app(lambda(var, e), rep);
   };
   return e;
+}
+
+Exp propagateEliminated(Exp sub) {
+  thisElimCount = ();
+  for (Exp subsub <- sub)
+    thisElimCount = bagAddAll(thisElimCount, subsub@eliminated);
+  sub@eliminated = thisElimCount;
+  return sub;
 }

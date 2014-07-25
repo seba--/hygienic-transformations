@@ -9,7 +9,7 @@ import lang::lambda::CSE;
 public Exp testProg1 = parse("(1 + 2) + (1 + 2)");
 public Exp testProg1res = parse("(lambda x. x + x) (1 + 2)");
 
-public Exp testProg2 = parse("lambda y. lambda z. (y + z) + (y + z)");
+public Exp testProg2 = parse("lambda y. lambda x0. (y + x0) + (y + x0)");
 public Exp testProg2res = parse("lambda y. lambda z. (lambda x. x + x) (y + z)");
 
 public Exp testProg3 =
@@ -21,6 +21,9 @@ public Exp testProg4 =
   parse("(lambda x. x + 1) 1 + (lambda y. y + 1) 1");
 public Exp testProg4res =
   parse("(lambda x. x + x) ((lambda x. x + 1) 1)");
+
+public Exp testProg5 = parse("lambda y. lambda x0. (x0 + y + x0) + (y + x0)");
+public Exp testProg5res = parse("lambda y. lambda x0. (lambda x. (x0 + x) + x) (y + z)");
 
   
 test bool equal1() {
