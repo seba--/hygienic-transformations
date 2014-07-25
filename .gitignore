@@ -2,3 +2,5 @@
 /rascal/input/*
 !/rascal/input/*.ctl
 /rascal/output/
+projects/Rascal-Hygiene/output
+

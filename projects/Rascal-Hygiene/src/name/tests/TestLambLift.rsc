@@ -60,7 +60,8 @@ private Prog liftProg2 =
   prog([fdef("f", ["x"], plus(var("x"), val(nat(1))))],
        [let("y", call("f", [val(nat(1))]),
               let(fdef("f", ["x"], call("f", [plus(var("x"),var("y"))])),
-                    call("f", [val(nat(1))])))]);
+                    let(fdef("g", ["x"], call("f", [plus(var("x"), plus(var("y"), val(nat(1))))])),
+                    	plus(call("f", [val(nat(1))]), call("g", [val(nat(3))])))))]);
 private Prog theProg2() = liftProg2;
 
 /* prog2 before local functions being lifted
