@@ -17,6 +17,9 @@ Exp norm(app(e1, e2)) {
     return norm(safeSubst(body, v, e2));
   return app(e1, e2);
 }
+Exp norm(lambda(x, e)) {
+  return lambda(x, norm(e));
+}
 default Exp norm(e) = e;
 
 

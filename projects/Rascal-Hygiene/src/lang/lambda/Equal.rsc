@@ -15,7 +15,8 @@ bool equal(Exp e1, Exp e2) {
 bool equal(var(v1), var(v2), NameGraph G) {
   id1 = getID(v1);
   id2 = getID(v2);
-  return id1 notin G.E && id2 notin G.E || id1 in G.E && id2 in G.E && G.E[id1] == G.E[id2];
+  return id1 notin G.E && id2 notin G.E
+      || id1 in G.E && id2 in G.E && G.E[id1] == G.E[id2];
 }
 
 bool equal(nat(n), nat(n), G) = true;
