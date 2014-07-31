@@ -25,6 +25,9 @@ import List;
 str missGrantOutput = "generated-missgrant";
 str missGrantClass = "MissGrant";
 
+Controller statemachine1() = 
+  lang::missgrant::base::Implode::load(|project://Rascal-Hygiene/input/door1.ctl|);
+
 
 str compile1java() = compile(missGrantClass, statemachine1());
 
@@ -54,20 +57,25 @@ NameGraph reconNames() =
    insertSourceNames(illCompiled1javaNames(), 
      reconstruct(origins(compileIllCompiled1java()),
          |project://<missGrantOutput>/src/<missGrantClass>.java|), 
-         |project://Rascal-Hygiene/input/illcompiledjava.ctl|); 
+     |project://Rascal-Hygiene/input/illcompiledjava.ctl|); 
 
 NameGraph resolveJava(lrel[Maybe[loc], str] src) {
   writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, ("" | it + x | x <- src<1> ));
   return insertSourceNames(m3toNameGraph(createM3FromEclipseProject(|project://<missGrantOutput>|)), 
      reconstruct(src,
          |project://<missGrantOutput>/src/<missGrantClass>.java|), 
-         |project://Rascal-Hygiene/input/illcompiledjava.ctl|);
+     |project://Rascal-Hygiene/input/illcompiledjava.ctl|);
 }
 
-lrel[Maybe[loc], str] fixIllCompiledJava1() { 
-  compileIllCompiled1javaToDisk(); // start clean;
+lrel[Maybe[loc], str] fixIllCompiledJava1() {
+  sm = illCompiled1java();
+  smnames = resolveNames(sm);
+  
   outFile = |project://<missGrantOutput>/src/<missGrantClass>.java|;
-  orgs = nameFixString(illCompiled1Names(), origins(compileIllCompiled1java()), resolveJava, outFile);
+  out = compile(missGrantClass, sm);
+  writeFile(outFile, out);
+  
+  orgs = nameFixString(smnames, origins(out), resolveJava, outFile);
   newSource = ( "" | it + x | x <- orgs<1> );
   writeFile(outFile, newSource);
   return orgs;
@@ -82,3 +90,6 @@ void compileIllCompiled1javaToDisk() {
   writeFile(|project://<missGrantOutput>/src/<missGrantClass>.java|, compileIllCompiled1java());
 }
 
+void compileIllCompiled1javaToDiskFixed() {
+  fixIllCompiledJava1();
+}
