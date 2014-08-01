@@ -17,12 +17,12 @@ class SubstTest extends FunSuite {
   }
 
   val p2 = Lam("x", Var("y"))
-  test ("p2") {
+  test ("p2_capture") {
     assertResult(p2)(p2.subst("x", Var("z")))
     assertResult(Lam("x", Var("z")))(p2.subst("y", Var("z")))
   }
 
-  test ("p2_capture") {
+  test ("p2_safe") {
     assertResult(Lam("x_0", Var("x")))(p2.safeSubst("y", Var("x")))
   }
 }

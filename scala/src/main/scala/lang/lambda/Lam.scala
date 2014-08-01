@@ -20,4 +20,13 @@ case class Lam(x: ID, body: Exp) extends Exp {
       body == a.asInstanceOf[Lam].body
 
   def subst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.subst(w, e))
+
+  def normalize = Lam(x, body.normalize)
+
+  def alphaEqual(e: Exp, g: NameGraph) = e match {
+    case Lam(x2, body2) =>
+      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
+      body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
+    case _ => false
+  }
 }

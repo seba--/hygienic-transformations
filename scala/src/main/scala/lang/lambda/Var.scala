@@ -18,4 +18,16 @@ case class Var(x: ID) extends Exp {
   override def equals(a: Any) = a.isInstanceOf[Var] && x.name == a.asInstanceOf[Var].x.name
 
   def subst(w: String, e: Exp) = if (x.name == w) e else this
+
+  def normalize = this
+
+  def alphaEqual(e: Exp, g: NameGraph) = e match {
+    case Var(xe) => (g.E.get(x), g.E.get(xe)) match {
+      case (None, None) => true // both free
+      case (Some(d1), Some(d2)) => d1 == d2 // bound to the same decl
+      case _ => false
+    }
+    case _ => false
+  }
+
 }

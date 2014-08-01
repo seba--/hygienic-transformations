@@ -16,4 +16,14 @@ abstract class Exp extends Nominal {
 
   def subst(x: String, e: Exp): Exp
   def safeSubst(w: String, e: Exp): Exp = nameFix(resolveNames, subst(w, e))
+
+  def normalize: Exp
+  def safeNormalize = nameFix(resolveNames, normalize)
+
+  def alphaEqual(e: Exp): Boolean = {
+    val gthis = resolveNames
+    val ge = e.resolveNames
+    alphaEqual(e, gthis + ge)
+  }
+  def alphaEqual(e: Exp, g: NameGraph): Boolean
 }

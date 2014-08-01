@@ -16,7 +16,9 @@ object NameGraph {
 
   type Nodes = Set[ID]
   type Edges = Map[ID,ID]
-  case class NameGraph(V: Nodes, E: Edges)
+  case class NameGraph(V: Nodes, E: Edges) {
+    def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E)
+  }
 
   def freshID(s: String) = new String(s)
 }

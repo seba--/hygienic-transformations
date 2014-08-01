@@ -15,4 +15,14 @@ case class App(e1: Exp, e2: Exp) extends Exp {
   }
 
   def subst(w: String, e: Exp) = App(e1.subst(w, e), e2.subst(w, e))
+
+  def normalize = e1.normalize match {
+    case Lam(x, body) => body.subst(x.name, e2).normalize
+    case v1 => App(v1, e2)
+  }
+
+  def alphaEqual(e: Exp, g: NameGraph) = e match {
+    case App(e3, e4) => e1.alphaEqual(e3, g) && e2.alphaEqual(e4, g)
+    case _ => false
+  }
 }
