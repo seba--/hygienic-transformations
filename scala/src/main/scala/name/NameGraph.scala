@@ -19,10 +19,4 @@ object NameGraph {
   case class NameGraph(V: Nodes, E: Edges) {
     def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E)
   }
-
-  def freshID(s: String) = new String(s)
 }
-
-//object StringNameGraph extends NameGraph[String] {
-//  def makeID(s: String) = new String(s)
-//}
