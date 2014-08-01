@@ -13,8 +13,5 @@ trait Nominal {
 }
 object Nominal {
   def isName(req: ID, was: ID): Option[String] =
-    if (req eq was)
-      Some(was.name)
-    else
-      None
+    if (req == was) Some(was.name) else None
 }
