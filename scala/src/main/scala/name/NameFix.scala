@@ -1,5 +1,6 @@
 package name
 
+import Name._
 import NameGraph._
 import Gensym._
 
@@ -7,8 +8,6 @@ import Gensym._
  * Created by seba on 01/08/14.
  */
 object NameFix {
-
-  type Renaming = Map[ID,ID]
 
   def findCapture(gs: NameGraph, gt: NameGraph): Edges = {
     val notPreserveVar = gt.E.filter {
@@ -24,11 +23,11 @@ object NameFix {
     notPreserveVar ++ notPreserveDef
   }
 
-  def compRenamings(gs: NameGraph, gt: NameGraph, t: Nominal, capture: Edges): Renaming = {
-    var renaming: Renaming = Map()
+  def compRenamings(gs: NameGraph, gt: NameGraph, t: Nominal, capture: Edges): Map[Name.ID, Name] = {
+    var renaming: Map[Name.ID, Name] = Map()
 
     for (d <- capture.values) {
-      val fresh = ID(gensym(d.name, t.allIDs.map(_.name)))
+      val fresh = Name(gensym(d.name, t.allNames.map(_.name)))
       if (gs.V.contains(d)) {
         renaming += (d -> fresh)
         for ((v2,d2) <- gs.E if d == d2)

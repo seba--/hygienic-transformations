@@ -6,12 +6,14 @@ import NameGraph._
  * Created by seba on 01/08/14.
  */
 trait Nominal {
-  def allIDs: Set[ID]
-  def rename(renaming: Map[ID,ID]): Nominal = rename(id => renaming.getOrElse(id,id))
-  def rename(renaming: ID => ID): Nominal
+  type Renaming = Name => Name
+
+  def allNames: Set[Name]
+  def rename(renaming: Map[Name.ID,Name]): Nominal = rename(name => renaming.getOrElse(name.id,name))
+  def rename(renaming: Renaming): Nominal
   def resolveNames: NameGraph
 }
 object Nominal {
-  def isName(req: ID, was: ID): Option[String] =
+  def isName(req: Name, was: Name): Option[String] =
     if (req == was) Some(was.name) else None
 }

@@ -1,16 +1,17 @@
 package lang.lambda
 
-import name.NameGraph.{NameGraph, ID}
+import name.Name
+import name.NameGraph.NameGraph
 
 /**
  * Created by seba on 01/08/14.
  */
-case class Lam(x: ID, body: Exp) extends Exp {
-  def allIDs = body.allIDs + x
-  def rename(renaming: ID => ID) = Lam(renaming(x), body.rename(renaming))
+case class Lam(x: Name, body: Exp) extends Exp {
+  def allNames = body.allNames + x
+  def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
-    val gbody = body.resolveNames(scope + (x.name -> x))
-    NameGraph(gbody.V + x, gbody.E)
+    val gbody = body.resolveNames(scope + (x.name -> x.id))
+    NameGraph(gbody.V + x.id, gbody.E)
   }
 
   override def hashCode = x.name.hashCode + body.hashCode
@@ -25,7 +26,7 @@ case class Lam(x: ID, body: Exp) extends Exp {
 
   def alphaEqual(e: Exp, g: NameGraph) = e match {
     case Lam(x2, body2) =>
-      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
+      val E2 = g.E.flatMap(p => if (p._2 == x2.id) Some(p._1 -> x.id) else None)
       body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
     case _ => false
   }
