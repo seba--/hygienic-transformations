@@ -18,9 +18,9 @@ case class Var(x: Name) extends Exp {
   override def hashCode = x.name.hashCode
   override def equals(a: Any) = a.isInstanceOf[Var] && x.name == a.asInstanceOf[Var].x.name
 
-  def subst(w: String, e: Exp) = if (x.name == w) e else this
+  def unsafeSubst(w: String, e: Exp) = if (x.name == w) e else this
 
-  def normalize = this
+  def unsafeNormalize = this
 
   def alphaEqual(e: Exp, g: NameGraph) = e match {
     case Var(xe) => (g.E.get(x.id), g.E.get(xe.id)) match {

@@ -20,9 +20,9 @@ case class Lam(x: Name, body: Exp) extends Exp {
       x.name == a.asInstanceOf[Lam].x.name &&
       body == a.asInstanceOf[Lam].body
 
-  def subst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.subst(w, e))
+  def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))
 
-  def normalize = Lam(x, body.normalize)
+  def unsafeNormalize = Lam(x, body.unsafeNormalize)
 
   def alphaEqual(e: Exp, g: NameGraph) = e match {
     case Lam(x2, body2) =>
