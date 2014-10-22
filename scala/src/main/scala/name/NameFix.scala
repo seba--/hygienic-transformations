@@ -29,12 +29,12 @@ class NameFix {
     notPreserveVar ++ notPreserveDef
   }
 
-  def compRenamings(gs: NameGraph, t: Nominal, capture: Edges): Map[Name.ID, Name] = {
-    var renaming: Map[Name.ID, Name] = Map()
+  def compRenamings(gs: NameGraph, t: Nominal, capture: Edges): Map[Name.ID, String] = {
+    var renaming: Map[Name.ID, String] = Map()
     val newIds = t.allNames -- gs.V
 
     for (d <- capture.values) {
-      val fresh = Name(gensym(d.name, t.allNames.map(_.name) ++ renaming.values.map(_.name)))
+      val fresh = gensym(d.name, t.allNames.map(_.name) ++ renaming.values)
       if (gs.V.contains(d)) {
         renaming += (d -> fresh)
         for ((v2,d2) <- gs.E if d == d2)

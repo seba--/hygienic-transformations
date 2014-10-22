@@ -12,13 +12,9 @@ trait Nominal {
   def rename(renaming: Renaming): Nominal
   def resolveNames: NameGraph
 
-  def rename(renaming: Map[Name.ID, Name]): Nominal =
+  def rename(renaming: Map[Name.ID, String]): Nominal =
     rename(name => renaming.get(name.id) match {
       case None => name
-      case Some(name2) => {
-        val renamed = Name(name2.name, name.id)
-        name.id.nameO = renamed
-        renamed
-      }
+      case Some(name2) => Name(name2)
     })
 }
