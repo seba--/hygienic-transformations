@@ -8,7 +8,7 @@ import name.NameGraph
 * Created by seba on 01/08/14.
 */
 case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
-  def allNames = bound.allNames ++ body.allNames + x
+  def allNames = bound.allNames ++ body.allNames + x.id
   def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)

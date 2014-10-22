@@ -7,7 +7,7 @@ import name.NameGraph
  * Created by seba on 01/08/14.
  */
 case class Lam(x: Name, body: Exp) extends Exp {
-  def allNames = body.allNames + x
+  def allNames = body.allNames + x.id
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbody = body.resolveNames(scope + (x.name -> x.id))

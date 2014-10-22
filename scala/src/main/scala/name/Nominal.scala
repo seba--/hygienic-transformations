@@ -8,12 +8,17 @@ import NameGraph._
 trait Nominal {
   type Renaming = Name => Name
 
-  def allNames: Set[Name]
+  def allNames: Set[Name.ID]
   def rename(renaming: Renaming): Nominal
   def resolveNames: NameGraph
 
   def rename(renaming: Map[Name.ID, Name]): Nominal =
-    rename(name => renaming.getOrElse(name.id,name))
-  def renameIDs(renaming: Map[Name.ID, Name.ID]): Nominal =
-    rename(name => renaming.getOrElse(name.id, name.id).nameO)
+    rename(name => renaming.get(name.id) match {
+      case None => name
+      case Some(name2) => {
+        val renamed = Name(name2.name, name.id)
+        name.id.nameO = renamed
+        renamed
+      }
+    })
 }

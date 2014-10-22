@@ -7,7 +7,7 @@ import name.NameGraph
  * Created by seba on 01/08/14.
  */
 case class Var(x: Name) extends Exp {
-  def allNames = Set(x)
+  def allNames = Set(x.id)
   def rename(renaming: Renaming) = Var(renaming(x))
   def resolveNames(scope: Scope) =
     if (scope.contains(x.name))
