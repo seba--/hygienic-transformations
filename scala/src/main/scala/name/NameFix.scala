@@ -13,28 +13,28 @@ object NameFix {
 }
 
 class NameFix {
-  def findCapture(gs: NameGraph, gt: NameGraph): Edges = {
+  def findCapture(gs: NameGraph, Et: NameGraph.Edges): Edges = {
 
-    val notPreserveVar = gt.E.filter {
+    val notPreserveVar = Et.filter {
       case (v,d) => gs.V.contains(v) && (gs.E.get(v) match {
         case Some(ds) => d != ds
         case None => v != d
       })
     }
 
-    val notPreserveDef = gt.E.filter {
+    val notPreserveDef = Et.filter {
       case (v,d) => !gs.V.contains(v) && gs.V.contains(d)
     }
 
     notPreserveVar ++ notPreserveDef
   }
 
-  def compRenamings(gs: NameGraph, t: Nominal, capture: Edges): Map[Name.ID, Name] = {
-    var renaming: Map[Name.ID, Name] = Map()
+  def compRenamings(gs: NameGraph, t: Nominal, capture: Edges): Map[Name.ID, String] = {
+    var renaming: Map[Name.ID, String] = Map()
     val newIds = t.allNames -- gs.V
 
     for (d <- capture.values) {
-      val fresh = Name(gensym(d.name, t.allNames.map(_.name) ++ renaming.values.map(_.name)))
+      val fresh = gensym(d.name, t.allNames.map(_.name) ++ renaming.values)
       if (gs.V.contains(d)) {
         renaming += (d -> fresh)
         for ((v2,d2) <- gs.E if d == d2)
@@ -51,7 +51,7 @@ class NameFix {
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
     val gt = t.resolveNames
-    val capture = findCapture(gs, gt)
+    val capture = findCapture(gs, gt.E)
     if (capture.isEmpty)
       t
     else {

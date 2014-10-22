@@ -6,8 +6,13 @@ import scala.language.implicitConversions
  * Created by seba on 02/08/14.
  */
 object Name {
-  class ID(var nameO: Name) {
+  private var id = 0
+  private def nextID(): Int = { val n = id; id+=1; n }
+  class ID(id: Int, var nameO: Name) {
+    def this(name0: Name) = this(nextID, name0)
     def name = nameO.name
+
+    override def toString = s"${nameO.name}@$id"
   }
 
   implicit def apply(name: String) = {
