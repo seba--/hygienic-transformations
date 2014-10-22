@@ -1,7 +1,7 @@
 package lang.lambda
 
 import name.Name
-import name.NameGraph.NameGraph
+import name.NameGraph
 
 /**
  * Created by seba on 01/08/14.

@@ -1,7 +1,7 @@
 package lang.lambda
 
 import name.Name
-import name.NameGraph.NameGraph
+import name.NameGraph
 
 /**
  * Created by seba on 01/08/14.
@@ -13,12 +13,6 @@ case class Lam(x: Name, body: Exp) extends Exp {
     val gbody = body.resolveNames(scope + (x.name -> x.id))
     NameGraph(gbody.V + x.id, gbody.E)
   }
-
-  override def hashCode = x.name.hashCode + body.hashCode
-  override def equals(a: Any) =
-    a.isInstanceOf[Lam] &&
-      x.name == a.asInstanceOf[Lam].x.name &&
-      body == a.asInstanceOf[Lam].body
 
   def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))
 

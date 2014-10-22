@@ -12,6 +12,8 @@ trait Nominal {
   def rename(renaming: Renaming): Nominal
   def resolveNames: NameGraph
 
-  def rename(renaming: Map[Name.ID,Name]): Nominal =
+  def rename(renaming: Map[Name.ID, Name]): Nominal =
     rename(name => renaming.getOrElse(name.id,name))
+  def renameIDs(renaming: Map[Name.ID, Name.ID]): Nominal =
+    rename(name => renaming.getOrElse(name.id, name.id).nameO)
 }
