@@ -1,9 +1,9 @@
 package lang.lambda
 
-import lang.lambda._
 import lang.lambda.let._
 import lang.lambda.num._
-import name.{NameFix, NameGraph, Name}
+import name.NameGraph.Edges
+import name.{NameFix, NameGraph}
 import org.scalatest._
 
 /**
@@ -70,7 +70,7 @@ class NamefixTestNested extends FunSuite {
   }
 
   test ("fix nested 5") {
-    val gs = NameGraph(Set(x2def(p).id), Map())
+    val gs = NameGraph(Set(x2def(p).id), Map() : Edges)
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 

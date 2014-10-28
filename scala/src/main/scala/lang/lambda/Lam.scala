@@ -2,6 +2,7 @@ package lang.lambda
 
 import name.Name
 import name.NameGraph
+import name.NameGraph.Edges
 
 /**
  * Created by seba on 01/08/14.
@@ -11,7 +12,7 @@ case class Lam(x: Name, body: Exp) extends Exp {
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbody = body.resolveNames(scope + (x.name -> x.id))
-    NameGraph(gbody.V + x.id, gbody.E)
+    gbody + NameGraph(Set(x.id), Map() : Edges)
   }
 
   def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))

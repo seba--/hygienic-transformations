@@ -9,7 +9,7 @@ import name.NameGraph
 case class Num(v: Int) extends Exp {
   def allNames = Set()
   def rename(renaming: Renaming) = this
-  def resolveNames(scope: Scope) = NameGraph(Set(), Map())
+  def resolveNames(scope: Scope) = NameGraph(Map())
 
   def unsafeSubst(w: String, e: Exp) = this
 

@@ -3,6 +3,7 @@ package lang.lambda.let
 import lang.lambda.Exp
 import name.Name
 import name.NameGraph
+import name.NameGraph.Edges
 
 /**
 * Created by seba on 01/08/14.
@@ -13,7 +14,7 @@ case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
     val gbody = body.resolveNames(scope + (x.name -> x.id))
-    NameGraph(gbound.V ++ gbody.V + x.id, gbound.E ++ gbody.E)
+    gbound + gbody + NameGraph(Set(x.id), Map() : Edges)
   }
 
   def unsafeSubst(w: String, e: Exp) = {

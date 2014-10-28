@@ -2,6 +2,7 @@ package lang.lambda
 
 import name.Name
 import name.NameGraph
+import name.NameGraph.Edges
 
 /**
  * Created by seba on 01/08/14.
@@ -13,7 +14,7 @@ case class Var(x: Name) extends Exp {
     if (scope.contains(x.name))
       NameGraph(Set(x.id), Map(x.id -> scope(x.name)))
     else
-      NameGraph(Set(x.id), Map())
+      NameGraph(Set(x.id), Map() : Edges)
 
   override def hashCode = x.name.hashCode
   override def equals(a: Any) = a.isInstanceOf[Var] && x.name == a.asInstanceOf[Var].x.name
