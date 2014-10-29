@@ -73,8 +73,11 @@ class NameFix {
     // Step 2: Find alternative renamings for exported names based on the fixed graph
     val (tFixed2, exportedNameRenamed1) = nameFixFindAlternatives(t, tFixed1, renaming)
 
+    // Step 2a: Fix alternative renamings for removed edges (TODO: Find a better solution than this hotfix)
+    val (tFixed3, _) = nameFixCaptures(tFixed1.resolveNames, tFixed2)
+
     // Step 3: Fix name graph errors
-    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed2)
+    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed3)
 
     // Currently only a warning message, later additional handling
     if (exportedNameRenamed1 || exportedNameRenamed2)
