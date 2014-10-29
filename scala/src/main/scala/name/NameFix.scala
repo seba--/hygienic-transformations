@@ -73,11 +73,8 @@ class NameFix {
     // Step 2: Find alternative renamings for exported names based on the fixed graph
     val (tFixed2, exportedNameRenamed1) = nameFixFindAlternatives(t, tFixed1, renaming)
 
-    // Step 2a: Fix alternative renamings for removed edges (TODO: Find a better solution than this hotfix)
-    val (tFixed3, _) = nameFixCaptures(tFixed1.resolveNames, tFixed2)
-
     // Step 3: Fix name graph errors
-    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed3)
+    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed2)
 
     // Currently only a warning message, later additional handling
     if (exportedNameRenamed1 || exportedNameRenamed2)
@@ -134,7 +131,7 @@ class NameFix {
     (tFixed, exportedNameRenamed)
   }
 
-  def nameFixFindAlternatives[T <: Nominal](t : T, tFixed : T, renaming : Map[Name.ID, String]) = {
+  def nameFixFindAlternatives[T <: Nominal](t : T, tFixed : T, renaming : Map[Name.ID, String]) : (T, Boolean) = {
     val gT = t.resolveNames
     val gTFixed = tFixed.resolveNames
 
@@ -177,9 +174,18 @@ class NameFix {
       }
     }
 
-    // Apply the calculated alternative renaming
-    val tFixedAlternative = t.rename(alternativeRenaming).asInstanceOf[T]
+    // If no renaming was done, the given graph is equivalent to the fixed one and we are finished
+    if (alternativeRenaming.isEmpty) {
+      (t, false)
+    }
+    else {
+      // Else, apply the calculated alternative renaming ...
+      val tFixedAlternative = t.rename(alternativeRenaming).asInstanceOf[T]
+      // ... and perform a recursive call with the alternative result
+      val (tFinal, exportedNameRenamedRecursive) = nameFixFindAlternatives(tFixedAlternative, tFixed, renaming ++ alternativeRenaming)
+      
+      (tFinal, exportedNameRenamed || exportedNameRenamedRecursive)
+    }
 
-    (tFixedAlternative, exportedNameRenamed)
   }
 }
