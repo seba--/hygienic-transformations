@@ -7,7 +7,7 @@ import name.NameGraph._
  * Created by seba on 01/08/14.
  */
 object NameFix {
-  val fixer = new NameFix
+  val fixer = new NameFixModular
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = fixer.nameFix(gs, t)
 }
 
@@ -26,11 +26,11 @@ class NameFix {
     notPreserveVar ++ notPreserveDef
   }
 
-  private def compRenamings(gs: NameGraph, t: Nominal, nodes: Set[Name.ID]): Map[Name.ID, String] = {
+  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Set[Name.ID]): Map[Name.ID, String] = {
     var renaming: Map[Name.ID, String] = Map()
     val newIds = t.allNames -- gs.V.map(_._1)
 
-    for (d <- nodes) {
+    for (d <- nodesToRename) {
       val fresh = gensym(d.name, t.allNames.map(_.name) ++ renaming.values)
       if (gs.V.contains(d)) {
         renaming += (d -> fresh)
@@ -46,7 +46,7 @@ class NameFix {
     renaming
   }
 
-  private def findConnectedNodes(g: NameGraph, n: Name.ID, result: Set[Name.ID] = Set()): Set[Name.ID] = {
+  protected def findConnectedNodes(g: NameGraph, n: Name.ID, result: Set[Name.ID] = Set()): Set[Name.ID] = {
     // Handling this here to simplify final renaming method
     if (n == null) Set()
 
@@ -62,27 +62,7 @@ class NameFix {
     newResult
   }
 
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
-    // Is this a necessary restriction?
-    if (gs.Err.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
-
-    // Step 1: Classic NameFix for captures
-    val (tFixed1, renaming) = nameFixCaptures(gs, t)
-
-    // Step 2: Find alternative renamings for exported names based on the fixed graph
-    val (tFixed2, exportedNameRenamed1) = nameFixFindAlternatives(t, tFixed1, renaming)
-
-    // Step 3: Fix name graph errors
-    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed2)
-
-    // Currently only a warning message, later additional handling
-    if (exportedNameRenamed1 || exportedNameRenamed2)
-      println("NameFix failed to find a fix without renaming exported names!")
-
-    tFixedFinal
-  }
-
-  private def nameFixCaptures[T <: Nominal](gs: NameGraph, t: T): (T, Map[Name.ID, String]) = {
+  protected def nameFixCaptures[T <: Nominal](gs: NameGraph, t: T): (T, Map[Name.ID, String]) = {
     val gt = t.resolveNames
     val capture = findCapture(gs, gt)
     if (capture.isEmpty)
@@ -98,7 +78,7 @@ class NameFix {
     }
   }
 
-  private def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) = {
+  protected def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) = {
     val gt = t.resolveNames
     var renamingNodes: Set[Name.ID] = Set()
     var exportedNameRenamed = false
@@ -127,6 +107,45 @@ class NameFix {
     val tFixed = t.rename(renaming).asInstanceOf[T]
 
     (tFixed, exportedNameRenamed)
+  }
+
+  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
+    // Is this a necessary restriction?
+    if (gs.Err.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
+
+    // Step 1: Classic NameFix for captures
+    val (tFixed, renaming) = nameFixCaptures(gs, t)
+
+    // Step 2: Fix name graph errors
+    val (tFixedFinal, exportedNameRenamed) = nameFixErrors(gs, tFixed)
+
+    // Currently only a warning message, later additional handling
+    if (exportedNameRenamed)
+      println("NameFix failed to find a fix without renaming exported names!")
+
+    tFixedFinal
+  }
+}
+
+class NameFixModular extends NameFix {
+  override def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
+    // Is this a necessary restriction?
+    if (gs.Err.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
+
+    // Step 1: Classic NameFix for captures
+    val (tFixed1, renaming) = nameFixCaptures(gs, t)
+
+    // Step 2: Find alternative renamings for exported names based on the fixed graph
+    val (tFixed2, exportedNameRenamed1) = nameFixFindAlternatives(t, tFixed1, renaming)
+
+    // Step 3: Fix name graph errors
+    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed2)
+
+    // Currently only a warning message, later additional handling
+    if (exportedNameRenamed1 || exportedNameRenamed2)
+      println("NameFix failed to find a fix without renaming exported names!")
+
+    tFixedFinal
   }
 
   private def nameFixFindAlternatives[T <: Nominal](t : T, tFixed : T, renaming : Map[Name.ID, String]) : (T, Boolean) = {
