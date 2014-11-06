@@ -7,7 +7,7 @@ import name.NameGraph._
  * Created by seba on 01/08/14.
  */
 object NameFix {
-  val fixer = new NameFixModular
+  val fixer = new NameFix
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = fixer.nameFix(gs, t)
 }
 
@@ -78,41 +78,39 @@ class NameFix {
     }
   }
 
-  protected def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) = {
+  protected def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Boolean) = {
     val gt = t.resolveNames
     var renamingNodes: Set[Name.ID] = Set()
-    var exportedNameRenamed = false
 
-    for (error <- gt.Err) {
-      error match {
-        case MultipleDeclarationsError(errorNodes) =>
-          // Find all nodes related to the error that are not exported
-          val notExportedNodes = errorNodes.filter(node => gt.V.contains((node, false)))
-          // As all nodes but one need to be renamed, two or more exported nodes force renaming of an exported node
-          if (errorNodes.size - notExportedNodes.size > 1)
-            exportedNameRenamed = true
-          // If exported node renaming can be avoided, select all non-exported nodes for renaming, else select all of them
-          val nodesToRename = if (errorNodes.size - notExportedNodes.size > 1) errorNodes else notExportedNodes
+    for (multipleDeclarationNodes <- gt.Err.collect{ case MultipleDeclarationsError(errorNodes) => errorNodes }) {
+      val synthesizedNodes = multipleDeclarationNodes.filterNot(v => gs.V.exists(_._1 == v))
+      if (synthesizedNodes.nonEmpty) {
+        renamingNodes ++= synthesizedNodes
+        // Rename also all synthesized nodes connected to any of the error nodes
+        renamingNodes ++= multipleDeclarationNodes.flatMap(v => findConnectedNodes(gt, v)).filterNot(v => gs.V.exists(_._1 == v))
+      } else {
 
-          for (nodeToRename <- nodesToRename) {
-            for (n <- findConnectedNodes(gt, nodeToRename))
-              renamingNodes += n
-          }
       }
     }
 
-    val renaming = compRenamings(gs, t, renamingNodes)
+    if (renamingNodes.isEmpty) {
+      (t, false)
+    }
+    else {
+      val exportedNameRenamed = gt.V.exists(v => renamingNodes.contains(v._1) && v._2)
 
-    // Apply the calculated renaming
-    val tFixed = t.rename(renaming).asInstanceOf[T]
+      val renaming = compRenamings(gs, t, renamingNodes)
 
-    (tFixed, exportedNameRenamed)
+      // Apply the calculated renaming
+      val tFixed = t.rename(renaming).asInstanceOf[T]
+
+      val (tFinal, exportedNameRenamedRecursive) = nameFixErrors(gs, tFixed)
+
+      (tFinal, exportedNameRenamed || exportedNameRenamedRecursive)
+    }
   }
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
-    // Is this a necessary restriction?
-    if (gs.Err.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
-
     // Step 1: Classic NameFix for captures
     val (tFixed, renaming) = nameFixCaptures(gs, t)
 
