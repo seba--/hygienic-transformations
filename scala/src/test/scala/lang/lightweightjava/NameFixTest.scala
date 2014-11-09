@@ -51,6 +51,7 @@ class NameFixTest extends FlatSpec with Matchers {
       info("Name graph stats for P1 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.Err.size + " errors")
       info("Name graph stats for P1 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.Err.size + " errors")
       info("Name graph stats for P1 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.Err.size + " errors")
+      info("NameFix P1 result: " + pFixed.toString);
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
   "Name Fix" should "fix the LDT test program with errors" in (Parser.parseAll(Parser.configuration, p2 + st1) match {
@@ -72,6 +73,7 @@ class NameFixTest extends FlatSpec with Matchers {
       info("Name graph stats for P2 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.Err.size + " errors")
       info("Name graph stats for P2 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.Err.size + " errors")
       info("Name graph stats for P2 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.Err.size + " errors")
+      info("NameFix P2 result: " + pFixed.toString);
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
 }

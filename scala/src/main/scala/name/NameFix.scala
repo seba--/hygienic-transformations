@@ -30,15 +30,15 @@ class NameFix {
     var renaming: Map[Name.ID, String] = Map()
     val newIds = t.allNames -- gs.V.map(_._1)
 
-    for (d <- nodesToRename) {
-      val fresh = gensym(d.name, t.allNames.map(_.name) ++ renaming.values)
-      if (gs.V.contains(d)) {
-        renaming += (d -> fresh)
-        for ((v2,d2) <- gs.E if d == d2)
+    for (v <- nodesToRename) {
+      val fresh = gensym(v.name, t.allNames.map(_.name) ++ renaming.values)
+      if (gs.V.contains(v)) {
+        renaming += (v -> fresh)
+        for (v2 <- findConnectedNodes(gs, v))
           renaming += (v2 -> fresh)
       }
       else {
-        for (v2 <- newIds if d.name == v2.name)
+        for (v2 <- newIds if v.name == v2.name)
           renaming += (v2 -> fresh)
       }
     }
@@ -78,7 +78,7 @@ class NameFix {
     }
   }
 
-  protected def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Boolean) = {
+  protected def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Map[Name.ID, String]) = {
     val gt = t.resolveNames
     var renamingNodes: Set[Name.ID] = Set()
 
@@ -86,27 +86,25 @@ class NameFix {
       val synthesizedNodes = multipleDeclarationNodes.filterNot(v => gs.V.exists(_._1 == v))
       if (synthesizedNodes.nonEmpty) {
         renamingNodes ++= synthesizedNodes
-        // Rename also all synthesized nodes connected to any of the error nodes
-        renamingNodes ++= multipleDeclarationNodes.flatMap(v => findConnectedNodes(gt, v)).filterNot(v => gs.V.exists(_._1 == v))
       } else {
-
+        // Get all nodes that were not contained in any multiple declaration error of the source graph
+        val newErrorNodes = multipleDeclarationNodes.filter(v => !gs.Err.collect{ case MultipleDeclarationsError(errorNodes) => errorNodes }.exists(_.contains(v)))
+        renamingNodes ++= newErrorNodes
       }
     }
 
     if (renamingNodes.isEmpty) {
-      (t, false)
+      (t, Map())
     }
     else {
-      val exportedNameRenamed = gt.V.exists(v => renamingNodes.contains(v._1) && v._2)
-
       val renaming = compRenamings(gs, t, renamingNodes)
 
       // Apply the calculated renaming
       val tFixed = t.rename(renaming).asInstanceOf[T]
 
-      val (tFinal, exportedNameRenamedRecursive) = nameFixErrors(gs, tFixed)
+      val (tFinal, recursiveRenaming) = nameFixErrors(gs, tFixed)
 
-      (tFinal, exportedNameRenamed || exportedNameRenamedRecursive)
+      (tFinal, renaming ++ recursiveRenaming)
     }
   }
 
@@ -115,10 +113,10 @@ class NameFix {
     val (tFixed, renaming) = nameFixCaptures(gs, t)
 
     // Step 2: Fix name graph errors
-    val (tFixedFinal, exportedNameRenamed) = nameFixErrors(gs, tFixed)
+    val (tFixedFinal, renamingError) = nameFixErrors(gs, tFixed)
 
     // Currently only a warning message, later additional handling
-    if (exportedNameRenamed)
+    if (t.resolveNames.V.exists(v => (renaming ++ renamingError).contains(v._1) && v._2))
       println("NameFix failed to find a fix without renaming exported names!")
 
     tFixedFinal
@@ -133,14 +131,14 @@ class NameFixModular extends NameFix {
     // Step 1: Classic NameFix for captures
     val (tFixed1, renaming) = nameFixCaptures(gs, t)
 
-    // Step 2: Find alternative renamings for exported names based on the fixed graph
-    val (tFixed2, exportedNameRenamed1) = nameFixFindAlternatives(t, tFixed1, renaming)
+    // Step 2: Fix name graph errors
+    val (tFixed2, renamingError) = nameFixErrors(gs, tFixed1)
 
-    // Step 3: Fix name graph errors
-    val (tFixedFinal, exportedNameRenamed2) = nameFixErrors(gs, tFixed2)
+    // Step 2: Find alternative renamings for exported names based on the fixed graph
+    val (tFixedFinal, exportedNameRenamed) = nameFixFindAlternatives(t, tFixed2, renaming ++ renamingError)
 
     // Currently only a warning message, later additional handling
-    if (exportedNameRenamed1 || exportedNameRenamed2)
+    if (exportedNameRenamed)
       println("NameFix failed to find a fix without renaming exported names!")
 
     tFixedFinal
