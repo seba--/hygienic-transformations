@@ -2,7 +2,6 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.NameGraph.UnboundReferenceError
 import name.{Name, NameGraph}
 
 case class ReturnMethodCall(returnObject: TermVariable, methodName: Name, methodParameters: TermVariable*) extends ReturnValue {
@@ -40,10 +39,10 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Name, method
       if (methodMap.contains(methodName))
         variablesGraph + NameGraph(Set((methodName.id, false)), Map(methodName.id -> methodMap(methodName)), Set())
       else
-        variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set(UnboundReferenceError(methodName.id)))
+        variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set())
     }
     else {
-      variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set(UnboundReferenceError(methodName.id)))
+      variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set())
     }
   }
 

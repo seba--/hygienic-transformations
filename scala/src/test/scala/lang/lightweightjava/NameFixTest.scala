@@ -32,7 +32,7 @@ class NameFixTest extends FlatSpec with Matchers {
       "   }\n" +
       "}\n" +
       "\n"
-  "Name Fix" should "fix the LDT test program without errors" in (Parser.parseAll(Parser.configuration, p1 + st1) match {
+  "Name Fix" should "fix the LDT test program without declaration conflicts" in (Parser.parseAll(Parser.configuration, p1 + st1) match {
     case Parser.Success(p, _) =>
       val pNameGraph = p.program.asInstanceOf[Nominal].resolveNames
       val pTransformed = LocalDeclarationTransformation.transform(p.program)
@@ -40,21 +40,21 @@ class NameFixTest extends FlatSpec with Matchers {
       val pFixed = NameFix.nameFix(pNameGraph, pTransformed)
       val pFixedNameGraph = pFixed.asInstanceOf[Nominal].resolveNames
 
-      pNameGraph.Err.size should be (0)
-      pTransformedNameGraph.Err.size should be (0)
-      pFixedNameGraph.Err.size should be (0)
+      pNameGraph.C.size should be (0)
+      pTransformedNameGraph.C.size should be (0)
+      pFixedNameGraph.C.size should be (0)
 
       // If NameFix did not fix the program, type checking or interpretation will fail
       val result = Interpreter.interpret(NormalConfiguration(pFixed, p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       result.state(VariableName("x")) should be (result.state(VariableName("y")))
 
-      info("Name graph stats for P1 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.Err.size + " errors")
-      info("Name graph stats for P1 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.Err.size + " errors")
-      info("Name graph stats for P1 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.Err.size + " errors")
+      info("Name graph stats for P1 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.C.size + " errors")
+      info("Name graph stats for P1 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.C.size + " errors")
+      info("Name graph stats for P1 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.C.size + " errors")
       info("NameFix P1 result: " + pFixed.toString);
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  "Name Fix" should "fix the LDT test program with errors" in (Parser.parseAll(Parser.configuration, p2 + st1) match {
+  "Name Fix" should "fix the LDT test program with declaration conflicts" in (Parser.parseAll(Parser.configuration, p2 + st1) match {
     case Parser.Success(p, _) =>
       val pNameGraph = p.program.asInstanceOf[Nominal].resolveNames
       val pTransformed = LocalDeclarationTransformation.transform(p.program)
@@ -62,17 +62,17 @@ class NameFixTest extends FlatSpec with Matchers {
       val pFixed = NameFix.nameFix(pNameGraph, pTransformed)
       val pFixedNameGraph = pFixed.asInstanceOf[Nominal].resolveNames
 
-      pNameGraph.Err.size should be (0)
-      pTransformedNameGraph.Err.size should be (1)
-      pFixedNameGraph.Err.size should be (0)
+      pNameGraph.C.size should be (0)
+      pTransformedNameGraph.C.size should be (1)
+      pFixedNameGraph.C.size should be (0)
 
       // If NameFix did not fix the program, type checking or interpretation will fail
       val result = Interpreter.interpret(NormalConfiguration(pFixed, p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       result.state(VariableName("x")) should be (result.state(VariableName("y")))
 
-      info("Name graph stats for P2 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.Err.size + " errors")
-      info("Name graph stats for P2 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.Err.size + " errors")
-      info("Name graph stats for P2 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.Err.size + " errors")
+      info("Name graph stats for P2 before transformation: " + pNameGraph.V.size + " nodes, " + pNameGraph.E.size + " edges, " + pNameGraph.C.size + " errors")
+      info("Name graph stats for P2 after transformation: " + pTransformedNameGraph.V.size + " nodes, " + pTransformedNameGraph.E.size + " edges, " + pTransformedNameGraph.C.size + " errors")
+      info("Name graph stats for P2 after NameFix: " + pFixedNameGraph.V.size + " nodes, " + pFixedNameGraph.E.size + " edges, " + pFixedNameGraph.C.size + " errors")
       info("NameFix P2 result: " + pFixed.toString);
     case Parser.NoSuccess(msg, _) => fail(msg)
   })

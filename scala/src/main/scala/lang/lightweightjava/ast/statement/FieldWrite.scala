@@ -35,10 +35,10 @@ case class FieldWrite(targetObject: TermVariable, targetField: Name, source: Ter
       if (fieldMap.contains(targetField))
         (variablesGraph + NameGraph(Set(targetField.id), Map(targetField.id -> fieldMap(targetField)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(targetField.id), Map(), Set(UnboundReferenceError(targetField.id))), (methodEnvironment, typeEnvironment))
+        (variablesGraph + NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(targetField.id), Map(), Set(UnboundReferenceError(targetField.id))), (methodEnvironment, typeEnvironment))
+      (variablesGraph + NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

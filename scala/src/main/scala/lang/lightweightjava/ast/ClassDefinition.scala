@@ -1,7 +1,6 @@
 package lang.lightweightjava.ast
 
 import name.{Name, NameGraph}
-import name.NameGraph.{MultipleDeclarationsError, NameGraphError}
 
 case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends AST {
   require(AST.isLegalName(className.className), "Class name '" + className.className + "' is no legal Java class name")
@@ -63,7 +62,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     }).filter(_.size > 1)
 
     // Create the error list for the name graph based on the duplicate lists
-    val duplicateErrors = (doubleFieldNames ++ doubleMethodNames).map(set => MultipleDeclarationsError(set)).toSet[NameGraphError]
+    val duplicateErrors = (doubleFieldNames ++ doubleMethodNames).toSet[Set[Name.ID]]
 
     classNameGraph + elements.foldLeft(NameGraph(Set(), Map(), duplicateErrors))(_ + _.resolveNames(nameEnvironment, this))
   }

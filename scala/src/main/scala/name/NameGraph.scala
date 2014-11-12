@@ -1,6 +1,6 @@
 package name
 
-import name.NameGraph.{Nodes, Edges, NameGraphError}
+import name.NameGraph.{DeclarationConflicts, Nodes, Edges}
 
 import scala.language.implicitConversions
 
@@ -15,6 +15,7 @@ object NameGraph {
   implicit def nodeToID(node : (Name.ID, Boolean)) : Name.ID = node._1
 
   type Edges = Map[Name.ID, Name.ID]
+  type DeclarationConflicts = Set[Set[Name.ID]]
 
   def apply(E: Edges): NameGraph = {
     var V: Nodes = Set()
@@ -28,14 +29,9 @@ object NameGraph {
   def apply(V: Set[Name.ID], E: Edges) : NameGraph = {
     NameGraph(V.map(id => (id, false)), E, Set())
   }
-
-  abstract class NameGraphError
-  case class UnboundReferenceError(reference : Name.ID) extends NameGraphError
-  case class MultipleDeclarationsError(declarations : Set[Name.ID]) extends NameGraphError
-
 }
 
-case class NameGraph(V: Nodes, E: Edges, Err: Set[NameGraphError] = Set[NameGraphError]()) {
-  def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E, Err ++ g.Err)
-  def -(g: NameGraph) = NameGraph(V -- g.V, E -- g.E.keys, Err -- g.Err)
+case class NameGraph(V: Nodes, E: Edges, C: DeclarationConflicts = Set[Set[Name.ID]]()) {
+  def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E, C ++ g.C)
+  def -(g: NameGraph) = NameGraph(V -- g.V, E -- g.E.keys, C -- g.C)
 }

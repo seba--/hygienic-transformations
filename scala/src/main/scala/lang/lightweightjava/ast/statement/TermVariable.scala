@@ -12,11 +12,8 @@ abstract class TermVariable extends AST {
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = resolveVariableNames(Map(variableName -> variableName.id))
 
   def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = {
-    // If the variable isn't in the environment, add an error to the name graph
-    if (!methodEnvironment.contains(variableName))
-      NameGraph(Set(variableName.id), Map(), Set(UnboundReferenceError(variableName.id)))
     // If the variable is pointing to itself (because it is declared here), add only the node but no edges
-    else if (methodEnvironment(variableName) == variableName.id)
+    if (!methodEnvironment.contains(variableName) || methodEnvironment(variableName) == variableName.id)
       NameGraph(Set(variableName.id), Map(), Set())
     // If the variable is pointing to another variable, add it and the edge to the name graph
     else

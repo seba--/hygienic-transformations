@@ -40,10 +40,10 @@ case class MethodCall(target: VariableName, sourceObject: TermVariable, methodNa
       if (methodMap.contains(methodName))
         (variablesGraph + NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(methodName.id), Map(), Set(UnboundReferenceError(methodName.id))), (methodEnvironment, typeEnvironment))
+        (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(methodName.id), Map(), Set(UnboundReferenceError(methodName.id))), (methodEnvironment, typeEnvironment))
+      (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

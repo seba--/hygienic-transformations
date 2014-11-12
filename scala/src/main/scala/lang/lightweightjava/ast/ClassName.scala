@@ -1,6 +1,5 @@
 package lang.lightweightjava.ast
 
-import name.NameGraph._
 import name.{Name, NameGraph}
 
 abstract class ClassRef extends AST {
@@ -11,11 +10,8 @@ abstract class ClassRef extends AST {
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = resolveNames(nameEnvironment, isExported = false)
 
   def resolveNames(nameEnvironment: ClassNameEnvironment, isExported : Boolean): NameGraph = {
-    // If the class name isn't in the environment, add an error to the name graph
-    if (!nameEnvironment.contains(className))
-      NameGraph(Set((className.id, isExported)), Map(), Set(UnboundReferenceError(className.id)))
     // If the class name is pointing to itself (because it is declared here), add only the node but no edges
-    else if (nameEnvironment(className)._1 == className.id)
+    if (!nameEnvironment.contains(className) || nameEnvironment(className)._1 == className.id)
       NameGraph(Set((className.id, isExported)), Map(), Set())
     // If the class name is pointing to another class name, add it and the edge to the name graph
     else

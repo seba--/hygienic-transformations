@@ -82,13 +82,13 @@ class NameFix {
     val gt = t.resolveNames
     var renamingNodes: Set[Name.ID] = Set()
 
-    for (multipleDeclarationNodes <- gt.Err.collect{ case MultipleDeclarationsError(errorNodes) => errorNodes }) {
+    for (multipleDeclarationNodes <- gt.C) {
       val synthesizedNodes = multipleDeclarationNodes.filterNot(v => gs.V.exists(_._1 == v))
       if (synthesizedNodes.nonEmpty) {
         renamingNodes ++= synthesizedNodes
       } else {
         // Get all nodes that were not contained in any multiple declaration error of the source graph
-        val newErrorNodes = multipleDeclarationNodes.filter(v => !gs.Err.collect{ case MultipleDeclarationsError(errorNodes) => errorNodes }.exists(_.contains(v)))
+        val newErrorNodes = multipleDeclarationNodes.filter(v => !gs.C.exists(_.contains(v)))
         renamingNodes ++= newErrorNodes
       }
     }
@@ -126,7 +126,7 @@ class NameFix {
 class NameFixModular extends NameFix {
   override def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
     // Is this a necessary restriction?
-    if (gs.Err.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
+    if (gs.C.size != 0) sys.error("NameFix can't fix names for a source name graph with errors!")
 
     // Step 1: Classic NameFix for captures
     val (tFixed1, renaming) = nameFixCaptures(gs, t)

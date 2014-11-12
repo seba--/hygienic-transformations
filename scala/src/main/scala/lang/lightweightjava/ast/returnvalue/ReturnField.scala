@@ -2,7 +2,6 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.NameGraph.UnboundReferenceError
 import name.{Name, NameGraph}
 
 case class ReturnField(returnObject: TermVariable, returnField: Name) extends ReturnValue {
@@ -36,10 +35,10 @@ case class ReturnField(returnObject: TermVariable, returnField: Name) extends Re
       if (fieldMap.contains(returnField))
         variablesGraph + NameGraph(Set((returnField.id, false)), Map(returnField.id -> fieldMap(returnField)), Set())
       else
-        variablesGraph + NameGraph(Set((returnField.id, false)), Map(), Set(UnboundReferenceError(returnField.id)))
+        variablesGraph + NameGraph(Set((returnField.id, false)), Map(), Set())
     }
     else {
-      variablesGraph + NameGraph(Set((returnField.id, false)), Map(), Set(UnboundReferenceError(returnField.id)))
+      variablesGraph + NameGraph(Set((returnField.id, false)), Map(), Set())
     }
   }
 

@@ -35,10 +35,10 @@ case class FieldRead(target: VariableName, sourceObject: TermVariable, sourceFie
       if (fieldMap.contains(sourceField))
         (variablesGraph + NameGraph(Set(sourceField.id), Map(sourceField.id -> fieldMap(sourceField)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set(UnboundReferenceError(sourceField.id))), (methodEnvironment, typeEnvironment))
+        (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set(UnboundReferenceError(sourceField.id))), (methodEnvironment, typeEnvironment))
+      (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 
