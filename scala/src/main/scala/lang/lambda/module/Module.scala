@@ -86,7 +86,7 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
     importedScope ++ internalScope
   }
 
-  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(id, imports, renamingResult)
+  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = NoPrecedenceModule(id, imports, renamingResult)
 
   override def exportedNames = defs.keys.filter(_._2).map(_._1.id).toSet ++ imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames)
 }
