@@ -1,7 +1,6 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.NameGraph._
 import name.{Name, NameGraph}
 
 case class VoidMethodCall(sourceObject: TermVariable, methodName: Name, methodParameters: TermVariable*) extends Statement {
@@ -29,19 +28,19 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Name, methodPa
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
-    val variablesGraph = sourceObject.resolveVariableNames(methodEnvironment) +
-      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ + _.resolveVariableNames(methodEnvironment))
+    val variablesGraph = sourceObject.resolveVariableNames(methodEnvironment) ++
+      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveVariableNames(methodEnvironment))
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown methods
     if (typeEnvironment.contains(sourceObject) && nameEnvironment.contains(typeEnvironment(sourceObject).className)) {
       val methodMap = nameEnvironment(typeEnvironment(sourceObject).className)._3
       if (methodMap.contains(methodName))
-        (variablesGraph + NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+      (variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

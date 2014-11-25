@@ -16,7 +16,7 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
       case PUBLIC => NameGraph(Set((methodName.id, true)), Map(), Set())
       case PRIVATE => NameGraph(Set((methodName.id, false)), Map(), Set())
     }
-    returnType.resolveNames(nameEnvironment) + methodNameGraph + parameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ + _.resolveNames(nameEnvironment))
+    returnType.resolveNames(nameEnvironment) ++ methodNameGraph ++ parameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveNames(nameEnvironment))
   }
 
   override def toString: String = accessModifier.toString + " " + returnType.toString + " " + methodName.toString + "(" + parameters.mkString(", ") + ")"

@@ -12,7 +12,7 @@ case class Add(e1: Exp, e2: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val g1 = e1.resolveNames(scope)
     val g2 = e2.resolveNames(scope)
-    NameGraph(g1.V ++ g2.V, g1.E ++ g2.E)
+    g1 ++ g2
   }
 
   def unsafeSubst(w: String, e: Exp) = Add(e1.unsafeSubst(w, e), e2.unsafeSubst(w, e))

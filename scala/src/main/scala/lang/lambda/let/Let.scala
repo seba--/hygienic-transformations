@@ -1,9 +1,7 @@
 package lang.lambda.let
 
 import lang.lambda.Exp
-import name.Name
-import name.NameGraph
-import name.NameGraph.Edges
+import name.{Edges, Name, NameGraph}
 
 /**
 * Created by seba on 01/08/14.
@@ -14,7 +12,7 @@ case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
     val gbody = body.resolveNames(scope + (x.name -> x.id))
-    gbound + gbody + NameGraph(Set(x.id), Map() : Edges)
+    gbound ++ gbody ++ NameGraph(Set(x.id), Map() : Edges)
   }
 
   def unsafeSubst(w: String, e: Exp) = {
@@ -30,7 +28,7 @@ case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
         false
       else {
         val E2 = g.E.flatMap(p => if (p._2 == x2.id) Some(p._1 -> x.id) else None)
-        body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
+        body.alphaEqual(body2, g + E2)
       }
     case _ => false
   }

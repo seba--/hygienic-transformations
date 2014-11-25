@@ -8,7 +8,7 @@ case class VariableDeclaration(variableType: ClassRef, name: VariableName) exten
 
   override def rename(renaming: Renaming) = VariableDeclaration(variableType.rename(renaming), name.rename(renaming))
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = variableType.resolveNames(nameEnvironment) + name.resolveNames(nameEnvironment)
+  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = variableType.resolveNames(nameEnvironment) ++ name.resolveNames(nameEnvironment)
 
   override def toString: String = variableType.toString + " " + name.toString
 }

@@ -30,19 +30,19 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Name, method
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment): NameGraph = {
-    val variablesGraph = returnObject.resolveVariableNames(methodEnvironment) +
-      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ + _.resolveVariableNames(methodEnvironment))
+    val variablesGraph = returnObject.resolveVariableNames(methodEnvironment) ++
+      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveVariableNames(methodEnvironment))
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown methods
     if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).className)) {
       val methodMap = nameEnvironment(typeEnvironment(returnObject).className)._3
       if (methodMap.contains(methodName))
-        variablesGraph + NameGraph(Set((methodName.id, false)), Map(methodName.id -> methodMap(methodName)), Set())
+        variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(methodName.id -> methodMap(methodName)), Set())
       else
-        variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set())
+        variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(), Set())
     }
     else {
-      variablesGraph + NameGraph(Set((methodName.id, false)), Map(), Set())
+      variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(), Set())
     }
   }
 

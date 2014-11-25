@@ -14,7 +14,7 @@ case class VariableAssignment(target: VariableName, source: TermVariable) extend
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) =
-    (target.resolveVariableNames(methodEnvironment) + source.resolveVariableNames(methodEnvironment), (methodEnvironment, typeEnvironment))
+    (target.resolveVariableNames(methodEnvironment) ++ source.resolveVariableNames(methodEnvironment), (methodEnvironment, typeEnvironment))
 
   override def toString: String = target.toString + " = " + source.toString + ";"
 }

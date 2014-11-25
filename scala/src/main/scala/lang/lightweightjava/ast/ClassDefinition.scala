@@ -43,7 +43,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
-    val classNameGraph = className.resolveNames(nameEnvironment, isExported = true) + superClass.resolveNames(nameEnvironment, isExported = true)
+    val classNameGraph = className.resolveNames(nameEnvironment, isExported = true) ++ superClass.resolveNames(nameEnvironment, isExported = true)
 
     // Collect all field/method names
     val fieldNames = elements.toSeq.collect({ case FieldDeclaration(_, _, name) => name })
@@ -64,7 +64,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     // Create the error list for the name graph based on the duplicate lists
     val duplicateErrors = (doubleFieldNames ++ doubleMethodNames).toSet[Set[Name.ID]]
 
-    classNameGraph + elements.foldLeft(NameGraph(Set(), Map(), duplicateErrors))(_ + _.resolveNames(nameEnvironment, this))
+    classNameGraph ++ elements.foldLeft(NameGraph(Set(), Map(), duplicateErrors))(_ ++ _.resolveNames(nameEnvironment, this))
   }
 
   override def toString: String = "class " + className.toString +

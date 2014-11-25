@@ -19,8 +19,8 @@ case class ConditionalBranch(leftVariable: TermVariable, rightVariable: TermVari
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
-    (leftVariable.resolveVariableNames(methodEnvironment) + rightVariable.resolveVariableNames(methodEnvironment) +
-      ifBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1 + elseBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
+    (leftVariable.resolveVariableNames(methodEnvironment) ++ rightVariable.resolveVariableNames(methodEnvironment) ++
+      ifBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1 ++ elseBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
 
   override def toString(preTabs : String) : String = {
     val innerPreTabs = preTabs + "\t"

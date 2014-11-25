@@ -11,7 +11,7 @@ case class App(e1: Exp, e2: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val g1 = e1.resolveNames(scope)
     val g2 = e2.resolveNames(scope)
-    g1 + g2
+    g1 ++ g2
   }
 
   def unsafeSubst(w: String, e: Exp) = App(e1.unsafeSubst(w, e), e2.unsafeSubst(w, e))

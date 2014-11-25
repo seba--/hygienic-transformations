@@ -15,7 +15,7 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
       case PUBLIC => NameGraph(Set((fieldName.id, true)), Map(), Set())
       case PRIVATE => NameGraph(Set((fieldName.id, false)), Map(), Set())
     }
-    fieldType.resolveNames(nameEnvironment) + fieldNameGraph
+    fieldType.resolveNames(nameEnvironment) ++ fieldNameGraph
   }
 
   override def toString: String = accessModifier.toString + " " + fieldType.toString + " " + fieldName.toString + ";"

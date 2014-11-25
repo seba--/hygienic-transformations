@@ -6,7 +6,7 @@ import name.NameGraph
 
 case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) extends Statement {
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment): (NameGraph, (VariableNameEnvironment, TypeEnvironment)) =
-    (variableType.resolveNames(nameEnvironment) + name.resolveVariableNames(methodEnvironment + (name.variableName -> name.variableName.id)), (methodEnvironment + (name.variableName -> name.variableName.id), typeEnvironment + (name -> variableType)))
+    (variableType.resolveNames(nameEnvironment) ++ name.resolveVariableNames(methodEnvironment + (name.variableName -> name.variableName.id)), (methodEnvironment + (name.variableName -> name.variableName.id), typeEnvironment + (name -> variableType)))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment): TypeEnvironment = {
     require(variableType match {

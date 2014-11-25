@@ -14,9 +14,9 @@ case class MethodBody(returnValue: ReturnValue, statements: Statement*) extends 
   def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment : VariableNameEnvironment, typeEnvironment : TypeEnvironment) : NameGraph = {
     val methodBodyResult = statements.foldLeft((NameGraph(Set(), Map(), Set()), (methodEnvironment, typeEnvironment)))((result, statement) => {
       val statementResult = statement.resolveNames(nameEnvironment, result._2._1, result._2._2)
-      (result._1 + statementResult._1, statementResult._2)
+      (result._1 ++ statementResult._1, statementResult._2)
     })
-    returnValue.resolveNames(nameEnvironment, methodBodyResult._2._1, methodBodyResult._2._2) + methodBodyResult._1
+    returnValue.resolveNames(nameEnvironment, methodBodyResult._2._1, methodBodyResult._2._2) ++ methodBodyResult._1
   }
 
   override def toString: String = statements.foldLeft("")(_ + "\t\t" + _.toString("\t\t") + "\n") + "\t\treturn " + returnValue.toString() + ";"

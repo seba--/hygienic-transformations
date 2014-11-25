@@ -23,7 +23,7 @@ abstract class Exp extends Nominal {
   def alphaEqual(e: Exp): Boolean = {
     val gthis = resolveNames
     val ge = e.resolveNames
-    alphaEqual(e, gthis + ge)
+    alphaEqual(e, gthis ++ ge)
   }
   def alphaEqual(e: Exp, g: NameGraph): Boolean
 }

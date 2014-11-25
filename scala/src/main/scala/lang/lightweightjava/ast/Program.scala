@@ -56,7 +56,7 @@ case class Program(classes: ClassDefinition*) extends AST {
           case method@MethodDefinition(MethodSignature(_, _, methodName, _*), _) => (method, methodName) }).map(m => (m._2.id,
             findMethod(getClassDefinition(superClass).get, m._2).getOrElse(m._1).signature.methodName.id)).toMap[Name.ID, Name.ID]
     }.foldLeft(Map[Name.ID, Name.ID]())(_ ++ _)
-    classes.foldLeft(NameGraph(Set(), Map(), Set()))(_ + _.resolveNames(programEnvironment)) + NameGraph(Set(), methodOverrideReferences, Set())
+    classes.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveNames(programEnvironment)) ++ NameGraph(Set(), methodOverrideReferences, Set())
   }
 
   override def toString = classes.foldLeft("")(_ + _.toString + "\n\n")

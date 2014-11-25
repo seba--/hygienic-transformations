@@ -1,7 +1,6 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.NameGraph._
 import name.{Name, NameGraph}
 
 case class FieldWrite(targetObject: TermVariable, targetField: Name, source: TermVariable) extends Statement {
@@ -27,18 +26,18 @@ case class FieldWrite(targetObject: TermVariable, targetField: Name, source: Ter
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
-    val variablesGraph = targetObject.resolveVariableNames(methodEnvironment) + source.resolveVariableNames(methodEnvironment)
+    val variablesGraph = targetObject.resolveVariableNames(methodEnvironment) ++ source.resolveVariableNames(methodEnvironment)
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
     if (typeEnvironment.contains(targetObject) && nameEnvironment.contains(typeEnvironment(targetObject).className)) {
       val fieldMap = nameEnvironment(typeEnvironment(targetObject).className)._2
       if (fieldMap.contains(targetField))
-        (variablesGraph + NameGraph(Set(targetField.id), Map(targetField.id -> fieldMap(targetField)), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(targetField.id), Map(targetField.id -> fieldMap(targetField)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+      (variablesGraph ++ NameGraph(Set(targetField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

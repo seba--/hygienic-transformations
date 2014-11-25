@@ -2,7 +2,6 @@ package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
 import name.{Name, NameGraph}
-import name.NameGraph._
 
 case class MethodCall(target: VariableName, sourceObject: TermVariable, methodName: Name, methodParameters: TermVariable*) extends Statement {
   require(AST.isLegalName(methodName), "Method name '" + methodName + "' is no legal Java method name")
@@ -31,19 +30,19 @@ case class MethodCall(target: VariableName, sourceObject: TermVariable, methodNa
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
-    val variablesGraph = target.resolveVariableNames(methodEnvironment) + sourceObject.resolveVariableNames(methodEnvironment) +
-      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ + _.resolveVariableNames(methodEnvironment))
+    val variablesGraph = target.resolveVariableNames(methodEnvironment) ++ sourceObject.resolveVariableNames(methodEnvironment) ++
+      methodParameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveVariableNames(methodEnvironment))
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown methods
     if (typeEnvironment.contains(sourceObject) && nameEnvironment.contains(typeEnvironment(sourceObject).className)) {
       val methodMap = nameEnvironment(typeEnvironment(sourceObject).className)._3
       if (methodMap.contains(methodName))
-        (variablesGraph + NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+      (variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

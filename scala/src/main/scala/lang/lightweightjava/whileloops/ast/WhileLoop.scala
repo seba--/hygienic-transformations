@@ -19,7 +19,7 @@ case class WhileLoop(leftVariable: TermVariable, rightVariable: TermVariable, lo
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
-    (leftVariable.resolveVariableNames(methodEnvironment) + rightVariable.resolveVariableNames(methodEnvironment) +
+    (leftVariable.resolveVariableNames(methodEnvironment) ++ rightVariable.resolveVariableNames(methodEnvironment) ++
       loopBody.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
 
   override def toString(preTabs : String) : String = {

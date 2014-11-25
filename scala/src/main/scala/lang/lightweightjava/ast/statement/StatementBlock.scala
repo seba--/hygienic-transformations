@@ -16,7 +16,7 @@ case class StatementBlock(blockBody: Statement*) extends Statement {
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
     (blockBody.foldLeft((NameGraph(Set(), Map(), Set()), (methodEnvironment, typeEnvironment)))((result, statement) => {
       val statementResult = statement.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)
-      (result._1 + statementResult._1, statementResult._2)
+      (result._1 ++ statementResult._1, statementResult._2)
     })._1, (methodEnvironment, typeEnvironment))
 
   override def toString(preTabs: String): String = {

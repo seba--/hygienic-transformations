@@ -2,7 +2,6 @@ package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
 import name.{Name, NameGraph}
-import name.NameGraph._
 
 case class FieldRead(target: VariableName, sourceObject: TermVariable, sourceField: Name) extends Statement {
   require(AST.isLegalName(sourceField), "Field name '" + sourceField + "' is no legal Java field name")
@@ -27,18 +26,18 @@ case class FieldRead(target: VariableName, sourceObject: TermVariable, sourceFie
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
-    val variablesGraph = target.resolveVariableNames(methodEnvironment) + sourceObject.resolveVariableNames(methodEnvironment)
+    val variablesGraph = target.resolveVariableNames(methodEnvironment) ++ sourceObject.resolveVariableNames(methodEnvironment)
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
     if (typeEnvironment.contains(sourceObject) && nameEnvironment.contains(typeEnvironment(sourceObject).className)) {
       val fieldMap = nameEnvironment(typeEnvironment(sourceObject).className)._2
       if (fieldMap.contains(sourceField))
-        (variablesGraph + NameGraph(Set(sourceField.id), Map(sourceField.id -> fieldMap(sourceField)), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(sourceField.id), Map(sourceField.id -> fieldMap(sourceField)), Set()), (methodEnvironment, typeEnvironment))
       else
-        (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+        (variablesGraph ++ NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
+      (variablesGraph ++ NameGraph(Set(sourceField.id), Map(), Set()), (methodEnvironment, typeEnvironment))
     }
   }
 

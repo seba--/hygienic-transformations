@@ -1,8 +1,6 @@
 package lang.lambda
 
-import name.Name
-import name.NameGraph
-import name.NameGraph.Edges
+import name.{Edges, Name, NameGraph}
 
 /**
  * Created by seba on 01/08/14.
