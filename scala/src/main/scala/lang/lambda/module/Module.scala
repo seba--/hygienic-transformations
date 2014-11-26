@@ -37,7 +37,7 @@ abstract class Module extends Nominal {
 
   def moduleScope : Map[String, Name.ID]
 
-  def exportedNames : Set[Name.ID]
+  def exportedNames : Set[Name.ID] = defs.keys.filter(_._2).map(_._1.id).toSet
 }
 
 case class InternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
@@ -48,8 +48,6 @@ case class InternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[
   }
 
   override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(id, imports, renamingResult)
-
-  override def exportedNames = imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames) ++ defs.keys.filter(_._2).map(_._1.id).toSet
 }
 
 
@@ -61,8 +59,6 @@ case class ExternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[
   }
 
   override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(id, imports, renamingResult)
-
-  override def exportedNames = defs.keys.filter(_._2).map(_._1.id).toSet ++ imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames)
 }
 
 
@@ -96,6 +92,4 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
   }
 
   override def rename(renamingResult : Map[(Name, Boolean), Exp]) = NoPrecedenceModule(id, imports, renamingResult)
-
-  override def exportedNames = defs.keys.filter(_._2).map(_._1.id).toSet ++ imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames)
 }

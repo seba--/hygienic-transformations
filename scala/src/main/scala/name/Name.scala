@@ -8,9 +8,10 @@ import scala.language.implicitConversions
 object Name {
   class ID(var nameO: Name) {
     def name = nameO.name
+    override def toString = name
   }
 
-  implicit def apply(name: String) = {
+  implicit def apply(name: String): Name = {
     val id = new ID(null)
     val nameO = new Name(name, id)
     id.nameO = nameO

@@ -1,14 +1,18 @@
 package name
 
 import name.Gensym._
-import name.NameGraph._
 
 /**
  * Created by seba on 01/08/14.
  */
 object NameFix {
   val fixer = new NameFix
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = fixer.nameFix(gs, t)
+  val fixerModular = new NameFixModular
+
+  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = gs match {
+    case NameGraphGlobal(_, _, _)  => fixer.nameFix(gs, t)
+    case NameGraphModular(_, _, _, _, _, _) => fixerModular.nameFix(gs, t)
+  }
 }
 
 class NameFix {
