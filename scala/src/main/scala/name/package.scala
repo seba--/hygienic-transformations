@@ -4,6 +4,7 @@ package object name {
   type Nodes = Set[(Name.ID, Boolean)]
   type Edges = Map[Name.ID, Name.ID]
   type DeclarationConflicts = Set[Set[Name.ID]]
+  type ImportConflicts = Set[Set[(String, Name.ID)]]
   type OutEdges = Map[Name.ID, (String, Name.ID)]
 
   implicit def nodeFromID(id : Name.ID) : (Name.ID, Boolean) = (id, false)
