@@ -17,8 +17,8 @@ abstract class Module extends Nominal {
     val moduleNodes = defs.keys.map(d => (d._1.id, d._2)).toSet
 
     // Find imported names with same strings and create a set of conflicting name sets.
-    val importConflicts = imports.flatMap(m => m.exportedNames.map(n => (m.id, n))).foldLeft(Set[Set[(String, Name.ID)]]())(
-      (oldSet, d) => oldSet.find(_.exists(d._2.name == _._2.name)) match {
+    val importConflicts = imports.flatMap(m => m.exportedNames).foldLeft(Set[Set[Name.ID]]())(
+      (oldSet, d) => oldSet.find(_.exists(d.name == _.name)) match {
         case Some(set) => oldSet - set + (set + d)
         case None => oldSet + Set(d)
       }).filter(_.size > 1)
@@ -32,7 +32,7 @@ abstract class Module extends Nominal {
 
     val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.id, e._2))).toMap
 
-    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C, importConflicts)
+    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts)
   }
 
   def moduleScope : Map[String, Name.ID]
@@ -58,7 +58,7 @@ case class ExternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[
     internalScope ++ importedScope
   }
 
-  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(id, imports, renamingResult)
+  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = ExternalPrecedenceModule(id, imports, renamingResult)
 }
 
 
@@ -66,13 +66,13 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
   override def resolveNames = {
     val moduleNodes = defs.keys.map(d => (d._1.id, d._2)).toSet
 
-    val importNames = imports.flatMap(m => m.exportedNames.map(n => (m.id, n))).foldLeft(Set[Set[(String, Name.ID)]]())(
-      (oldSet, d) => oldSet.find(_.exists(d._2.name == _._2.name)) match {
+    val importNames = imports.flatMap(m => m.exportedNames).foldLeft(Set[Set[Name.ID]]())(
+      (oldSet, d) => oldSet.find(_.exists(d.name == _.name)) match {
         case Some(set) => oldSet - set + (set + d)
         case None => oldSet + Set(d)
       })
 
-    val doubleDefNames = defs.foldLeft(importNames.foldLeft(Set[Set[Name.ID]]())(_ + _.map(_._2)))(
+    val doubleDefNames = defs.foldLeft(importNames)(
       (oldSet, d) => oldSet.find(_.exists(d._1._1.name == _.name)) match {
       case Some(set) => oldSet - set + (set + d._1._1.id)
       case None => oldSet + Set(d._1._1.id)
@@ -82,7 +82,7 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
 
     val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.id, e._2))).toMap
 
-    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C, importNames.filter(_.size > 1))
+    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C)
   }
 
   override def moduleScope = {

@@ -46,7 +46,6 @@ class ModuleTest extends FunSuite {
     assert(g.EOut.size == 3, "There should be 3 external edges in the name graph of the multiAdderModuleIP!")
     assert(g.EOut.forall(_._2 == oneRef), "All external edges in the name graph of the multiAdderModuleIP should point to 'one'!")
     assert(g.C.size == 0, "There should be no declaration conflicts in the name graph of the multiAdderModuleIP")
-    assert(g.COut.size == 0, "There should be no import conflicts in the name graph of the multiAdderModuleIP")
   }
 
   test ("External precedence test") {
@@ -63,7 +62,6 @@ class ModuleTest extends FunSuite {
     assert(twoRefs.size == 1, "There should be 1 external edges in the name graph of the multiAdderModuleEP that points to 'two'!")
 
     assert(g.C.size == 0, "There should be no declaration conflicts in the name graph of the multiAdderModuleEP")
-    assert(g.COut.size == 0, "There should be no import conflicts in the name graph of the multiAdderModuleEP")
   }
 
   test ("No precedence test") {
@@ -83,8 +81,6 @@ class ModuleTest extends FunSuite {
 
     val conflict = Set(twoRef._2, twoInternalRef(multiAdderModuleNP))
     assert(g.C.head == conflict, "The declaration conflict in the name graph of the multiAdderModuleNP should be between the internal and the external declaration of 'two'")
-
-    assert(g.COut.size == 0, "There should be no import conflicts in the name graph of the multiAdderModuleNP")
   }
 
   test ("Internal precedence import conflict test") {
@@ -96,12 +92,10 @@ class ModuleTest extends FunSuite {
     assert(g.E.head._2 == twoInternalRef(multiAdderModuleIPconflict), "The internal edge in the name graph of the multiAdderModuleIPconflict should point to 'two'!")
     assert(g.EOut.size == 3, "There should be 3 external edges in the name graph of the multiAdderModuleIPconflict!")
     assert(g.EOut.forall(_._2 == oneRef), "All external edges in the name graph of the multiAdderModuleIPconflict should point to 'one'!")
-    assert(g.C.size == 0, "There should be no declaration conflicts in the name graph of the multiAdderModuleIPconflict")
+    assert(g.C.size == 1, "There should be an declaration conflict in the name graph of the multiAdderModuleIPconflict")
 
-    assert(g.COut.size == 1, "There should be an import conflict in the name graph of the multiAdderModuleIPconflict")
-
-    val conflict = Set((oneAdderModule.id, twoRef._2), (oneAdderModuleConflicting.id, twoConflictingRef._2))
-    assert(g.COut.head == conflict, "The import conflict in the name graph of the multiAdderModuleIPconflict should be between the declarations of 'two' in the oneAdderModules")
+    val conflict = Set(twoRef._2, twoConflictingRef._2)
+    assert(g.C.head == conflict, "The declaration conflict in the name graph of the multiAdderModuleIPconflict should be between the declarations of 'two' in the oneAdderModules")
   }
 
   test ("No precedence import conflict test") {
@@ -121,8 +115,5 @@ class ModuleTest extends FunSuite {
 
     val declConflict = Set(twoRef._2, twoInternalRef(multiAdderModuleNPconflict), twoConflictingRef._2)
     assert(g.C.head == declConflict, "The declaration conflict in the name graph of the multiAdderModuleNPconflict should be between the internal and both external declarations of 'two'")
-
-    val impConflict = Set((oneAdderModule.id, twoRef._2), (oneAdderModuleConflicting.id, twoConflictingRef._2))
-    assert(g.COut.head == impConflict, "The import conflict in the name graph of the multiAdderModuleNPconflict should be between the declarations of 'two' in the oneAdderModules")
   }
 }
