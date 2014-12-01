@@ -31,9 +31,9 @@ class ModuleTest extends FunSuite {
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
 
-  def oneRef = (baseModule.id, baseModule.defs.head._1._1.id)
-  def twoRef = (oneAdderModule.id, oneAdderModule.defs.head._1._1.id)
-  def twoConflictingRef = (oneAdderModuleConflicting.id, oneAdderModuleConflicting.defs.head._1._1.id)
+  def oneRef = (baseModule.name.id, baseModule.defs.head._1._1.id)
+  def twoRef = (oneAdderModule.name.id, oneAdderModule.defs.head._1._1.id)
+  def twoConflictingRef = (oneAdderModuleConflicting.name.id, oneAdderModuleConflicting.defs.head._1._1.id)
   def twoInternalRef(m: Module) = m.defs.map(_._1._1).find(_.name == "two").get.id
 
   test ("Internal precedence test") {

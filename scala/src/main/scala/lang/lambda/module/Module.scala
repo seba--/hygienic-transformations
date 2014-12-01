@@ -4,7 +4,7 @@ import lang.lambda.Exp
 import name._
 
 abstract class Module extends Nominal {
-  val id : String
+  val name : Name
   val imports: Set[Module]
   val defs: Map[(Name, Boolean), Exp]
 
@@ -30,9 +30,9 @@ abstract class Module extends Nominal {
 
     val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(moduleScope))
 
-    val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.id, e._2))).toMap
+    val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.name.id, e._2))).toMap
 
-    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts)
+    NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts)
   }
 
   def moduleScope : Map[String, Name.ID]
@@ -40,29 +40,29 @@ abstract class Module extends Nominal {
   def exportedNames : Set[Name.ID] = defs.keys.filter(_._2).map(_._1.id).toSet
 }
 
-case class InternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
+case class InternalPrecedenceModule(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
   override def moduleScope = {
     val importedScope = imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames).map(name => (name.name, name)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     importedScope ++ internalScope
   }
 
-  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(id, imports, renamingResult)
+  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = InternalPrecedenceModule(name, imports, renamingResult)
 }
 
 
-case class ExternalPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
+case class ExternalPrecedenceModule(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
   override def moduleScope = {
     val importedScope = imports.foldLeft(Set[Name.ID]())(_ ++ _.exportedNames).map(name => (name.name, name)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     internalScope ++ importedScope
   }
 
-  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = ExternalPrecedenceModule(id, imports, renamingResult)
+  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = ExternalPrecedenceModule(name, imports, renamingResult)
 }
 
 
-case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
+case class NoPrecedenceModule(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
   override def resolveNames = {
     val moduleNodes = defs.keys.map(d => (d._1.id, d._2)).toSet
 
@@ -80,9 +80,9 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
 
     val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(moduleScope))
 
-    val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.id, e._2))).toMap
+    val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.contains(e._2)).get.name.id, e._2))).toMap
 
-    NameGraphModular(id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C)
+    NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C)
   }
 
   override def moduleScope = {
@@ -91,5 +91,5 @@ case class NoPrecedenceModule(id: String, imports: Set[Module], defs: Map[(Name,
     importedScope ++ internalScope
   }
 
-  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = NoPrecedenceModule(id, imports, renamingResult)
+  override def rename(renamingResult : Map[(Name, Boolean), Exp]) = NoPrecedenceModule(name, imports, renamingResult)
 }

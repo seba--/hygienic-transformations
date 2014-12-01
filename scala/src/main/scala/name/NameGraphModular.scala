@@ -3,7 +3,7 @@ package name
 import scala.language.implicitConversions
 
 object NameGraphModular {
-  def apply(ID: String, E: Edges): NameGraph = {
+  def apply(ID: Name.ID, E: Edges): NameGraph = {
     var V: Nodes = Set()
     E foreach { kv =>
       V += kv._1
@@ -12,16 +12,16 @@ object NameGraphModular {
     NameGraphModular(ID, V, E, Map(), Set())
   }
 
-  def apply(ID: String, V: Set[Name.ID], E: Edges) : NameGraph = {
+  def apply(ID: Name.ID, V: Set[Name.ID], E: Edges) : NameGraph = {
     NameGraphModular(ID, V.map(id => (id, false)), E, Map(), Set())
   }
 
-  def apply(ID: String, V: Nodes, E: Edges, C: DeclarationConflicts) : NameGraph = {
+  def apply(ID: Name.ID, V: Nodes, E: Edges, C: DeclarationConflicts) : NameGraph = {
     NameGraphModular(ID, V, E, Map(), C)
   }
 }
 
-case class NameGraphModular(ID: String, V: Nodes, E: Edges, EOut: OutEdges, C: DeclarationConflicts = Set[Set[Name.ID]]()) extends NameGraph {
+case class NameGraphModular(ID: Name.ID, V: Nodes, E: Edges, EOut: OutEdges, C: DeclarationConflicts = Set[Set[Name.ID]]()) extends NameGraph {
   def ++(g: NameGraph) = g match {
     case NameGraphModular(id, v, e, eOut, c) => NameGraphModular(ID, V ++ v, E ++ e, EOut ++ eOut, C ++ c)
     case _ => NameGraphModular(ID, V ++ g.V, E ++ g.E, EOut, C ++ g.C)
