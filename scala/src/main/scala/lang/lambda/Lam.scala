@@ -8,8 +8,8 @@ import name.{Edges, Name, NameGraph}
 case class Lam(x: Name, body: Exp) extends Exp {
   def allNames = body.allNames + x.id
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
-  def resolveNames(scope: Scope) = {
-    val gbody = body.resolveNames(scope + (x.name -> x.id))
+  def resolveNames(scope: Scope, modularScope: ModularScope) = {
+    val gbody = body.resolveNames(scope + (x.name -> x.id), modularScope)
     gbody ++ NameGraph(Set(x.id), Map() : Edges)
   }
 
@@ -23,4 +23,7 @@ case class Lam(x: Name, body: Exp) extends Exp {
       body.alphaEqual(body2, g + E2)
     case _ => false
   }
+
+  override def replaceByQualifiedVar(name: Name, qualifiedVar: QualifiedVar) =
+    Lam(x, body.replaceByQualifiedVar(name, qualifiedVar))
 }

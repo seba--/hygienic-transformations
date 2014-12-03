@@ -9,9 +9,9 @@ object NameFix {
   val fixer = new NameFix
   val fixerModular = new NameFixModular
 
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = gs match {
-    case NameGraphGlobal(_, _, _)  => fixer.nameFix(gs, t)
-    case NameGraphModular(_, _, _, _, _, _) => fixerModular.nameFix(gs, t)
+  def nameFix[T <: Nominal, U <: NameGraph](gs: U, t: T): T = (gs, t) match {
+    case (NameGraphGlobal(_, _, _), _)  => fixer.nameFix(gs, t)
+    case (NameGraphModular(_, _, _, _, _), tm:NominalModular) => fixerModular.nameFix(gs, t)
   }
 }
 

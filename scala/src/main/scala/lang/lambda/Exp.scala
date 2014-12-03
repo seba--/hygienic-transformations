@@ -9,10 +9,13 @@ import name.{Name, Nominal}
  */
 abstract class Exp extends Nominal {
   type Scope = Map[String,Name.ID]
+  type ModularScope = Map[(String, String),(Name.ID, Name.ID)]
 
   def resolveNames: NameGraph = resolveNames(Map())
-  def resolveNames(scope: Scope): NameGraph
+  def resolveNames(scope: Scope): NameGraph = resolveNames(scope, Map())
+  def resolveNames(scope: Scope, modularScope: ModularScope): NameGraph
   def rename(renaming: Renaming): Exp
+  def replaceByQualifiedVar(name: Name, qualifiedVar: QualifiedVar): Exp
 
   def unsafeSubst(x: String, e: Exp): Exp
   def subst(w: String, e: Exp): Exp = nameFix(resolveNames, unsafeSubst(w, e))

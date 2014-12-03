@@ -1,7 +1,7 @@
 package lang.lambda.num
 
-import lang.lambda.Exp
-import name.NameGraph
+import lang.lambda.{QualifiedVar, Exp}
+import name.{Name, NameGraph}
 
 /**
  * Created by seba on 01/08/14.
@@ -9,7 +9,7 @@ import name.NameGraph
 case class Num(v: Int) extends Exp {
   def allNames = Set()
   def rename(renaming: Renaming) = this
-  def resolveNames(scope: Scope) = NameGraph(Map())
+  def resolveNames(scope: Scope, modularScope: ModularScope) = NameGraph(Map())
 
   def unsafeSubst(w: String, e: Exp) = this
 
@@ -19,4 +19,6 @@ case class Num(v: Int) extends Exp {
     case Num(v2) => v == v2
     case _ => false
   }
+
+  override def replaceByQualifiedVar(name: Name, qualifiedVar: QualifiedVar) = this
 }

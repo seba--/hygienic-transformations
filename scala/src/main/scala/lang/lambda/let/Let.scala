@@ -1,6 +1,6 @@
 package lang.lambda.let
 
-import lang.lambda.Exp
+import lang.lambda.{QualifiedVar, Exp}
 import name.{Edges, Name, NameGraph}
 
 /**
@@ -9,9 +9,9 @@ import name.{Edges, Name, NameGraph}
 case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
   def allNames = bound.allNames ++ body.allNames + x.id
   def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
-  def resolveNames(scope: Scope) = {
-    val gbound = bound.resolveNames(scope)
-    val gbody = body.resolveNames(scope + (x.name -> x.id))
+  def resolveNames(scope: Scope, modularScope: ModularScope) = {
+    val gbound = bound.resolveNames(scope, modularScope)
+    val gbody = body.resolveNames(scope + (x.name -> x.id), modularScope)
     gbound ++ gbody ++ NameGraph(Set(x.id), Map() : Edges)
   }
 
@@ -32,4 +32,7 @@ case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
       }
     case _ => false
   }
+
+  override def replaceByQualifiedVar(name: Name, qualifiedVar: QualifiedVar) =
+    Let(x, bound.replaceByQualifiedVar(name, qualifiedVar), body.replaceByQualifiedVar(name, qualifiedVar))
 }

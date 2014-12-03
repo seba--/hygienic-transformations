@@ -8,26 +8,26 @@ import org.scalatest._
 class ModuleTest extends FunSuite {
   val fixer: NameFix = NameFix.fixerModular
 
-  val baseModule = NoPrecedenceModule("base", Set(),
+  val baseModule = ModuleNoPrecedence("base", Set(),
     Map((Name("one"), true) -> Num(1)))
-  val oneAdderModule = NoPrecedenceModule("oneAdder", Set(baseModule),
+  val oneAdderModule = ModuleNoPrecedence("oneAdder", Set(baseModule),
     Map((Name("two"), true) -> Add(Var("one"), Var("one"))))
-  val multiAdderModuleIP = InternalPrecedenceModule("multiAdder", Set(baseModule, oneAdderModule),
+  val multiAdderModuleIP = ModuleInternalPrecedence("multiAdder", Set(baseModule, oneAdderModule),
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
-  val multiAdderModuleEP = ExternalPrecedenceModule("multiAdder", Set(baseModule, oneAdderModule),
+  val multiAdderModuleEP = ModuleExternalPrecedence("multiAdder", Set(baseModule, oneAdderModule),
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
-  val multiAdderModuleNP = NoPrecedenceModule("multiAdder", Set(baseModule, oneAdderModule),
+  val multiAdderModuleNP = ModuleNoPrecedence("multiAdder", Set(baseModule, oneAdderModule),
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
 
-  val oneAdderModuleConflicting = NoPrecedenceModule("oneAdder2", Set(),
+  val oneAdderModuleConflicting = ModuleNoPrecedence("oneAdder2", Set(),
     Map((Name("two"), true) -> Add(Num(1), Num(1))))
-  val multiAdderModuleIPconflict = InternalPrecedenceModule("multiAdder", Set(baseModule, oneAdderModuleConflicting, oneAdderModule),
+  val multiAdderModuleIPconflict = ModuleInternalPrecedence("multiAdder", Set(baseModule, oneAdderModuleConflicting, oneAdderModule),
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
-  val multiAdderModuleNPconflict = NoPrecedenceModule("multiAdder", Set(baseModule, oneAdderModuleConflicting, oneAdderModule),
+  val multiAdderModuleNPconflict = ModuleNoPrecedence("multiAdder", Set(baseModule, oneAdderModuleConflicting, oneAdderModule),
     Map((Name("three"), true) -> Add(Var("two"), Var("one")),
         (Name("two"), true) -> Add(Var("one"), Var("one"))))
 

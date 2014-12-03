@@ -16,3 +16,9 @@ trait Nominal {
       case Some(name2) => new Name(name2, name.id)
     })
 }
+
+trait NominalModular extends Nominal {
+  def resolveNames: NameGraphModular
+  def exportedNames: Set[Name]
+  def safelyQualifiedReference(reference: Name, declaration: Name.ID): Option[NominalModular]
+}
