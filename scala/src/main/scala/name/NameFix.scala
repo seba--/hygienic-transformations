@@ -36,7 +36,7 @@ class NameFix {
 
     for (v <- nodesToRename) {
       val fresh = gensym(v.name, t.allNames.map(_.name) ++ renaming.values)
-      if (gs.V.contains(v)) {
+      if (gs.V.exists(_._1 == v)) {
         renaming += (v -> fresh)
         for (v2 <- findConnectedNodes(gs, v))
           renaming += (v2 -> fresh)
