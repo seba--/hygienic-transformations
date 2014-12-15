@@ -7,15 +7,13 @@ abstract class ClassRef extends AST {
 
   def className: Name
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment) = resolveNames(nameEnvironment, isExported = false)
-
-  def resolveNames(nameEnvironment: ClassNameEnvironment, isExported : Boolean): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
     // If the class name is pointing to itself (because it is declared here), add only the node but no edges
     if (!nameEnvironment.contains(className) || nameEnvironment(className)._1 == className.id)
-      NameGraph(Set((className.id, isExported)), Map(), Set())
+      NameGraph(Set(className.id), Map(), Set())
     // If the class name is pointing to another class name, add it and the edge to the name graph
     else
-      NameGraph(Set((className.id, isExported)), Map(className.id -> nameEnvironment(className)._1), Set())
+      NameGraph(Set(className.id), Map(className.id -> nameEnvironment(className)._1), Set())
   }
 
   override def toString: String = className.toString

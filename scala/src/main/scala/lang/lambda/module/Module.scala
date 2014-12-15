@@ -13,8 +13,8 @@ abstract class Module extends NominalModular {
 
   override def allNames = defs.values.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ defs.keys.map(_._1.id)
 
-  override def resolveNames = {
-    val moduleNodes = defs.keys.map(d => (d._1.id, d._2)).toSet
+  override def resolveNames(dependencyRenaming : DependencyRenaming) = {
+    val moduleNodes = defs.keys.map(_._1.id).toSet
 
     // Find imported names with same strings and create a set of conflicting name sets.
     val importConflicts = imports.flatMap(m => m.exportedNames.map(_.id)).foldLeft(Set[Set[Name.ID]]())(
@@ -75,7 +75,7 @@ case class ModuleExternalPrecedence(name: Name, imports: Set[Module], defs: Map[
 
 case class ModuleNoPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
   override def resolveNames = {
-    val moduleNodes = defs.keys.map(d => (d._1.id, d._2)).toSet
+    val moduleNodes = defs.keys.map(_._1.id).toSet
 
     val importNames = imports.flatMap(m => m.exportedNames.map(_.id)).foldLeft(Set[Set[Name.ID]]())(
       (oldSet, d) => oldSet.find(_.exists(d.name == _.name)) match {

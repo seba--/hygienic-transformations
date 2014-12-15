@@ -33,12 +33,12 @@ case class ReturnField(returnObject: TermVariable, returnField: Name) extends Re
     if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).className)) {
       val fieldMap = nameEnvironment(typeEnvironment(returnObject).className)._2
       if (fieldMap.contains(returnField))
-        variablesGraph ++ NameGraph(Set((returnField.id, false)), Map(returnField.id -> fieldMap(returnField)), Set())
+        variablesGraph ++ NameGraph(Set(returnField.id), Map(returnField.id -> fieldMap(returnField)), Set())
       else
-        variablesGraph ++ NameGraph(Set((returnField.id, false)), Map(), Set())
+        variablesGraph ++ NameGraph(Set(returnField.id), Map(), Set())
     }
     else {
-      variablesGraph ++ NameGraph(Set((returnField.id, false)), Map(), Set())
+      variablesGraph ++ NameGraph(Set(returnField.id), Map(), Set())
     }
   }
 

@@ -12,10 +12,7 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
     MethodSignature(accessModifier, returnType.rename(renaming), renaming(methodName), parameters.map(_.rename(renaming)): _*)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
-    val methodNameGraph = accessModifier match {
-      case PUBLIC => NameGraph(Set((methodName.id, true)), Map(), Set())
-      case PRIVATE => NameGraph(Set((methodName.id, false)), Map(), Set())
-    }
+    val methodNameGraph = NameGraph(Set(methodName.id), Map(), Set())
     returnType.resolveNames(nameEnvironment) ++ methodNameGraph ++ parameters.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveNames(nameEnvironment))
   }
 

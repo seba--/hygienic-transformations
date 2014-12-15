@@ -37,9 +37,9 @@ class ModuleTest extends FunSuite {
   def twoInternalRef(m: Module) = m.defs.map(_._1._1).find(_.name == "two").get.id
 
   test ("Internal precedence test") {
-    val g = multiAdderModuleIP.resolveNames
+    val g = multiAdderModuleIP.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleIP!")
-    assert(g.V.count(_._2) == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleIP!")
+    assert(multiAdderModuleIP.exportedNames.size == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleIP!")
 
     assert(g.E.size == 1, "There should be 1 internal edge in the name graph of the multiAdderModuleIP!")
     assert(g.E.head._2 == twoInternalRef(multiAdderModuleIP), "The internal edge in the name graph of the multiAdderModuleIP should point to 'two'!")
@@ -49,9 +49,9 @@ class ModuleTest extends FunSuite {
   }
 
   test ("External precedence test") {
-    val g = multiAdderModuleEP.resolveNames
+    val g = multiAdderModuleEP.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleEP!")
-    assert(g.V.count(_._2) == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleEP!")
+    assert(multiAdderModuleEP.exportedNames.size == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleEP!")
 
     assert(g.E.size == 0, "There should be no internal edges in the name graph of the multiAdderModuleEP!")
     assert(g.EOut.size == 4, "There should be 4 external edges in the name graph of the multiAdderModuleEP!")
@@ -65,9 +65,9 @@ class ModuleTest extends FunSuite {
   }
 
   test ("No precedence test") {
-    val g = multiAdderModuleNP.resolveNames
+    val g = multiAdderModuleNP.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleNP!")
-    assert(g.V.count(_._2) == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleNP!")
+    assert(multiAdderModuleNP.exportedNames.size == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleNP!")
 
     assert(g.E.size + g.EOut.size == 4, "There should be a total number of 4 edges in the name graph of the multiAdderModuleNP!")
 
@@ -84,9 +84,9 @@ class ModuleTest extends FunSuite {
   }
 
   test ("Internal precedence import conflict test") {
-    val g = multiAdderModuleIPconflict.resolveNames
+    val g = multiAdderModuleIPconflict.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleIPconflict!")
-    assert(g.V.count(_._2) == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleIPconflict!")
+    assert(multiAdderModuleIPconflict.exportedNames.size == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleIPconflict!")
 
     assert(g.E.size == 1, "There should be 1 internal edge in the name graph of the multiAdderModuleIPconflict!")
     assert(g.E.head._2 == twoInternalRef(multiAdderModuleIPconflict), "The internal edge in the name graph of the multiAdderModuleIPconflict should point to 'two'!")
@@ -99,9 +99,9 @@ class ModuleTest extends FunSuite {
   }
 
   test ("No precedence import conflict test") {
-    val g = multiAdderModuleNPconflict.resolveNames
+    val g = multiAdderModuleNPconflict.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleNPconflict!")
-    assert(g.V.count(_._2) == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleNPconflict!")
+    assert(multiAdderModuleNPconflict.exportedNames.size == 2, "There should be 2 exported nodes in the name graph of the multiAdderModuleNPconflict!")
 
     assert(g.E.size + g.EOut.size == 4, "There should be a total number of 4 edges in the name graph of the multiAdderModuleNPconflict!")
 

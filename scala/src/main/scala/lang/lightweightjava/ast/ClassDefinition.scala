@@ -43,7 +43,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
-    val classNameGraph = className.resolveNames(nameEnvironment, isExported = true) ++ superClass.resolveNames(nameEnvironment, isExported = true)
+    val classNameGraph = className.resolveNames(nameEnvironment) ++ superClass.resolveNames(nameEnvironment)
 
     // Collect all field/method names
     val fieldNames = elements.toSeq.collect({ case FieldDeclaration(_, _, name) => name })

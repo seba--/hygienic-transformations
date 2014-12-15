@@ -17,11 +17,11 @@ object NameGraph {
   }
 
   def apply(V: Set[Name.ID], E: Edges) : NameGraph = {
-    NameGraphGlobal(V.map(id => (id, false)), E, Set())
+    NameGraphGlobal(V, E, Set())
   }
 
   def apply(V: Set[Name.ID], E: Edges, C : DeclarationConflicts) : NameGraph = {
-    NameGraphGlobal(V.map(id => (id, false)), E, C)
+    NameGraphGlobal(V, E, C)
   }
 }
 

@@ -37,12 +37,12 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Name, method
     if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).className)) {
       val methodMap = nameEnvironment(typeEnvironment(returnObject).className)._3
       if (methodMap.contains(methodName))
-        variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(methodName.id -> methodMap(methodName)), Set())
+        variablesGraph ++ NameGraph(Set(methodName.id), Map(methodName.id -> methodMap(methodName)), Set())
       else
-        variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(), Set())
+        variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set())
     }
     else {
-      variablesGraph ++ NameGraph(Set((methodName.id, false)), Map(), Set())
+      variablesGraph ++ NameGraph(Set(methodName.id), Map(), Set())
     }
   }
 

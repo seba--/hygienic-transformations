@@ -11,10 +11,7 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
   override def rename(renaming: Renaming) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition): NameGraph = {
-    val fieldNameGraph = accessModifier match {
-      case PUBLIC => NameGraph(Set((fieldName.id, true)), Map(), Set())
-      case PRIVATE => NameGraph(Set((fieldName.id, false)), Map(), Set())
-    }
+    val fieldNameGraph = NameGraph(Set(fieldName.id), Map(), Set())
     fieldType.resolveNames(nameEnvironment) ++ fieldNameGraph
   }
 
