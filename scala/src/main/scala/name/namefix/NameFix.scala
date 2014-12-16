@@ -10,7 +10,7 @@ object NameFix {
   val fixer = new NameFix
   val fixerModular = new NameFixModular
 
-  def nameFix[T <: Nominal, U <: NameGraph](gs: U, t: T): T = (gs, t) match {
+  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = (gs, t) match {
     case (NameGraphGlobal(_, _, _), _)  => fixer.nameFix(gs, t)
     case (NameGraphModular(_, _, _, _, _), tm:NominalModular) => fixerModular.nameFix(gs, t)
   }
@@ -31,8 +31,8 @@ class NameFix {
     notPreserveVar ++ notPreserveDef
   }
 
-  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Set[Name.ID]): Map[Name.ID, String] = {
-    var renaming: Map[Name.ID, String] = Map()
+  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Nodes): Renaming = {
+    var renaming: Renaming = Map()
     val newIds = t.allNames -- gs.V
 
     for (v <- nodesToRename) {
@@ -51,7 +51,7 @@ class NameFix {
     renaming
   }
 
-  protected def findConnectedNodes(g: NameGraph, n: Name.ID, result: Set[Name.ID] = Set()): Set[Name.ID] = {
+  protected def findConnectedNodes(g: NameGraph, n: Name.ID, result: Nodes = Set()): Nodes = {
     // Handling this here to simplify final renaming method
     if (n == null) Set()
 
@@ -67,7 +67,7 @@ class NameFix {
     newResult
   }
 
-  private def nameFixCaptures[T <: Nominal](gs: NameGraph, t: T): (T, Map[Name.ID, String]) = {
+  private def nameFixCaptures[T <: Nominal](gs: NameGraph, t: T): (T, Renaming) = {
     val gt = t.resolveNames()
     val capture = findCapture(gs, gt)
     if (capture.isEmpty)
@@ -83,9 +83,9 @@ class NameFix {
     }
   }
 
-  private def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Map[Name.ID, String]) = {
+  private def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Renaming) = {
     val gt = t.resolveNames()
-    var renamingNodes: Set[Name.ID] = Set()
+    var renamingNodes: Nodes = Set()
 
     for (multipleDeclarationNodes <- gt.C) {
       val synthesizedNodes = multipleDeclarationNodes.filterNot(v => gs.V.contains(v))
@@ -115,10 +115,10 @@ class NameFix {
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
     // Step 1: Classic NameFix for captures
-    val (tFixed, renaming) = nameFixCaptures(gs, t)
+    val (tFixed, _) = nameFixCaptures(gs, t)
 
     // Step 2: Fix name graph errors
-    val (tFixedFinal, renamingError) = nameFixErrors(gs, tFixed)
+    val (tFixedFinal, _) = nameFixErrors(gs, tFixed)
 
     tFixedFinal
   }

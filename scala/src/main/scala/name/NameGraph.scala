@@ -16,11 +16,11 @@ object NameGraph {
     NameGraphGlobal(V, E, Set())
   }
 
-  def apply(V: Set[Name.ID], E: Edges) : NameGraph = {
+  def apply(V: Nodes, E: Edges) : NameGraph = {
     NameGraphGlobal(V, E, Set())
   }
 
-  def apply(V: Set[Name.ID], E: Edges, C : DeclarationConflicts) : NameGraph = {
+  def apply(V: Nodes, E: Edges, C : DeclarationConflicts) : NameGraph = {
     NameGraphGlobal(V, E, C)
   }
 }
@@ -36,7 +36,7 @@ abstract class NameGraph {
 
 }
 
-case class NameGraphGlobal(V: Nodes, E: Edges, C: DeclarationConflicts = Set[Set[Name.ID]]()) extends NameGraph {
+case class NameGraphGlobal(V: Nodes, E: Edges, C: DeclarationConflicts = Set[Nodes]()) extends NameGraph {
   def ++(g: NameGraph) = NameGraphGlobal(V ++ g.V, E ++ g.E, C ++ g.C)
   def --(g: NameGraph) = NameGraphGlobal(V -- g.V, E -- g.E.keys, C -- g.C)
   def +(e: Edges) = NameGraphGlobal(V, E ++ e, C)

@@ -12,7 +12,7 @@ case object NameGraphModular {
     NameGraphModular(ID, V, E, Map(), Set())
   }
 
-  def apply(ID: Name.ID, V: Set[Name.ID], E: Edges) : NameGraph = {
+  def apply(ID: Name.ID, V: Nodes, E: Edges) : NameGraph = {
     NameGraphModular(ID, V, E, Map(), Set())
   }
 
@@ -21,7 +21,7 @@ case object NameGraphModular {
   }
 }
 
-case class NameGraphModular(ID: Name.ID, V: Nodes, E: Edges, EOut: OutEdges, C: DeclarationConflicts = Set[Set[Name.ID]]()) extends NameGraph {
+case class NameGraphModular(ID: Name.ID, V: Nodes, E: Edges, EOut: OutEdges, C: DeclarationConflicts = Set[Nodes]()) extends NameGraph {
   def ++(g: NameGraph) = g match {
     case NameGraphModular(id, v, e, eOut, c) => NameGraphModular(ID, V ++ v, E ++ e, EOut ++ eOut, C ++ c)
     case _ => NameGraphModular(ID, V ++ g.V, E ++ g.E, EOut, C ++ g.C)

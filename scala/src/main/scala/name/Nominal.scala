@@ -4,14 +4,14 @@ package name
  * Created by seba on 01/08/14.
  */
 trait Nominal {
-  type Renaming = Name => Name
-  type DependencyRenaming = (Name.ID, Name) => Name
+  type RenamingFunction = Name => Name
+  type DependencyRenamingFunction = (Name.ID, Name) => Name
 
-  def allNames: Set[Name.ID]
-  def rename(renaming: Renaming): Nominal
+  def allNames: Nodes
+  def rename(renaming: RenamingFunction): Nominal
   def resolveNames(): NameGraph
 
-  def rename(renaming: Map[Name.ID, String]): Nominal =
+  def rename(renaming: Renaming): Nominal =
     rename(name => renaming.get(name.id) match {
       case None => name
       case Some(name2) => new Name(name2, name.id)
@@ -19,13 +19,13 @@ trait Nominal {
 }
 
 trait NominalModular extends Nominal {
-  override def resolveNames(): NameGraphModular = resolveNames(Map[(Name.ID, Name.ID), String]())
-  def resolveNames(dependencyRenaming : DependencyRenaming) : NameGraphModular
-  def resolveNames(dependencyRenaming : Map[(Name.ID, Name.ID), String]) : NameGraphModular =
+  override def resolveNames(): NameGraphModular = resolveNames(Map[Dependency, String]())
+  def resolveNames(dependencyRenaming : DependencyRenamingFunction) : NameGraphModular
+  def resolveNames(dependencyRenaming : DependencyRenaming) : NameGraphModular =
     resolveNames((graph, name) => dependencyRenaming.get((graph, name.id)) match {
       case None => name
       case Some(name2) => new Name(name2, name.id)
     })
-  def exportedNames: Set[Name]
+  def exportedNames: ExportedNames
   def safelyQualifiedReference(reference: Name, declaration: Name.ID): Option[NominalModular]
 }

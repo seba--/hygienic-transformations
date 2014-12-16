@@ -29,8 +29,8 @@ class NameFixModular extends NameFix {
   }
 
 
-  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Set[Name.ID]): Map[Name.ID, String] = {
-    var renaming: Map[Name.ID, String] = Map()
+  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Nodes): Renaming = {
+    var renaming: Renaming = Map()
     val newIds = t.allNames -- gs.V
 
     for (v <- nodesToRename) {
@@ -49,7 +49,7 @@ class NameFixModular extends NameFix {
     renaming
   }
 
-  private def compDependencyRenamings(nodesToRename: Set[(Name.ID, Name.ID)], allNames: Set[String]): DependencyRenaming = {
+  private def compDependencyRenamings(nodesToRename: Set[Dependency], allNames: Set[String]): DependencyRenaming = {
     var renaming: DependencyRenaming = Map()
 
     for (v <- nodesToRename) {
@@ -87,7 +87,7 @@ class NameFixModular extends NameFix {
     //val (tFixed2, renamingError) = nameFixErrors(gs, tFixed1)
 
     // Step 2: Find alternative renamings for exported names based on the fixed graph
-    val (tFixedFinal, exportedNameRenamed) = nameFixFindAlternatives(t, tFixed1, renaming, tFixed1.exportedNames)
+    val (tFixedFinal, exportedNameRenamed) = nameFixFindAlternatives(t, tFixed1, renaming, dependencyRenaming)
 
     // Currently only a warning message, later additional handling
     if (exportedNameRenamed)
@@ -120,12 +120,13 @@ class NameFixModular extends NameFix {
     }
   }
 
-  private def nameFixFindAlternatives[T <: Nominal](t: T, tFixed: T, renaming: Map[Name.ID, String], exportedNames: Set[Name]): (T, Boolean) = {
+  private def nameFixFindAlternatives[T <: NominalModular](t: T, tFixed: T, renaming: Renaming, renamedDependencies : DependencyRenaming): (T, Boolean) = {
     val gT = t.resolveNames()
     val gTFixed = tFixed.resolveNames()
+    val exportedNames = tFixed.exportedNames
 
     var exportedNameRenamed = false
-    var alternativeRenaming: Map[Name.ID, String] = Map()
+    var alternativeRenaming: Renaming = Map()
 
     // For each edge in the unfixed graph ...
     for ((v, dOld) <- gT.E) {
@@ -171,7 +172,7 @@ class NameFixModular extends NameFix {
       // Else, apply the calculated alternative renaming ...
       val tFixedAlternative = t.rename(alternativeRenaming).asInstanceOf[T]
       // ... and perform a recursive call with the alternative result
-      val (tFinal, exportedNameRenamedRecursive) = nameFixFindAlternatives(tFixedAlternative, tFixed, renaming ++ alternativeRenaming, exportedNames)
+      val (tFinal, exportedNameRenamedRecursive) = nameFixFindAlternatives(tFixedAlternative, tFixed, renaming ++ alternativeRenaming, renamedDependencies)
 
       (tFinal, exportedNameRenamed || exportedNameRenamedRecursive)
     }
