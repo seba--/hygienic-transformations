@@ -5,7 +5,7 @@ package name
  */
 trait Nominal {
   type Renaming = Name => Name
-  type DependencyRenaming = Name => Name
+  type DependencyRenaming = (Name.ID, Name) => Name
 
   def allNames: Set[Name.ID]
   def rename(renaming: Renaming): Nominal
@@ -19,10 +19,10 @@ trait Nominal {
 }
 
 trait NominalModular extends Nominal {
-  override def resolveNames(): NameGraphModular = resolveNames(Map[Name.ID, String]())
+  override def resolveNames(): NameGraphModular = resolveNames(Map[(Name.ID, Name.ID), String]())
   def resolveNames(dependencyRenaming : DependencyRenaming) : NameGraphModular
-  def resolveNames(dependencyRenaming : Map[Name.ID, String]) : NameGraphModular =
-    resolveNames(name => dependencyRenaming.get(name.id) match {
+  def resolveNames(dependencyRenaming : Map[(Name.ID, Name.ID), String]) : NameGraphModular =
+    resolveNames((graph, name) => dependencyRenaming.get((graph, name.id)) match {
       case None => name
       case Some(name2) => new Name(name2, name.id)
     })

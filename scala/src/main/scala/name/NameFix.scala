@@ -2,6 +2,8 @@ package name
 
 import name.Gensym._
 
+import scala.annotation.tailrec
+
 /**
  * Created by seba on 01/08/14.
  */
@@ -67,7 +69,7 @@ class NameFix {
   }
 
   private def nameFixCaptures[T <: Nominal](gs: NameGraph, t: T): (T, Map[Name.ID, String]) = {
-    val gt = t.resolveNames
+    val gt = t.resolveNames()
     val capture = findCapture(gs, gt)
     if (capture.isEmpty)
       (t, Map())
@@ -83,7 +85,7 @@ class NameFix {
   }
 
   private def nameFixErrors[T <: Nominal](gs: NameGraph, t: T) : (T, Map[Name.ID, String]) = {
-    val gt = t.resolveNames
+    val gt = t.resolveNames()
     var renamingNodes: Set[Name.ID] = Set()
 
     for (multipleDeclarationNodes <- gt.C) {
@@ -169,39 +171,39 @@ class NameFixModular extends NameFix {
     renaming
   }
 
-  private def compDependencyRenamings(nodesToRename: Set[Name.ID], allNames : Set[String]): Map[Name.ID, String] = {
-    var renaming: Map[Name.ID, String] = Map()
+  private def compDependencyRenamings(nodesToRename: Set[(Name.ID, Name.ID)], allNames : Set[String]): DependencyRenaming = {
+    var renaming : DependencyRenaming = Map()
 
     for (v <- nodesToRename) {
-      val fresh = gensym(v.name, allNames ++ renaming.values)
+      val fresh = gensym(v._2.name, allNames ++ renaming.values)
       renaming += (v -> fresh)
     }
 
     renaming
   }
 
-  private def nameFixCaptures[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies : Renaming,
-                                                     fixedModules : Set[Meta]) : (T, Map[Name.ID, String]) = {
+  private def nameFixCaptures[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies : DependencyRenaming,
+                                                     fixedModules : Set[Meta]) : (T, Renaming, DependencyRenaming) = {
     val gt = t.resolveNames(renamedDependencies)
     val capture = findCapture(gs, gt, fixedModules)
     if (capture._1.isEmpty && capture._2.isEmpty)
-      (t, Map())
+      (t, Map(), Map())
     else {
       val renaming = compRenamings(gs, t, capture._1.values.toSet)
       val allNames = t.allNames.map(_.name) ++ fixedModules.flatMap(meta => meta._2 ++ meta._3).map(_.name)
-      val virtuallyRenamedDependencies = compDependencyRenamings(capture._2.values.map(_._2).toSet, allNames)
+      val virtuallyRenamedDependencies = compDependencyRenamings(capture._2.values.toSet, allNames)
 
       val tNew = t.rename(renaming).asInstanceOf[T]
 
-      val (tNameFixed, recursiveRenaming) = nameFixCaptures(gs, tNew, renamedDependencies ++ virtuallyRenamedDependencies, fixedModules)
+      val (tNameFixed, recursiveRenaming, recursiveDependencyRenaming) = nameFixCaptures(gs, tNew, renamedDependencies ++ virtuallyRenamedDependencies, fixedModules)
 
-      (tNameFixed, renaming ++ virtuallyRenamedDependencies ++ recursiveRenaming)
+      (tNameFixed, renaming ++ recursiveRenaming, virtuallyRenamedDependencies ++ recursiveDependencyRenaming)
     }
   }
 
   protected def nameFixModule[T <: NominalModular](gs: NameGraphModular, t: T, fixedModules : Set[Meta]): (T, Meta) = {
     // Step 1: Classic NameFix for captures
-    val (tFixed1, renaming) = nameFixCaptures(gs, t, fixedModules.flatMap(_._4).toMap, fixedModules)
+    val (tFixed1, renaming, dependencyRenaming) = nameFixCaptures(gs, t, fixedModules.flatMap(m => m._4.map(r => ((m._1, r._1), r._2))).toMap, fixedModules)
 
     // Step 2: Fix name graph errors
     //val (tFixed2, renamingError) = nameFixErrors(gs, tFixed1)
@@ -234,14 +236,15 @@ class NameFixModular extends NameFix {
       val currentModuleFixed = nameFixModule(currentModule._1, currentModule._2, fixedModules.map(_._2))
       if ((modules - currentModule).isEmpty)
         fixedModules + currentModuleFixed
-      else
+      else {
         nameFix(modules - currentModule, fixedModules + currentModuleFixed)
+      }
     }
   }
 
   private def nameFixFindAlternatives[T <: Nominal](t : T, tFixed : T, renaming : Map[Name.ID, String], exportedNames : Set[Name]) : (T, Boolean) = {
-    val gT = t.resolveNames
-    val gTFixed = tFixed.resolveNames
+    val gT = t.resolveNames()
+    val gTFixed = tFixed.resolveNames()
 
     var exportedNameRenamed = false
     var alternativeRenaming : Map[Name.ID, String] = Map()

@@ -17,10 +17,10 @@ abstract class Module extends NominalModular {
     val moduleNodes = defs.keys.map(_._1.id).toSet
 
     // Find imported names with same strings and create a set of conflicting name sets.
-    val importConflicts = imports.flatMap(m => m.exportedNames.map(_.id)).foldLeft(Set[Set[Name.ID]]())(
-      (oldSet, d) => oldSet.find(_.exists(d.name == _.name)) match {
-        case Some(set) => oldSet - set + (set + d)
-        case None => oldSet + Set(d)
+    val importConflicts = imports.flatMap(m => m.exportedNames.map(n => (n.id, dependencyRenaming(m.name.id, n)))).foldLeft(Set[Set[(Name.ID, String)]]())(
+      (oldSet, d) => oldSet.find(_.exists(d._2.name == _._2)) match {
+        case Some(set) => oldSet - set + (set + ((d._1, d._2.name)))
+        case None => oldSet + Set((d._1, d._2.name))
       }).filter(_.size > 1)
 
     val doubleDefNames = defs.foldLeft(Set[Set[Name.ID]]())((oldSet, d) => oldSet.find(_.exists(d._1._1.name == _.name)) match {
@@ -28,16 +28,16 @@ abstract class Module extends NominalModular {
       case None => oldSet + Set(d._1._1.id)
     }).filter(_.size > 1)
 
-    val modularScope = defs.map(d => ((name.name, d._1._1.name), (name.id, d._1._1.id))).toMap ++ imports.flatMap(i => i.exportedNames.map(n => ((i.name.name, n.name), (i.name.id, n.id)))).toMap
+    val modularScope = defs.map(d => ((name.name, d._1._1.name), (name.id, d._1._1.id))).toMap ++ imports.flatMap(i => i.exportedNames.map(n => dependencyRenaming(i.name.id, n)).map(n => ((i.name.name, n.name), (i.name.id, n.id)))).toMap
 
-    val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(internalScope, modularScope))
+    val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(internalScope(dependencyRenaming), modularScope))
 
     val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.exists(_.id == e._2)).get.name.id, e._2))).toMap
 
-    NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts)
+    NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts.map(_.map(_._1)))
   }
 
-  protected def internalScope : Map[String, Name.ID]
+  protected def internalScope(dependencyRenaming : DependencyRenaming) : Map[String, Name.ID]
 
   override def exportedNames : Set[Name] = defs.keys.filter(_._2).map(_._1).toSet
 
@@ -52,8 +52,8 @@ abstract class Module extends NominalModular {
 }
 
 case class ModuleInternalPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def internalScope = {
-    val importedScope = imports.foldLeft(Set[Name]())(_ ++ _.exportedNames).map(name => (name.name, name.id)).toMap
+  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+    val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     importedScope ++ internalScope
   }
@@ -63,8 +63,8 @@ case class ModuleInternalPrecedence(name: Name, imports: Set[Module], defs: Map[
 
 
 case class ModuleExternalPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def internalScope = {
-    val importedScope = imports.foldLeft(Set[Name]())(_ ++ _.exportedNames).map(name => (name.name, name.id)).toMap
+  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+    val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     internalScope ++ importedScope
   }
@@ -74,14 +74,14 @@ case class ModuleExternalPrecedence(name: Name, imports: Set[Module], defs: Map[
 
 
 case class ModuleNoPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def resolveNames = {
+  override def resolveNames(dependencyRenaming : DependencyRenaming) = {
     val moduleNodes = defs.keys.map(_._1.id).toSet
 
-    val importNames = imports.flatMap(m => m.exportedNames.map(_.id)).foldLeft(Set[Set[Name.ID]]())(
-      (oldSet, d) => oldSet.find(_.exists(d.name == _.name)) match {
-        case Some(set) => oldSet - set + (set + d)
-        case None => oldSet + Set(d)
-      })
+    val importNames = imports.flatMap(m => m.exportedNames.map(n => (n.id, dependencyRenaming(m.name.id, n)))).foldLeft(Set[Set[(Name.ID, String)]]())(
+      (oldSet, d) => oldSet.find(_.exists(d._2.name == _._2)) match {
+        case Some(set) => oldSet - set + (set + ((d._1, d._2.name)))
+        case None => oldSet + Set((d._1, d._2.name))
+      }).map(_.map(_._1))
 
     val doubleDefNames = defs.foldLeft(importNames)(
       (oldSet, d) => oldSet.find(_.exists(d._1._1.name == _.name)) match {
@@ -89,17 +89,17 @@ case class ModuleNoPrecedence(name: Name, imports: Set[Module], defs: Map[(Name,
       case None => oldSet + Set(d._1._1.id)
     }).filter(_.size > 1)
 
-    val modularScope = defs.map(d => ((name.name, d._1._1.name), (name.id, d._1._1.id))).toMap ++ imports.flatMap(i => i.exportedNames.map(n => ((i.name.name, n.name), (i.name.id, n.id)))).toMap
+    val modularScope = defs.map(d => ((name.name, d._1._1.name), (name.id, d._1._1.id))).toMap ++ imports.flatMap(i => i.exportedNames.map(n => dependencyRenaming(i.name.id, n)).map(n => ((i.name.name, n.name), (i.name.id, n.id)))).toMap
 
-    val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(internalScope, modularScope))
+    val moduleGraph = defs.foldLeft(NameGraphGlobal(moduleNodes, Map(), doubleDefNames))(_ ++ _._2.resolveNames(internalScope(dependencyRenaming), modularScope))
 
     val externalRefs = moduleGraph.E.filter(e => !allNames.contains(e._2)).map(e => (e._1, (imports.find(_.exportedNames.exists(_.id == e._2)).get.name.id, e._2))).toMap
 
     NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C)
   }
 
-  override def internalScope = {
-    val importedScope = imports.foldLeft(Set[Name]())(_ ++ _.exportedNames).map(name => (name.name, name.id)).toMap
+  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+    val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     importedScope ++ internalScope
   }

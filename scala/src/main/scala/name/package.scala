@@ -9,4 +9,5 @@ package object name {
   type Meta = (Name.ID, ExportedNames, ExportedNames, Renaming)
   type ExportedNames = Set[Name]
   type Renaming = Map[Name.ID, String]
+  type DependencyRenaming = Map[(Name.ID, Name.ID), String]
 }

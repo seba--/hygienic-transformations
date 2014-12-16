@@ -64,6 +64,33 @@ class ModuleTest extends FunSuite {
     assert(g.C.size == 0, "There should be no declaration conflicts in the name graph of the multiAdderModuleEP")
   }
 
+  test ("Dependency renaming test (bindings)") {
+    val g = multiAdderModuleEP.resolveNames(Map(twoRef -> "two0"))
+    assert(g.V.size == 6, "There should be 6 nodes in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.E.size == 1, "There should be 1 internal edge in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.E.head._2 == twoInternalRef(multiAdderModuleEP), "The internal edge in the dependency renamed name graph of the multiAdderModuleEP should point to 'two'!")
+    assert(g.EOut.size == 3, "There should be 3 external edges in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.EOut.forall(_._2 == oneRef), "All external edges in the dependency renamed name graph of the multiAdderModuleEP should point to 'one'!")
+    assert(g.C.size == 0, "There should be no declaration conflicts in the dependency renamed name graph of the multiAdderModuleEP")
+
+    val g2 = multiAdderModuleEP.resolveNames(Map(twoRef -> "two0", oneRef -> "two"))
+    assert(g2.V.size == 6, "There should be 6 nodes in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g2.E.size == 0, "There should be no internal edges in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g2.EOut.size == 1, "There should be 1 external edge in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g2.EOut.head._2 == oneRef, "There should be one external edge in the dependency renamed name graph of the multiAdderModuleEP that points to 'one'!")
+    assert(g2.C.size == 0, "There should be no declaration conflicts in the dependency renamed name graph of the multiAdderModuleEP")
+  }
+
+  test ("Dependency renaming test (conflicts)") {
+    val g = multiAdderModuleEP.resolveNames(Map(oneRef -> "two"))
+    assert(g.V.size == 6, "There should be 6 nodes in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.E.size == 0, "There should be no internal edges in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.EOut.size == 1, "There should be one external edge in the dependency renamed name graph of the multiAdderModuleEP!")
+    assert(g.C.size == 1, "There should be 1 declaration conflict in the dependency renamed name graph of the multiAdderModuleEP")
+    val conflict = Set(oneRef._2, twoRef._2)
+    assert(g.C.head == conflict, "The declaration conflict in the dependency renamed name graph of the multiAdderModuleEP should be between the external declarations of 'two'")
+  }
+
   test ("No precedence test") {
     val g = multiAdderModuleNP.resolveNames()
     assert(g.V.size == 6, "There should be 6 nodes in the name graph of the multiAdderModuleNP!")
