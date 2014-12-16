@@ -2,7 +2,8 @@ package lang.lambda
 
 import lang.lambda.let._
 import lang.lambda.num._
-import name.{Edges, NameFix, NameGraph}
+import name.namefix.NameFix
+import name.{Edges, NameGraph}
 import org.scalatest._
 
 /**

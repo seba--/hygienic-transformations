@@ -3,6 +3,7 @@ package lang.lambda.module
 import lang.lambda._
 import lang.lambda.num._
 import name._
+import name.namefix.NameFix
 import org.scalatest._
 
 class QualifiedVarTest extends FunSuite {

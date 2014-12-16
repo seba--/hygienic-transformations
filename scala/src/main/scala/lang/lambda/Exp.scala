@@ -1,6 +1,7 @@
 package lang.lambda
 
-import name.NameFix._
+import name.namefix.NameFix
+import NameFix._
 import name.NameGraph
 import name.{Name, Nominal}
 

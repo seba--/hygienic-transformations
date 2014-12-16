@@ -3,7 +3,8 @@ package lang.lightweightjava
 import lang.lightweightjava.ast.statement.VariableName
 import lang.lightweightjava.configuration.NormalConfiguration
 import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
-import name.{NameFix, Nominal}
+import name.Nominal
+import name.namefix.NameFix
 import org.scalatest.{FlatSpec, Matchers}
 
 class NameFixTest extends FlatSpec with Matchers {
