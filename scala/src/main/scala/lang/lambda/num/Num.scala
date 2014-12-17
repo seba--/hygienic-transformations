@@ -8,7 +8,7 @@ import name.{Name, NameGraph}
  */
 case class Num(v: Int) extends Exp {
   def allNames = Set()
-  def rename(renaming: Renaming) = this
+  def rename(renaming: RenamingFunction) = this
   def resolveNames(scope: Scope, modularScope: ModularScope) = NameGraph(Map())
 
   def unsafeSubst(w: String, e: Exp) = this

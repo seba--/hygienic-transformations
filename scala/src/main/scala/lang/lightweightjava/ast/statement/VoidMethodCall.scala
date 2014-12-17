@@ -8,7 +8,7 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Name, methodPa
 
   override def allNames = sourceObject.allNames ++ methodParameters.foldLeft(Set[Name.ID]())(_ ++ _.allNames) + methodName.id
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     VoidMethodCall(sourceObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {

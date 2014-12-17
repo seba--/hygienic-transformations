@@ -8,7 +8,7 @@ case class MethodCall(target: VariableName, sourceObject: TermVariable, methodNa
 
   override def allNames = target.allNames ++ sourceObject.allNames ++ methodParameters.foldLeft(Set[Name.ID]())(_ ++ _.allNames) + methodName.id
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     MethodCall(target.rename(renaming), sourceObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {

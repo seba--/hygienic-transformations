@@ -7,7 +7,7 @@ import name.{Name, NameGraph}
 case class MethodBody(returnValue: ReturnValue, statements: Statement*) extends AST {
   override def allNames = statements.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ returnValue.allNames
 
-  override def rename(renaming: Renaming) = MethodBody(returnValue.rename(renaming), statements.map(_.rename(renaming)): _*)
+  override def rename(renaming: RenamingFunction) = MethodBody(returnValue.rename(renaming), statements.map(_.rename(renaming)): _*)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = sys.error("Can't resolve method body names without method context")
 

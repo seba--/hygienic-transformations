@@ -6,7 +6,7 @@ import name.{Name, NameGraph}
 case class StatementBlock(blockBody: Statement*) extends Statement {
   override def allNames = blockBody.foldLeft(Set[Name.ID]())(_ ++ _.allNames)
 
-  override def rename(renaming: Renaming) = StatementBlock(blockBody.map(_.rename(renaming)): _*)
+  override def rename(renaming: RenamingFunction) = StatementBlock(blockBody.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     blockBody.foldLeft(typeEnvironment)((oldEnvironment, statement) => statement.typeCheckForTypeEnvironment(program, oldEnvironment))

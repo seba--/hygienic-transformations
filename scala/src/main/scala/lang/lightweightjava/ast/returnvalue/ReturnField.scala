@@ -9,7 +9,7 @@ case class ReturnField(returnObject: TermVariable, returnField: Name) extends Re
 
   override def allNames = returnObject.allNames + returnField.id
 
-  override def rename(renaming: Renaming) = ReturnField(returnObject.rename(renaming), renaming(returnField))
+  override def rename(renaming: RenamingFunction) = ReturnField(returnObject.rename(renaming), renaming(returnField))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(returnObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")

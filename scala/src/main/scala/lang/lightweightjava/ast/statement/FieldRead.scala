@@ -8,7 +8,7 @@ case class FieldRead(target: VariableName, sourceObject: TermVariable, sourceFie
 
   override def allNames = sourceObject.allNames ++ target.allNames + sourceField.id
 
-  override def rename(renaming: Renaming) = FieldRead(target.rename(renaming), sourceObject.rename(renaming), renaming(sourceField))
+  override def rename(renaming: RenamingFunction) = FieldRead(target.rename(renaming), sourceObject.rename(renaming), renaming(sourceField))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(sourceObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")

@@ -6,7 +6,7 @@ import lang.lightweightjava.ast.statement.{Null, Statement, TermVariable, This}
 case class WhileLoop(leftVariable: TermVariable, rightVariable: TermVariable, loopBody: Statement) extends Statement {
   override def allNames = leftVariable.allNames ++ rightVariable.allNames ++ loopBody.allNames
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     WhileLoop(leftVariable.rename(renaming), rightVariable.rename(renaming), loopBody.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment) = {

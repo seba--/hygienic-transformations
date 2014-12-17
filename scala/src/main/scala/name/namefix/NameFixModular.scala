@@ -60,6 +60,21 @@ class NameFixModular extends NameFix {
     renaming
   }
 
+  private def propagateRenamings[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies: DependencyRenaming): (T, Renaming) = {
+    val gt = t.resolveNames()
+    var renaming: Renaming = Map()
+    for ((dependency, dependencyRenaming) <- renamedDependencies) {
+      for ((v, d) <- gs.EOut if d == dependency) {
+        renaming ++= findConnectedNodes(gs, v).map(n => (n, dependencyRenaming)).toMap
+      }
+      for (v <- gt.V -- gs.V if v.name == dependency._2.name) {
+        renaming ++= findConnectedNodes(gt, v).filter(n => !gs.V.contains(n)).map(n => (n, dependencyRenaming)).toMap
+      }
+    }
+    val tRenamed = t.rename(renaming).asInstanceOf[T]
+    (tRenamed, renaming)
+  }
+
   private def nameFixCaptures[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies: DependencyRenaming,
                                                    fixedModules: Set[Meta]): (T, Renaming, DependencyRenaming) = {
     val gt = t.resolveNames(renamedDependencies)
@@ -80,14 +95,21 @@ class NameFixModular extends NameFix {
   }
 
   protected def nameFixModule[T <: NominalModular](gs: NameGraphModular, t: T, fixedModules: Set[Meta]): (T, Meta) = {
-    // Step 1: Classic NameFix for captures
-    val (tFixed1, renaming, dependencyRenaming) = nameFixCaptures(gs, t, fixedModules.flatMap(m => m._4.map(r => ((m._1, r._1), r._2))).toMap, fixedModules)
+    val renamedDependencies = fixedModules.flatMap(m => m._4.map(r => ((m._1, r._1), r._2))).toMap
+
+    // Step 1: Propagate renamings of dependencies
+    val (tRenamed, propagationRenaming) = propagateRenamings(gs, t, renamedDependencies)
+
+    // Step 2: Classic NameFix for captures
+    // Note that the dependencyRenaming parameter is only used for recursion!
+    // The actual dependencyRenaming calculated above is already applied in step 1 and no longer relevant.
+    val (tFixedCaptures, renaming, virtualRenaming) = nameFixCaptures(gs, tRenamed, Map(), fixedModules)
 
     // Step 2: Fix name graph errors
     //val (tFixed2, renamingError) = nameFixErrors(gs, tFixed1)
 
     // Step 2: Find alternative renamings for exported names based on the fixed graph
-    val (tFixedFinal, exportedNameRenamed) = nameFixFindAlternatives(t, tFixed1, renaming, dependencyRenaming)
+    val (tFixedFinal, exportedNameRenamed) = nameFixFindAlternatives(tRenamed, tFixedCaptures, renaming, virtualRenaming)
 
     // Currently only a warning message, later additional handling
     if (exportedNameRenamed)
@@ -120,7 +142,7 @@ class NameFixModular extends NameFix {
     }
   }
 
-  private def nameFixFindAlternatives[T <: NominalModular](t: T, tFixed: T, renaming: Renaming, renamedDependencies : DependencyRenaming): (T, Boolean) = {
+  private def nameFixFindAlternatives[T <: NominalModular](t: T, tFixed: T, renaming: Renaming, virtualRenaming : DependencyRenaming): (T, Boolean) = {
     val gT = t.resolveNames()
     val gTFixed = tFixed.resolveNames()
     val exportedNames = tFixed.exportedNames
@@ -128,39 +150,55 @@ class NameFixModular extends NameFix {
     var exportedNameRenamed = false
     var alternativeRenaming: Renaming = Map()
 
+    for ((v, (nameGraphOld, dOld)) <- gT.EOut) {
+      val (nameGraphNew, dNew) = gTFixed.EOut.get(v) match {
+        case Some((nameGraph, d)) => (Some(nameGraph), Some(d))
+        case None => gTFixed.E.get(v) match {
+          case Some (d) => (None, Some(d))
+          case None => (None, None)
+        }
+      }
+    }
+
     // For each edge in the unfixed graph ...
     for ((v, dOld) <- gT.E) {
       // ... get the edge with the same source node in the fixed graph (there might also be no edge any more!)
-      val dNew = gTFixed.E.getOrElse(v, null)
+      val (nameGraphNew, dNew) = gTFixed.E.get(v) match {
+        case Some(d) => (None, Some(d))
+        case None => gTFixed.EOut.get(v) match {
+          case Some((nameGraph, d)) => (Some(nameGraph), Some(d))
+          case None => (None, None)
+        }
+      }
 
       // Only need to handle edges that changed through fixing
-      if (dOld != dNew) {
-        // Get all nodes connected to the old target node in the fixed graph
-        val dOldReferences = findConnectedNodes(gTFixed, dOld)
-        // Check if any of them is exported
-        if (gTFixed.V.exists(v2 => dOldReferences.contains(v2) && exportedNames.exists(_.id == v2))) {
+      if (nameGraphNew.isDefined || dNew.isEmpty || dOld != dNew.get) {
+          // Get all nodes connected to the old target node in the fixed graph
+          val dOldReferences = findConnectedNodes(gTFixed, dOld)
+          // Check if any of them is exported
+          if (gTFixed.V.exists(v2 => dOldReferences.contains(v2) && exportedNames.exists(_.id == v2))) {
 
-          // Get all nodes connected to the source node in the fixed graph
-          // Note that this leads to the same result as using dNew if there is a new edge, but if there isn't, v itself is also a valid renaming option.
-          val dNewReferences = findConnectedNodes(gTFixed, v)
-          // Check if none of them is exported
-          if (!gTFixed.V.exists(v2 => dNewReferences.contains(v2) && exportedNames.exists(_.id == v2))) {
-            // Generate an all new name for the alternative renaming
-            val fresh = Gensym.gensym(v.name, tFixed.allNames.map(_.name) ++ renaming.values ++ alternativeRenaming.values)
-            alternativeRenaming ++= dNewReferences.map(r => (r, fresh)).toMap[Name.ID, String]
+            // Get all nodes connected to the source node in the fixed graph
+            // Note that this leads to the same result as using dNew if there is a new edge, but if there isn't, v itself is also a valid renaming option.
+            val dNewReferences = findConnectedNodes(gTFixed, v)
+            // Check if none of them is exported
+            if (!gTFixed.V.exists(v2 => dNewReferences.contains(v2) && exportedNames.exists(_.id == v2))) {
+              // Generate an all new name for the alternative renaming
+              val fresh = Gensym.gensym(v.name, tFixed.allNames.map(_.name) ++ renaming.values ++ alternativeRenaming.values)
+              alternativeRenaming ++= dNewReferences.map(r => (r, fresh)).toMap[Name.ID, String]
+            }
+            // If both nodes have connected nodes that are exported, renaming one of them is unavoidable!
+            else {
+              exportedNameRenamed = true
+              // Choosing the renaming found by original name fix
+              alternativeRenaming ++= dOldReferences.map(r => (r, renaming.getOrElse(r, r.name))).toMap[Name.ID, String]
+            }
+
           }
-          // If both nodes have connected nodes that are exported, renaming one of them is unavoidable!
+          // If no node is exported, the renaming found by original name fix is sufficient and can be re-used
           else {
-            exportedNameRenamed = true
-            // Choosing the renaming found by original name fix
             alternativeRenaming ++= dOldReferences.map(r => (r, renaming.getOrElse(r, r.name))).toMap[Name.ID, String]
           }
-
-        }
-        // If no node is exported, the renaming found by original name fix is sufficient and can be re-used
-        else {
-          alternativeRenaming ++= dOldReferences.map(r => (r, renaming.getOrElse(r, r.name))).toMap[Name.ID, String]
-        }
       }
     }
 
@@ -172,7 +210,7 @@ class NameFixModular extends NameFix {
       // Else, apply the calculated alternative renaming ...
       val tFixedAlternative = t.rename(alternativeRenaming).asInstanceOf[T]
       // ... and perform a recursive call with the alternative result
-      val (tFinal, exportedNameRenamedRecursive) = nameFixFindAlternatives(tFixedAlternative, tFixed, renaming ++ alternativeRenaming, renamedDependencies)
+      val (tFinal, exportedNameRenamedRecursive) = nameFixFindAlternatives(tFixedAlternative, tFixed, renaming ++ alternativeRenaming, virtualRenaming)
 
       (tFinal, exportedNameRenamed || exportedNameRenamedRecursive)
     }

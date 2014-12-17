@@ -9,7 +9,7 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Name, method
 
   override def allNames = returnObject.allNames ++ methodParameters.foldLeft(Set[Name.ID]())(_ ++ _.allNames) + methodName.id
 
-  override def rename(renaming: Renaming) = ReturnMethodCall(returnObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
+  override def rename(renaming: RenamingFunction) = ReturnMethodCall(returnObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     typeEnvironment(returnObject) match {

@@ -10,13 +10,17 @@ class ModuleNameFixTest extends FunSuite {
   val fixer: NameFix = NameFix.fixerModular
 
   val baseModule = ModuleNoPrecedence("base", Set(),
-    Map((Name("one"), true) -> Num(1), (Name("two"), true) -> Num(2)))
+    Map((Name("one"), true) -> Num(1)))
   val baseOne = baseModule.allNames.find(_.name == "one").get
-  val baseTwo = baseModule.allNames.find(_.name == "two").get
+
+  val baseModuleAlt = ModuleNoPrecedence("base", Set(),
+    Map((Name("one"), true) -> Num(1), (Name("two"), true) -> Num(2)))
+  val baseAltOne = baseModuleAlt.allNames.find(_.name == "one").get
+  val baseAltTwo = baseModuleAlt.allNames.find(_.name == "two").get
 
   val dependentModule = ModuleInternalPrecedence("dependent", Set(baseModule),
     Map((Name("three"), true) -> Add(Var("one"), Var("two")), (Name("two"), true) -> Num(2)))
-  val dependentModuleAlt = ModuleInternalPrecedence("dependent", Set(baseModule),
+  val dependentModuleAlt = ModuleInternalPrecedence("dependent", Set(baseModuleAlt),
     Map((Name("three"), true) -> Add(Var("one"), Lam("two", Var("two"))), (Name("two"), true) -> Num(2)))
 
   val dependentOneRef = dependentModule.allNames.find(_.name == "one").get
@@ -49,7 +53,7 @@ class ModuleNameFixTest extends FunSuite {
 
   // Before: Bound externally, After: Bound internally
   val nameGraphTwoBoundExternally = dependentModule.resolveNames() --
-    NameGraphModular(Name("dependent").id, Set(dependentTwo), Map(dependentTwoRef -> dependentTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentTwoRef -> (baseModule.name.id, baseTwo)), Set())
+    NameGraphModular(Name("dependent").id, Set(dependentTwo), Map(dependentTwoRef -> dependentTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentTwoRef -> (baseModuleAlt.name.id, baseAltTwo)), Set())
 
   test ("Not defined -> Bound internally to src test") {
     val fixed = fixer.nameFix(nameGraphTwoUndefined, dependentModule).resolveNames()
@@ -102,9 +106,9 @@ class ModuleNameFixTest extends FunSuite {
   }
 
   test ("Bound externally -> Bound internally") {
-    val fixed = fixer.nameFix(nameGraphOneBoundInternally, dependentModule).resolveNames()
+    val fixed = fixer.nameFix(nameGraphOneBoundInternally, dependentModuleAlt).resolveNames()
     info(fixed.toString)
-    assert (!fixed.E.contains(dependentTwoRef), "Two must not be bound internally after fixing!")
-    assert (fixed.EOut(dependentTwoRef) == (baseModule.name.id, baseTwo), "Two must be bound as in the source graph after fixing!")
+    assert (!fixed.E.contains(dependentAltTwoRef), "Two must not be bound internally after fixing!")
+    assert (fixed.EOut(dependentTwoRef) == (baseModuleAlt.name.id, baseAltTwo), "Two must be bound as in the source graph after fixing!")
   }
 }

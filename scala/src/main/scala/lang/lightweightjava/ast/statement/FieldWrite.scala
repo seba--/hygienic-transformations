@@ -8,7 +8,7 @@ case class FieldWrite(targetObject: TermVariable, targetField: Name, source: Ter
 
   override def allNames = targetObject.allNames ++ source.allNames + targetField.id
 
-  override def rename(renaming: Renaming) = FieldWrite(targetObject.rename(renaming), renaming(targetField), source.rename(renaming))
+  override def rename(renaming: RenamingFunction) = FieldWrite(targetObject.rename(renaming), renaming(targetField), source.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(targetObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")

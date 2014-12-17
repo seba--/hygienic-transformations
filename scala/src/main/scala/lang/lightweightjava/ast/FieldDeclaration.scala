@@ -8,7 +8,7 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
 
   override def allNames = fieldType.allNames + fieldName.id
 
-  override def rename(renaming: Renaming) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
+  override def rename(renaming: RenamingFunction) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition): NameGraph = {
     val fieldNameGraph = NameGraph(Set(fieldName.id), Map(), Set())

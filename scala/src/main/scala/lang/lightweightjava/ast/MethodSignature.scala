@@ -8,7 +8,7 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
 
   override def allNames = parameters.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ returnType.allNames + methodName.id
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     MethodSignature(accessModifier, returnType.rename(renaming), renaming(methodName), parameters.map(_.rename(renaming)): _*)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {

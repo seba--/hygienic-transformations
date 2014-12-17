@@ -7,7 +7,7 @@ import name.NameGraph
 case class ReturnObjectInstantiation(classRef: ClassRef) extends ReturnValue {
   override def allNames = classRef.allNames
 
-  override def rename(renaming: Renaming) = ReturnObjectInstantiation(classRef.rename(renaming))
+  override def rename(renaming: RenamingFunction) = ReturnObjectInstantiation(classRef.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(program.checkSubclass(classRef, returnType),

@@ -8,12 +8,12 @@ abstract class Module extends NominalModular {
   val imports: Set[Module]
   val defs: Map[(Name, Boolean), Exp]
 
-  override def rename(renaming: Renaming) = copyWithDefs(defs.map(d => ((renaming(d._1._1), d._1._2), d._2.rename(renaming))).toMap)
+  override def rename(renaming: RenamingFunction) = copyWithDefs(defs.map(d => ((renaming(d._1._1), d._1._2), d._2.rename(renaming))).toMap)
   def copyWithDefs(newDefs : Map[(Name, Boolean), Exp]) : Module
 
   override def allNames = defs.values.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ defs.keys.map(_._1.id)
 
-  override def resolveNames(dependencyRenaming : DependencyRenaming) = {
+  override def resolveNames(dependencyRenaming : DependencyRenamingFunction) = {
     val moduleNodes = defs.keys.map(_._1.id).toSet
 
     // Find imported names with same strings and create a set of conflicting name sets.
@@ -37,7 +37,7 @@ abstract class Module extends NominalModular {
     NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C ++ importConflicts.map(_.map(_._1)))
   }
 
-  protected def internalScope(dependencyRenaming : DependencyRenaming) : Map[String, Name.ID]
+  protected def internalScope(dependencyRenaming : DependencyRenamingFunction) : Map[String, Name.ID]
 
   override def exportedNames : Set[Name] = defs.keys.filter(_._2).map(_._1).toSet
 
@@ -52,7 +52,7 @@ abstract class Module extends NominalModular {
 }
 
 case class ModuleInternalPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+  override def internalScope(dependencyRenaming : DependencyRenamingFunction) = {
     val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     importedScope ++ internalScope
@@ -63,7 +63,7 @@ case class ModuleInternalPrecedence(name: Name, imports: Set[Module], defs: Map[
 
 
 case class ModuleExternalPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+  override def internalScope(dependencyRenaming : DependencyRenamingFunction) = {
     val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     internalScope ++ importedScope
@@ -74,7 +74,7 @@ case class ModuleExternalPrecedence(name: Name, imports: Set[Module], defs: Map[
 
 
 case class ModuleNoPrecedence(name: Name, imports: Set[Module], defs: Map[(Name, Boolean), Exp]) extends Module {
-  override def resolveNames(dependencyRenaming : DependencyRenaming) = {
+  override def resolveNames(dependencyRenaming : DependencyRenamingFunction) = {
     val moduleNodes = defs.keys.map(_._1.id).toSet
 
     val importNames = imports.flatMap(m => m.exportedNames.map(n => (n.id, dependencyRenaming(m.name.id, n)))).foldLeft(Set[Set[(Name.ID, String)]]())(
@@ -98,7 +98,7 @@ case class ModuleNoPrecedence(name: Name, imports: Set[Module], defs: Map[(Name,
     NameGraphModular(name.id, moduleGraph.V, moduleGraph.E -- externalRefs.keys, externalRefs, moduleGraph.C)
   }
 
-  override def internalScope(dependencyRenaming : DependencyRenaming) = {
+  override def internalScope(dependencyRenaming : DependencyRenamingFunction) = {
     val importedScope = imports.foldLeft(Set[Name]())((scope, module)  => scope ++ module.exportedNames.map(n => dependencyRenaming(module.name.id, n))).map(name => (name.name, name.id)).toMap
     val internalScope = defs.keys.foldLeft(Set[Name]())(_ + _._1).map(name => (name.name, name.id)).toMap
     importedScope ++ internalScope

@@ -5,7 +5,7 @@ import lang.lightweightjava.ast._
 case class ConditionalBranch(leftVariable: TermVariable, rightVariable: TermVariable, ifBranch: Statement, elseBranch: Statement) extends Statement {
   override def allNames = leftVariable.allNames ++ rightVariable.allNames ++ ifBranch.allNames ++ elseBranch.allNames
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     ConditionalBranch(leftVariable.rename(renaming), rightVariable.rename(renaming), ifBranch.rename(renaming), elseBranch.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment) = {

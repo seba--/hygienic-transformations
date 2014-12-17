@@ -8,7 +8,7 @@ import name.{Edges, Name, NameGraph}
 */
 case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
   def allNames = bound.allNames ++ body.allNames + x.id
-  def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
+  def rename(renaming: RenamingFunction) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
   def resolveNames(scope: Scope, modularScope: ModularScope) = {
     val gbound = bound.resolveNames(scope, modularScope)
     val gbody = body.resolveNames(scope + (x.name -> x.id), modularScope)

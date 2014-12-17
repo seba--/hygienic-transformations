@@ -4,7 +4,7 @@ import lang.lightweightjava.ast._
 import name.NameGraph
 
 abstract class ReturnValue extends AST {
-  override def rename(renaming: Renaming): ReturnValue
+  override def rename(renaming: RenamingFunction): ReturnValue
 
   def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment, returnType : ClassRef) : TypeEnvironment
 

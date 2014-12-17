@@ -1,11 +1,10 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.NameGraph._
 import name.{Name, NameGraph}
 
 abstract class TermVariable extends AST {
-  override def rename(renaming: Renaming): TermVariable
+  override def rename(renaming: RenamingFunction): TermVariable
 
   def variableName : Name
 
@@ -30,7 +29,7 @@ object This extends TermVariable {
 
   override def allNames = Set(variableName.id)
 
-  override def rename(renaming: Renaming) = if (renaming(variableName).name == "this") this else VariableName(renaming(variableName))
+  override def rename(renaming: RenamingFunction) = if (renaming(variableName).name == "this") this else VariableName(renaming(variableName))
 }
 
 case class VariableName(variableName: Name) extends TermVariable {
@@ -38,7 +37,7 @@ case class VariableName(variableName: Name) extends TermVariable {
 
   override def allNames = Set(variableName.id)
 
-  override def rename(renaming: Renaming) = VariableName(renaming(variableName))
+  override def rename(renaming: RenamingFunction) = VariableName(renaming(variableName))
 }
 
 object Null extends TermVariable {
@@ -48,7 +47,7 @@ object Null extends TermVariable {
 
   override def allNames = Set(variableName.id)
 
-  override def rename(renaming: Renaming) = this
+  override def rename(renaming: RenamingFunction) = this
 }
 
 

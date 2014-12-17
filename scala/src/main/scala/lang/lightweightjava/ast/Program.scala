@@ -5,7 +5,7 @@ import name.{Name, NameGraph}
 case class Program(classes: ClassDefinition*) extends AST {
   override def allNames = classes.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ ObjectClass.allNames
 
-  override def rename(renaming: Renaming) = Program(classes.map(_.rename(renaming)): _*)
+  override def rename(renaming: RenamingFunction) = Program(classes.map(_.rename(renaming)): _*)
 
   def typeCheck = {
     require(classes.map(_.className.className).distinct.size == classes.size, "All class definition names need to be unique")

@@ -21,7 +21,7 @@ case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) 
 
   override def allNames = variableType.allNames ++ name.allNames
 
-  override def rename(renaming: Renaming) = LocalVariableDeclaration(variableType.rename(renaming), name.rename(renaming))
+  override def rename(renaming: RenamingFunction) = LocalVariableDeclaration(variableType.rename(renaming), name.rename(renaming))
 
   override def toString: String = variableType.toString + " " + name.toString + ";"
 }

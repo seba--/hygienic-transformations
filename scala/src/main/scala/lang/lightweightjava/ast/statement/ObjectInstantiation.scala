@@ -5,7 +5,7 @@ import lang.lightweightjava.ast._
 case class ObjectInstantiation(target: VariableName, classRef: ClassRef) extends Statement {
   override def allNames = target.allNames ++ classRef.allNames
 
-  override def rename(renaming: Renaming) = ObjectInstantiation(target.rename(renaming), classRef.rename(renaming))
+  override def rename(renaming: RenamingFunction) = ObjectInstantiation(target.rename(renaming), classRef.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(program.checkSubclass(classRef, typeEnvironment(target)),

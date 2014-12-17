@@ -6,7 +6,7 @@ import name.{Name, NameGraph}
 case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) extends ClassElement {
   override def allNames = signature.allNames ++ methodBody.allNames
 
-  override def rename(renaming: Renaming) = MethodDefinition(signature.rename(renaming), methodBody.rename(renaming))
+  override def rename(renaming: RenamingFunction) = MethodDefinition(signature.rename(renaming), methodBody.rename(renaming))
 
   private def typeCheckInternal(program: Program, classDefinition : ClassDefinition, typeEnv : TypeEnvironment) = {
     require(signature.parameters.map(_.name.variableName).distinct.size == signature.parameters.size,

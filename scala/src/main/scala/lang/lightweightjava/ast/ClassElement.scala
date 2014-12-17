@@ -3,7 +3,7 @@ package lang.lightweightjava.ast
 import name.NameGraph
 
 abstract class ClassElement extends AST {
-  override def rename(renaming: Renaming): ClassElement
+  override def rename(renaming: RenamingFunction): ClassElement
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = resolveNames(nameEnvironment, null)
 

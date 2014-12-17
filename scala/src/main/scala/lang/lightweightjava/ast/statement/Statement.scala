@@ -4,7 +4,7 @@ import lang.lightweightjava.ast._
 import name.NameGraph
 
 abstract class Statement extends AST {
-  override def rename(renaming: Renaming): Statement
+  override def rename(renaming: RenamingFunction): Statement
 
   def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment) : TypeEnvironment
 

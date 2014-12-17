@@ -7,7 +7,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def allNames = elements.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ superClass.allNames ++ className.allNames
 
-  override def rename(renaming: Renaming) =
+  override def rename(renaming: RenamingFunction) =
     ClassDefinition(className.rename(renaming), superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
 
   private def typeCheckInternal(program : Program) = {

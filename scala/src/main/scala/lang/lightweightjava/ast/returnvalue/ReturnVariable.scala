@@ -7,7 +7,7 @@ import name.NameGraph
 case class ReturnVariable(variable: TermVariable) extends ReturnValue {
   override def allNames = variable.allNames
 
-  override def rename(renaming: Renaming) = ReturnVariable(variable.rename(renaming))
+  override def rename(renaming: RenamingFunction) = ReturnVariable(variable.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(variable == Null || program.checkSubclass(typeEnvironment(variable), returnType),

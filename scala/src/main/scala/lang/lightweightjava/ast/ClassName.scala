@@ -3,7 +3,7 @@ package lang.lightweightjava.ast
 import name.{Name, NameGraph}
 
 abstract class ClassRef extends AST {
-  override def rename(renaming: Renaming): ClassRef
+  override def rename(renaming: RenamingFunction): ClassRef
 
   def className: Name
 
@@ -26,7 +26,7 @@ object ObjectClass extends ClassRef {
 
   override def allNames = Set(className.id)
 
-  override def rename(renaming: Renaming) = if (renaming(className).name == "Object") this else ClassName(renaming(className))
+  override def rename(renaming: RenamingFunction) = if (renaming(className).name == "Object") this else ClassName(renaming(className))
 }
 
 case class ClassName(className: Name) extends ClassRef {
@@ -35,5 +35,5 @@ case class ClassName(className: Name) extends ClassRef {
 
   override def allNames = Set(className.id)
 
-  override def rename(renaming: Renaming) = ClassName(renaming(className))
+  override def rename(renaming: RenamingFunction) = ClassName(renaming(className))
 }

@@ -5,7 +5,7 @@ import lang.lightweightjava.ast._
 case class VariableAssignment(target: VariableName, source: TermVariable) extends Statement {
   override def allNames = target.allNames ++ source.allNames
 
-  override def rename(renaming: Renaming) = VariableAssignment(target.rename(renaming), source.rename(renaming))
+  override def rename(renaming: RenamingFunction) = VariableAssignment(target.rename(renaming), source.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(source == Null || program.checkSubclass(typeEnvironment(source), typeEnvironment(target)),

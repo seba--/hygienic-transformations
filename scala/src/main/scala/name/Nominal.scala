@@ -1,5 +1,7 @@
 package name
 
+import name.Name.ID
+
 /**
  * Created by seba on 01/08/14.
  */
@@ -14,7 +16,12 @@ trait Nominal {
   def rename(renaming: Renaming): Nominal =
     rename(name => renaming.get(name.id) match {
       case None => name
-      case Some(name2) => new Name(name2, name.id)
+      case Some(name2) => {
+        val newID = new ID(name)
+        val newName = new Name(name2, newID)
+        newID.nameO = newName
+        newName
+      }
     })
 }
 

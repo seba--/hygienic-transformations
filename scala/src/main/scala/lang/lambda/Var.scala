@@ -16,7 +16,7 @@ abstract class Access extends Exp {
 }
 
 case class Var(x: Name) extends Access {
-  def rename(renaming: Renaming) = Var(renaming(x))
+  def rename(renaming: RenamingFunction) = Var(renaming(x))
   def resolveNames(scope: Scope, modularScope: ModularScope) =
     if (scope.contains(x.name))
       NameGraph(Set(x.id), Map(x.id -> scope(x.name)))
@@ -41,7 +41,7 @@ case class Var(x: Name) extends Access {
 }
 
 case class QualifiedVar(qualifier: Name, x: Name) extends Access {
-  def rename(renaming: Renaming) = QualifiedVar(qualifier, renaming(x))
+  def rename(renaming: RenamingFunction) = QualifiedVar(qualifier, renaming(x))
 
   override def resolveNames(scope: Scope, modularScope: ModularScope) = {
     val ref = (qualifier.name, x.name)

@@ -17,7 +17,7 @@ object AST {
 }
 
 abstract class AST extends Nominal {
-  override def rename(renaming: Renaming): AST
+  override def rename(renaming: RenamingFunction): AST
 
   def resolveNames(nameEnvironment : ClassNameEnvironment): NameGraph
 
