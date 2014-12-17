@@ -22,17 +22,17 @@ case object NameGraphModular {
 }
 
 case class NameGraphModular(ID: Name.ID, V: Nodes, E: Edges, EOut: OutEdges, C: DeclarationConflicts = Set[Nodes]()) extends NameGraph {
-  def ++(g: NameGraph) = g match {
+  override def ++(g: NameGraph) : NameGraphModular = g match {
     case NameGraphModular(id, v, e, eOut, c) => NameGraphModular(ID, V ++ v, E ++ e, EOut ++ eOut, C ++ c)
     case _ => NameGraphModular(ID, V ++ g.V, E ++ g.E, EOut, C ++ g.C)
 
   }
-  def --(g: NameGraph) = g match {
+  override def --(g: NameGraph) : NameGraphModular = g match {
     case NameGraphModular(id, v, e, eOut, c) => NameGraphModular(ID, V -- v, E -- e.keys, EOut -- eOut.keys, C -- c)
     case _ => NameGraphModular(ID, V -- g.V, E -- g.E.keys, EOut, C -- g.C)
 
   }
-  def +(e: Edges) = NameGraphModular(ID, V, E ++ e, EOut, C)
+  override def +(e: Edges) = NameGraphModular(ID, V, E ++ e, EOut, C)
 }
 
 

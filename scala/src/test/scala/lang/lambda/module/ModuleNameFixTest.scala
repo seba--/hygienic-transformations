@@ -7,7 +7,7 @@ import name.namefix.NameFix
 import org.scalatest._
 
 class ModuleNameFixTest extends FunSuite {
-  val fixer: NameFix = NameFix.fixerModular
+  val fixer = NameFix.fixerModular
 
   val baseModule = ModuleNoPrecedence("base", Set(),
     Map((Name("one"), true) -> Num(1)))
@@ -52,63 +52,94 @@ class ModuleNameFixTest extends FunSuite {
     NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentOneRef -> (baseModule.name.id, baseOne)), Set()) ++ NameGraphModular(Name("dependent").id, Set(lostOneDef), Map(dependentOneRef -> lostOneDef), Map(), Set())
 
   // Before: Bound externally, After: Bound internally
-  val nameGraphTwoBoundExternally = dependentModule.resolveNames() --
-    NameGraphModular(Name("dependent").id, Set(dependentTwo), Map(dependentTwoRef -> dependentTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentTwoRef -> (baseModuleAlt.name.id, baseAltTwo)), Set())
+  val nameGraphTwoBoundExternally = dependentModuleAlt.resolveNames() --
+    NameGraphModular(Name("dependent").id, Set(dependentAltTwo), Map(dependentAltTwoRef -> dependentAltTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentAltTwoRef -> (baseModuleAlt.name.id, baseAltTwo)), Set())
 
   test ("Not defined -> Bound internally to src test") {
-    val fixed = fixer.nameFix(nameGraphTwoUndefined, dependentModule).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentTwoRef), "Two must not be bound internally after fixing!")
-    assert (!fixed.EOut.contains(dependentTwoRef), "Two must not be bound externally after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphTwoUndefined, dependentModule))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModule.name.id) {
+        assert(!module.E.contains(dependentTwoRef), "Two must not be bound internally after fixing!")
+        assert(!module.EOut.contains(dependentTwoRef), "Two must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Not defined -> Bound externally to src test") {
-    val fixed = fixer.nameFix(nameGraphOneUndefined, dependentModule).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentOneRef), "One must not be bound internally after fixing!")
-    assert (!fixed.EOut.contains(dependentOneRef), "One must not be bound externally after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphOneUndefined, dependentModule))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModule.name.id) {
+        assert (!module.E.contains(dependentOneRef), "One must not be bound internally after fixing!")
+        assert (!module.EOut.contains(dependentOneRef), "One must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Unbound -> Bound internally to src test") {
-    val fixed = fixer.nameFix(nameGraphTwoUnbound, dependentModule).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentTwoRef), "Two must not be bound internally after fixing!")
-    assert (!fixed.EOut.contains(dependentTwoRef), "Two must not be bound externally after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphTwoUnbound, dependentModule))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModule.name.id) {
+        assert (!module.E.contains(dependentTwoRef), "Two must not be bound internally after fixing!")
+        assert (!module.EOut.contains(dependentTwoRef), "Two must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Unbound -> Bound externally to src test") {
-    val fixed = fixer.nameFix(nameGraphOneUnbound, dependentModule).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentOneRef), "One must not be bound internally after fixing!")
-    assert (!fixed.EOut.contains(dependentOneRef), "One must not be bound externally after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphOneUnbound, dependentModule))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModule.name.id) {
+        assert (!module.E.contains(dependentOneRef), "One must not be bound internally after fixing!")
+        assert (!module.EOut.contains(dependentOneRef), "One must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Bound internally -> Bound internally to syn") {
-    val fixed = fixer.nameFix(nameGraphAltTwoBoundInternallyDefRemoved, dependentModuleAlt).resolveNames()
-    info(fixed.toString)
-    assert (fixed.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
-    assert (!fixed.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphAltTwoBoundInternallyDefRemoved, dependentModuleAlt))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModuleAlt.name.id) {
+        assert (module.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
+        assert (!module.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Bound internally -> Bound internally to other src") {
-    val fixed = fixer.nameFix(nameGraphAltTwoBoundInternally, dependentModuleAlt).resolveNames()
-    info(fixed.toString)
-    assert (fixed.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
-    assert (!fixed.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
-
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphAltTwoBoundInternally, dependentModuleAlt))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModuleAlt.name.id) {
+        assert (module.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
+        assert (!module.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
+      }
+    }
   }
 
   test ("Bound internally -> Bound externally") {
-    val fixed = fixer.nameFix(nameGraphOneBoundInternally, dependentModule).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentOneRef), "One must be unbound (as previous binding doesn't exist any more) after fixing!")
-    assert (!fixed.EOut.contains(dependentOneRef), "One must be unbound (as previous binding doesn't exist any more) after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphOneBoundInternally, dependentModule))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModule.name.id) {
+        assert (!module.E.contains(dependentOneRef), "One must be unbound (as previous binding doesn't exist any more) after fixing!")
+        assert (!module.EOut.contains(dependentOneRef), "One must be unbound (as previous binding doesn't exist any more) after fixing!")
+      }
+    }
   }
 
   test ("Bound externally -> Bound internally") {
-    val fixed = fixer.nameFix(nameGraphOneBoundInternally, dependentModuleAlt).resolveNames()
-    info(fixed.toString)
-    assert (!fixed.E.contains(dependentAltTwoRef), "Two must not be bound internally after fixing!")
-    assert (fixed.EOut(dependentTwoRef) == (baseModuleAlt.name.id, baseAltTwo), "Two must be bound as in the source graph after fixing!")
+    val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModuleAlt.resolveNames(), baseModuleAlt), (nameGraphTwoBoundExternally, dependentModuleAlt))).map(_._1.resolveNames())
+    for (module <- fixed) {
+      info(module.toString)
+      if (module.ID == dependentModuleAlt.name.id) {
+        assert (!module.E.contains(dependentAltTwoRef), "Two must not be bound internally after fixing!")
+        assert (module.EOut(dependentAltTwoRef) == (baseModuleAlt.name.id, baseAltTwo), "Two must be bound as in the source graph after fixing!")
+      }
+    }
   }
 }
