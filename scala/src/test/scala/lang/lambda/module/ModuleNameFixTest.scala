@@ -21,14 +21,15 @@ class ModuleNameFixTest extends FunSuite {
   val dependentModule = ModuleInternalPrecedence("dependent", Set(baseModule),
     Map((Name("three"), true) -> Add(Var("one"), Var("two")), (Name("two"), true) -> Num(2)))
   val dependentModuleAlt = ModuleInternalPrecedence("dependent", Set(baseModuleAlt),
-    Map((Name("three"), true) -> Add(Var("one"), Lam("two", Var("two"))), (Name("two"), true) -> Num(2)))
+    Map((Name("three"), true) -> Add(Var("one"), Lam("two", Add(Var("two"), Var("two")))), (Name("two"), true) -> Num(2)))
 
   val dependentOneRef = dependentModule.allNames.find(_.name == "one").get
   val dependentTwo = dependentModule.exportedNames.find(_.name == "two").get.id
   val dependentTwoRef = dependentModule.allNames.find(n => n.name == "two" && n != dependentTwo).get
   val dependentAltTwo = dependentModuleAlt.exportedNames.find(_.name == "two").get.id
   val dependentAltTwoDef = dependentModuleAlt.defs(("three", true)) match { case Add(_, Lam(d, _)) => d.id }
-  val dependentAltTwoRef = dependentModuleAlt.defs(("three", true)) match { case Add(_, Lam(_, Var(r))) => r.id }
+  val dependentAltTwoRef1 = dependentModuleAlt.defs(("three", true)) match { case Add(_, Lam(_, Add(Var(r), _))) => r.id }
+  val dependentAltTwoRef2 = dependentModuleAlt.defs(("three", true)) match { case Add(_, Lam(_, Add(_, Var(r)))) => r.id }
 
   // Before: Not defined, After: Bound internally to src
   val nameGraphTwoUndefined = dependentModule.resolveNames() -- NameGraphModular(Name("dependent").id, Set(dependentTwoRef), Map(dependentTwoRef -> dependentTwo), Map(), Set())
@@ -42,10 +43,10 @@ class ModuleNameFixTest extends FunSuite {
 
   // Before: Bound internally, After: Bound internally to syn
   val nameGraphAltTwoBoundInternallyDefRemoved = dependentModuleAlt.resolveNames() --
-    NameGraphModular(Name("dependent").id, Set(dependentAltTwoDef), Map(dependentAltTwoRef -> dependentAltTwoDef), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef -> dependentAltTwo), Map(), Set())
+    NameGraphModular(Name("dependent").id, Set(dependentAltTwoDef, dependentAltTwoRef1), Map(dependentAltTwoRef2 -> dependentAltTwoDef), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef2 -> dependentAltTwo), Map(), Set())
   // Before: Bound internally, After: Bound internally to other src
   val nameGraphAltTwoBoundInternally = dependentModuleAlt.resolveNames() --
-    NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef -> dependentAltTwoDef), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef -> dependentAltTwo), Map(), Set())
+    NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef2 -> dependentAltTwoDef), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(dependentAltTwoRef2 -> dependentAltTwo), Map(), Set())
   // Before: Bound internally, After: Bound externally
   val lostOneDef = Name("one").id
   val nameGraphOneBoundInternally = dependentModule.resolveNames() --
@@ -53,7 +54,7 @@ class ModuleNameFixTest extends FunSuite {
 
   // Before: Bound externally, After: Bound internally
   val nameGraphTwoBoundExternally = dependentModuleAlt.resolveNames() --
-    NameGraphModular(Name("dependent").id, Set(dependentAltTwo), Map(dependentAltTwoRef -> dependentAltTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentAltTwoRef -> (baseModuleAlt.name.id, baseAltTwo)), Set())
+    NameGraphModular(Name("dependent").id, Set(dependentAltTwo), Map(dependentAltTwoRef2 -> dependentAltTwo), Map(), Set()) ++ NameGraphModular(Name("dependent").id, Set(), Map(), Map(dependentAltTwoRef2 -> (baseModuleAlt.name.id, baseAltTwo)), Set())
 
   test ("Not defined -> Bound internally to src test") {
     val fixed = fixer.nameFix(Set[(NameGraphModular, Module)]((baseModule.resolveNames(), baseModule), (nameGraphTwoUndefined, dependentModule))).map(_._1)
@@ -109,8 +110,8 @@ class ModuleNameFixTest extends FunSuite {
       info(module.toString)
       val moduleGraph = module.resolveNames()
       if (moduleGraph.ID == dependentModuleAlt.name.id) {
-        assert (moduleGraph.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
-        assert (!moduleGraph.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
+        assert (moduleGraph.E(dependentAltTwoRef2) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
+        assert (!moduleGraph.EOut.contains(dependentAltTwoRef2), "Two must not be bound externally after fixing!")
       }
     }
   }
@@ -121,8 +122,10 @@ class ModuleNameFixTest extends FunSuite {
       info(module.toString)
       val moduleGraph = module.resolveNames()
       if (moduleGraph.ID == dependentModuleAlt.name.id) {
-        assert (moduleGraph.E(dependentAltTwoRef) == dependentAltTwo, "Two must be bound as in the source graph after fixing!")
-        assert (!moduleGraph.EOut.contains(dependentAltTwoRef), "Two must not be bound externally after fixing!")
+        assert (moduleGraph.E(dependentAltTwoRef1) == dependentAltTwoDef, "Two (left) must be bound as in the source graph after fixing!")
+        assert (moduleGraph.E(dependentAltTwoRef2) == dependentAltTwo, "Two (right) must be bound as in the source graph after fixing!")
+        assert (!moduleGraph.EOut.contains(dependentAltTwoRef1), "Two (left) must not be bound externally after fixing!")
+        assert (!moduleGraph.EOut.contains(dependentAltTwoRef2), "Two (right) must not be bound externally after fixing!")
       }
     }
   }
@@ -145,8 +148,10 @@ class ModuleNameFixTest extends FunSuite {
       info(module.toString)
       val moduleGraph = module.resolveNames()
       if (moduleGraph.ID == dependentModuleAlt.name.id) {
-        assert (!moduleGraph.E.contains(dependentAltTwoRef), "Two must not be bound internally after fixing!")
-        assert (moduleGraph.EOut(dependentAltTwoRef) == (baseModuleAlt.name.id, baseAltTwo), "Two must be bound as in the source graph after fixing!")
+        assert (moduleGraph.E(dependentAltTwoRef1) == dependentAltTwoDef, "Two (left) must be bound as in the source graph after fixing!")
+        assert (!moduleGraph.EOut.contains(dependentAltTwoRef1), "Two (left) must not be bound externally after fixing!")
+        assert (!moduleGraph.E.contains(dependentAltTwoRef2), "Two (right) must not be bound internally after fixing!")
+        assert (moduleGraph.EOut(dependentAltTwoRef2) == (baseModuleAlt.name.id, baseAltTwo), "Two (right) must be bound as in the source graph after fixing!")
       }
     }
   }

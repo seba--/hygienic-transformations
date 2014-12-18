@@ -31,7 +31,7 @@ class NameFix {
     notPreserveVar ++ notPreserveDef
   }
 
-  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Nodes): Renaming = {
+  protected def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Nodes): Renaming = {
     var renaming: Renaming = Map()
     val newIds = t.allNames -- gs.V
 

@@ -11,6 +11,7 @@ class NameFixModular extends NameFix {
         case None => v != d
       })
     }
+
     val notPreserveDefLocal = gt.E.filter {
       case (v, d) => !gs.V.contains(v) && gs.V.contains(d)
     }
@@ -21,65 +22,51 @@ class NameFixModular extends NameFix {
         case None => true
       })
     }
+
     val notPreserveDefExternal = gt.EOut.filter {
+      //TODO: Should references to libraries ever be considered as captures?
       case (v, d) => !gs.V.contains(v) && fixedModules.exists(meta => meta._1 == d._1 && meta._2.exists(_.id == d._2))
     }
 
     (notPreserveVarLocal ++ notPreserveDefLocal, notPreserveVarExternal ++ notPreserveDefExternal)
   }
 
-
-  private def compRenamings(gs: NameGraph, t: Nominal, nodesToRename: Nodes): Renaming = {
+  private def compVirtualRenamings(gs: NameGraphModular, t: Nominal, nodesToRename: Set[Dependency], fixedModules: Set[Meta], allNames: Set[String]): (Renaming, DependencyRenaming) = {
+    // Renamings of local names to keep the references to the renamed external name
     var renaming: Renaming = Map()
-    val newIds = t.allNames -- gs.V
-
-    for (v <- nodesToRename) {
-      val fresh = gensym(v.name, t.allNames.map(_.name) ++ renaming.values)
-      if (gs.V.contains(v)) {
-        renaming += (v -> fresh)
-        for (v2 <- findConnectedNodes(gs, v))
-          renaming += (v2 -> fresh)
-      }
-      else {
-        for (v2 <- newIds if v.name == v2.name)
-          renaming += (v2 -> fresh)
-      }
-    }
-
-    renaming
-  }
-
-  private def compVirtualRenamings(gs: NameGraphModular, t: Nominal, nodesToRename: Set[Dependency], fixedModules: Set[Meta], allNames: Set[String]): (Renaming, DependencyRenaming, DependencyRenaming) = {
-    var renaming: Renaming = Map()
-    var dependencyOriginalNaming : DependencyRenaming = Map()
+    // Renamings of dependencies as requested by the nodesToRename parameter
     var dependencyRenaming: DependencyRenaming = Map()
     val newIds = t.allNames -- gs.V
 
     for (v <- nodesToRename) {
       val fresh = gensym(v._2.name, allNames ++ renaming.values)
       dependencyRenaming += (v -> fresh)
-      dependencyOriginalNaming += (v -> v._2.name)
+      // If the external node was in it's source name graph, rename local source nodes to keep their reference
       if (fixedModules.exists(m => m._1 == v._1 && m._2.exists(_.id == v._2))) {
         for (eOut <- gs.EOut.filter(_._2 == v))
           for (v2 <- findConnectedNodes(gs, eOut._1))
             renaming += (v2 -> fresh)
       }
+      // Else just rename all synthesized nodes with the same name (similar to compRenaming for global NameFix)
       else {
         for (v2 <- newIds if v._2.name == v2.name)
           renaming += (v2 -> fresh)
       }
     }
 
-    (renaming, dependencyRenaming, dependencyOriginalNaming)
+    (renaming, dependencyRenaming)
   }
 
   private def propagateRenamings[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies: DependencyRenaming): (T, Renaming) = {
     val gt = t.resolveNames()
+    // Renamings of local names that are required through previous renamings of external names to keep their reference to them
     var renaming: Renaming = Map()
     for ((dependency, dependencyRenaming) <- renamedDependencies) {
+      // For nodes from the source name graph, use their original binding to determine if they need to be renamed
       for ((v, d) <- gs.EOut if d == dependency) {
         renaming ++= findConnectedNodes(gs, v).map(n => (n, dependencyRenaming)).toMap
       }
+      // For synthesized nodes, rename them if their name is equal to the original name of the external node
       for (v <- gt.V -- gs.V if v.name == dependency._2.name) {
         renaming ++= findConnectedNodes(gt, v).filter(n => !gs.V.contains(n)).map(n => (n, dependencyRenaming)).toMap
       }
@@ -89,22 +76,22 @@ class NameFixModular extends NameFix {
   }
 
   private def nameFixCaptures[T <: NominalModular](gs: NameGraphModular, t: T, renamedDependencies: DependencyRenaming,
-                                                   fixedModules: Set[Meta]): (T, Renaming, DependencyRenaming, DependencyRenaming) = {
+                                                   fixedModules: Set[Meta]): (T, Renaming, DependencyRenaming) = {
     val gt = t.resolveNames(renamedDependencies)
     val capture = findCapture(gs, gt, fixedModules)
     if (capture._1.isEmpty && capture._2.isEmpty)
-      (t, Map(), Map(), Map())
+      (t, Map(), Map())
     else {
       val renaming = compRenamings(gs, t, capture._1.values.toSet)
       val allNames = t.allNames.map(_.name) ++ fixedModules.flatMap(meta => meta._2 ++ meta._3).map(_.name)
-      val (virtualRenamings, virtualDependencyRenamings, originalDependencyNaming) = compVirtualRenamings(gs, t, capture._2.values.toSet, fixedModules, allNames)
+      val (virtualRenamings, virtualDependencyRenamings) = compVirtualRenamings(gs, t, capture._2.values.toSet, fixedModules, allNames)
 
       val tNew = t.rename(renaming ++ virtualRenamings).asInstanceOf[T]
 
-      val (tNameFixed, recursiveRenaming, recursiveDependencyRenaming, recursiveOriginalDependencyNaming) =
+      val (tNameFixed, recursiveRenaming, recursiveDependencyRenaming) =
         nameFixCaptures(gs, tNew, renamedDependencies ++ virtualDependencyRenamings, fixedModules)
 
-      (tNameFixed, renaming ++ virtualRenamings ++ recursiveRenaming, virtualDependencyRenamings ++ recursiveDependencyRenaming, originalDependencyNaming ++ recursiveOriginalDependencyNaming)
+      (tNameFixed, renaming ++ virtualRenamings ++ recursiveRenaming, virtualDependencyRenamings ++ recursiveDependencyRenaming)
     }
   }
 
@@ -226,7 +213,7 @@ class NameFixModular extends NameFix {
     }
   }
 
-  private def nameFixUndoVirtualRenamings[T <: NominalModular](t: T, tFixed : T, virtualRenaming : DependencyRenaming, originalDependencyNaming : DependencyRenaming): T = {
+  private def nameFixUndoVirtualRenamings[T <: NominalModular](t: T, tFixed : T, virtualRenaming : DependencyRenaming): T = {
     var undoRenaming: Renaming = Map()
     val gT = t.resolveNames()
     val gTFixed = tFixed.resolveNames(virtualRenaming)
@@ -234,7 +221,7 @@ class NameFixModular extends NameFix {
     for ((v, d) <- gTFixed.EOut) {
       if (virtualRenaming.contains(d)) {
         for (v2 <- findConnectedNodes(gTFixed, v))
-          undoRenaming += (v2 -> originalDependencyNaming(d))
+          undoRenaming += (v2 -> gT.EOut.values.find(_ == d).get._2.name)
       }
     }
 
@@ -250,8 +237,9 @@ class NameFixModular extends NameFix {
     // Step 2: Classic NameFix for captures
     // Note that the dependencyRenaming parameter is only used for recursion!
     // The actual dependencyRenaming calculated above is already applied in step 1 and no longer relevant.
-    val (tFixedCaptures, renaming, virtualRenaming, originalDependencyNaming) = nameFixCaptures(gs, tRenamed, Map(), fixedModules)
+    val (tFixedCaptures, renaming, virtualRenaming) = nameFixCaptures(gs, tRenamed, Map(), fixedModules)
 
+    //TODO: Implement conflict/error handling
     // Step 3: Fix name graph errors
     //val (tFixed2, renamingError) = nameFixErrors(gs, tFixed1)
 
@@ -259,7 +247,7 @@ class NameFixModular extends NameFix {
     val (tFixedAlternative, exportedNameRenamed) = nameFixFindAlternatives(tRenamed, tFixedCaptures, renaming, virtualRenaming)
 
     // Step 5: Undo remaining renamings based on virtual renamings
-    val tFixedFinal = nameFixUndoVirtualRenamings(tRenamed, tFixedAlternative, virtualRenaming, originalDependencyNaming)
+    val tFixedFinal = nameFixUndoVirtualRenamings(tRenamed, tFixedAlternative, virtualRenaming)
 
     // Currently only a warning message, later additional handling
     if (exportedNameRenamed)
@@ -280,6 +268,15 @@ class NameFixModular extends NameFix {
       else {
         nameFix(modules - ((currentGS, currentT)), fixedModules + currentModuleFixed)
       }
+    }
+  }
+
+  override def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
+    (gs, t) match {
+      case ((gsm@NameGraphModular(_, _, _, _, _), tm:NominalModular)) => {
+        nameFix(Set((gsm, tm))).head._1.asInstanceOf[T]
+      }
+      case (_, _) => super.nameFix(gs, t)
     }
   }
 }

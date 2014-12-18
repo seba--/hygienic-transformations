@@ -2,7 +2,7 @@ package name
 
 import scala.language.implicitConversions
 
-case object NameGraphModular {
+object NameGraphModular {
   def apply(ID: Name.ID, E: Edges): NameGraph = {
     var V: Nodes = Set()
     E foreach { kv =>
