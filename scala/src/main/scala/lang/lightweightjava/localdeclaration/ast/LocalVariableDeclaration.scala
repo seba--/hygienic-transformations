@@ -5,30 +5,30 @@ import lang.lightweightjava.ast.statement.{Statement, This, VariableName}
 import name.Renaming
 import name.namegraph.NameGraph
 
-case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) extends Statement {
+case class LocalVariableDeclaration(variableType: ClassRef, variableName: VariableName) extends Statement {
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) = {
     val redefinedVar =
-      if (methodEnvironment.contains(name.name)) NameGraph(Set(), Map(name -> methodEnvironment(name.name)))
+      if (methodEnvironment.contains(variableName.name)) NameGraph(Set(), Map(variableName -> methodEnvironment(variableName.name)))
       else NameGraph(Set(), Map())
 
-    (variableType.resolveNames(nameEnvironment) + name.resolveVariableNames(methodEnvironment + (name.name -> name)) + redefinedVar,
-      (methodEnvironment + (name.name -> name), typeEnvironment + (name.name -> variableType)))
+    (variableType.resolveNames(nameEnvironment) + variableName.resolveVariableNames(methodEnvironment + (variableName.name -> variableName)) + redefinedVar,
+      (methodEnvironment + (variableName.name -> variableName), typeEnvironment + (variableName.name -> variableType)))
   }
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(variableType match {
       case className:ClassName => program.getClassDefinition(className).isDefined
       case _ => true
-    }, "Could not find definition of type '" + variableType.toString + "' for declaration of variable '" + name.toString + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
-    typeEnvironment.get(name.name) match {
-      case Some(_:ClassName) => sys.error("Variable '" + name.toString + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is declared multiple times!")
-      case _ => typeEnvironment + (name.name -> variableType)
+    }, "Could not find definition of type '" + variableType.toString + "' for declaration of variable '" + variableName.toString + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
+    typeEnvironment.get(variableName.name) match {
+      case Some(_:ClassName) => sys.error("Variable '" + variableName.toString + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is declared multiple times!")
+      case _ => typeEnvironment + (variableName.name -> variableType)
     }
   }
 
-  override def allNames = variableType.allNames ++ name.allNames
+  override def allNames = variableType.allNames ++ variableName.allNames
 
-  override def rename(renaming: Renaming) = LocalVariableDeclaration(variableType.rename(renaming), name.rename(renaming).asInstanceOf[VariableName])
+  override def rename(renaming: Renaming) = LocalVariableDeclaration(variableType.rename(renaming), variableName.rename(renaming).asInstanceOf[VariableName])
 
-  override def toString = variableType.toString + " " + name.toString + ";"
+  override def toString = variableType.toString + " " + variableName.toString + ";"
 }

@@ -37,12 +37,12 @@ object WhileLoopTransformation {
       case WhileLoop(leftVariable, rightVariable, loopBody) =>
         // Create a set of helper fields added to transfer the helper method results back to the method
         val addedFields = method.signature.parameters.foldLeft((Set[(VariableDeclaration, FieldDeclaration)](), loopCount))((oldState, param) =>
-          (oldState._1 + ((param, FieldDeclaration(AccessModifier.PRIVATE, param.variableType, Identifier("loop" + oldState._2 + "_" + param.name.name)))),
+          (oldState._1 + ((param, FieldDeclaration(AccessModifier.PRIVATE, param.variableType, Identifier("loop" + oldState._2 + "_" + param.variableName.name)))),
             oldState._2 + 1))
 
         // Create a set of save/restore statements added to transfer the helper method results back to the method
-        val saveStatements = addedFields._1.map(field => FieldWrite(This, field._2.fieldName, field._1.name))
-        val restoreStatements = addedFields._1.map(field => FieldRead(field._1.name, This, field._2.fieldName))
+        val saveStatements = addedFields._1.map(field => FieldWrite(This, field._2.fieldName, field._1.variableName))
+        val restoreStatements = addedFields._1.map(field => FieldRead(field._1.variableName, This, field._2.fieldName))
 
         // The while loop is transformed to a conditional branch with the remaining statements as if-branch
         val ifBranch = StatementBlock(remainingStatements.tail:_*)
@@ -50,7 +50,7 @@ object WhileLoopTransformation {
         // Create a helper method that is called recursively at the end of the else-branch
         val loopMethodName = Identifier(method.signature.methodName.name + "_loop" + addedFields._2)
 
-        val recursiveCallParameters = method.signature.parameters.map(param => param.name)
+        val recursiveCallParameters = method.signature.parameters.map(param => param.variableName)
         val recursiveCall = VoidMethodCall(This, loopMethodName.fresh, recursiveCallParameters:_*)
 
         // The else-branch contains the loop body and a recursive call at the end

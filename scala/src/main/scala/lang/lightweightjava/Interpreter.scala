@@ -59,7 +59,7 @@ object Interpreter {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
                     var renamedParameters = parameters.foldLeft(Map[Name, Name]())((renamedMap, parameter) =>
-                      renamedMap + (parameter.name.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
+                      renamedMap + (parameter.variableName.name -> configuration.freshName(renamedMap.values.toSet, parameter.variableName.name)))
                     // Generate a fresh name for "this"
                     val thisRenaming = configuration.freshName(renamedParameters.values.toSet, This.name)
                     renamedParameters = renamedParameters + (This.name -> thisRenaming)
@@ -68,7 +68,7 @@ object Interpreter {
                     // Add the values used for the call to the stack (and let "this" point to the OID of the method owning object)
                     newState = newState ++ parameters.
                       zip(methodParameters).
-                      map(p => (renamedParameters(p._1.name.name), newState(p._2.name))).
+                      map(p => (renamedParameters(p._1.variableName.name), newState(p._2.name))).
                       toMap[Name, Value] + (thisRenaming -> oid)
                     // Add the method body at the front the program flow (and replace this statement by a simple assignment of the return value)
                     newProgramFlow = (renamedMethodBody.statements :+ (renamedMethodBody.returnValue match {
@@ -89,7 +89,7 @@ object Interpreter {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
                     var renamedParameters = parameters.foldLeft(Map[Name, Name]())((renamedMap, parameter) =>
-                      renamedMap + (parameter.name.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
+                      renamedMap + (parameter.variableName.name -> configuration.freshName(renamedMap.values.toSet, parameter.variableName.name)))
                     // Generate a fresh name for "this"
                     val thisRenaming = configuration.freshName(renamedParameters.values.toSet, This.name)
                     renamedParameters = renamedParameters + (This.name -> thisRenaming)
@@ -98,7 +98,7 @@ object Interpreter {
                     // Add the values used for the call to the stack (and let "this" point to the OID of the method owning object)
                     newState = newState ++ parameters.
                       zip(methodParameters).
-                      map(p => (renamedParameters(p._1.name.name), newState(p._2.name))).
+                      map(p => (renamedParameters(p._1.variableName.name), newState(p._2.name))).
                       toMap[Name, Value] + (thisRenaming -> oid)
                     // Add the method body at the front the program flow (and replace this statement by a simple assignment of the return value)
                     newProgramFlow = renamedMethodBody.statements ++: newProgramFlow

@@ -18,7 +18,7 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, me
         case Some(method) => require(methodParameters.size == method.signature.parameters.size,
           "Method '" + methodName.name + "' is called with an invalid number of parameters in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
           methodParameters.zip(method.signature.parameters).map(param => require(param._1 == Null || program.checkSubclass(typeEnvironment(param._1.name), param._2.variableType),
-            "Method '" + methodName.name + "' is called with an incompatible value for parameter '" + param._2.name + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'"))
+            "Method '" + methodName.name + "' is called with an incompatible value for parameter '" + param._2.variableName + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'"))
           require(className.name == typeEnvironment(This.name).name || method.signature.accessModifier == AccessModifier.PUBLIC,
             "Trying to call private method '" + method.signature.methodName + "' of class '" + typeEnvironment(sourceObject.name).asInstanceOf[ClassName].name + "' externally!")
           typeEnvironment
