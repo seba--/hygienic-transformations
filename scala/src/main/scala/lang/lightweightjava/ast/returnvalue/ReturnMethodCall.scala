@@ -31,7 +31,7 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
     }
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment) +
       methodParameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveVariableNames(methodEnvironment))
 
@@ -48,5 +48,5 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
     }
   }
 
-  override def toString: String = returnObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
+  override def toString = returnObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
 }

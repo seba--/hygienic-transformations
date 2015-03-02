@@ -23,10 +23,10 @@ case class WhileLoop(leftVariable: TermVariable, rightVariable: TermVariable, lo
     (leftVariable.resolveVariableNames(methodEnvironment) + rightVariable.resolveVariableNames(methodEnvironment) +
       loopBody.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
 
-  override def toString(preTabs : String) : String = {
+  override def toString(preTabs : String) = {
     val innerPreTabs = preTabs + "\t"
     "while (" + leftVariable.toString + "!=" + rightVariable.toString  + ")\n" + innerPreTabs + loopBody.toString(innerPreTabs)
   }
 
-  override def toString: String = "while (" + leftVariable.toString + "!=" + rightVariable.toString  + ")\n\t" + loopBody.toString("\t")
+  override def toString = "while (" + leftVariable.toString + "!=" + rightVariable.toString  + ")\n\t" + loopBody.toString("\t")
 }

@@ -2,14 +2,13 @@ package lang.lightweightjava.localdeclaration.ast
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Statement, This, VariableName}
-import name.namegraph.NameGraph
-import name.{Renaming}
+import name.Renaming
 
 case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) extends Statement {
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment): (NameGraph, (VariableNameEnvironment, TypeEnvironment)) =
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) =
     (variableType.resolveNames(nameEnvironment) + name.resolveVariableNames(methodEnvironment + (name.name -> name)), (methodEnvironment + (name.name -> name), typeEnvironment + (name -> variableType)))
 
-  override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment): TypeEnvironment = {
+  override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(variableType match {
       case className@ClassName(_) => program.getClassDefinition(className).isDefined
       case _ => true
@@ -24,5 +23,5 @@ case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) 
 
   override def rename(renaming: Renaming) = LocalVariableDeclaration(variableType.rename(renaming), name.rename(renaming).asInstanceOf[VariableName])
 
-  override def toString: String = variableType.toString + " " + name.toString + ";"
+  override def toString = variableType.toString + " " + name.toString + ";"
 }

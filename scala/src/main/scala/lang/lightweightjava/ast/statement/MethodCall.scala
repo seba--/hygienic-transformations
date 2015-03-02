@@ -48,5 +48,5 @@ case class MethodCall(target: VariableName, sourceObject: TermVariable, methodNa
     }
   }
 
-  override def toString: String = target.toString + " = " + sourceObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
+  override def toString = target.toString + " = " + sourceObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
 }

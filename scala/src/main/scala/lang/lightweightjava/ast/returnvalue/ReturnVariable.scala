@@ -2,7 +2,6 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.namegraph.NameGraph
 import name.Renaming
 
 case class ReturnVariable(variable: TermVariable) extends ReturnValue {
@@ -16,8 +15,8 @@ case class ReturnVariable(variable: TermVariable) extends ReturnValue {
     typeEnvironment
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment): NameGraph =
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) =
     variable.resolveVariableNames(methodEnvironment)
 
-  override def toString: String = variable.toString
+  override def toString = variable.toString
 }

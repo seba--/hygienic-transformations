@@ -43,7 +43,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     program.getClassMethods(this).map(_.typeCheckForClassDefinition(program, this))
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     val classNameGraph = className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment)
 
     // Collect all field/method names
@@ -68,6 +68,6 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     classNameGraph + elements.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(nameEnvironment, this))
   }
 
-  override def toString: String = "class " + className.toString +
+  override def toString = "class " + className.toString +
     (if (superClass != ObjectClass) " extends " + superClass.toString else "") + " {\n\t" + elements.mkString("\n\t") + "}"
 }

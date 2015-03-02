@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.NameGraph
-import name.{Name, Renaming, Nominal}
+import name.namegraph.NameGraphExtended
+import name.{Name, Nominal, Renaming}
 
 object AST {
   def isLegalName(name: Name) = name.length > 0 && name.length < 256 &&
@@ -20,7 +20,7 @@ object AST {
 trait AST extends Nominal {
   override def rename(renaming: Renaming): AST
 
-  def resolveNames(nameEnvironment : ClassNameEnvironment): NameGraph
+  def resolveNames(nameEnvironment : ClassNameEnvironment): NameGraphExtended
 
   override def resolveNames = resolveNames(Map())
 }

@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Name, Renaming}
 
 trait TermVariable extends Identifier with AST {
@@ -19,11 +19,11 @@ trait TermVariable extends Identifier with AST {
 
   override def rename(renaming: Renaming): TermVariable = renameVariable(renaming(this).name)
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = NameGraph(Set(), Map())
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = NameGraph(Set(), Map())
 
-  def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = NameGraph(Set(), Map())
+  def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraphExtended = NameGraph(Set(), Map())
 
-  override def toString: String = name.toString
+  override def toString = name.toString
 }
 
 object This extends Identifier("this") with TermVariable {
@@ -39,9 +39,9 @@ case class VariableName(override val name: Name) extends Identifier(name) with T
 
   override def allNames = Set(this)
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = resolveVariableNames(Map(name -> this))
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = resolveVariableNames(Map(name -> this))
 
-  override def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = {
+  override def resolveVariableNames(methodEnvironment : VariableNameEnvironment) = {
     // If the variable is pointing to itself (because it is declared here), add only the node but no edges
     if (!methodEnvironment.contains(name) || methodEnvironment(name) == this)
       NameGraph(Set(this), Map())

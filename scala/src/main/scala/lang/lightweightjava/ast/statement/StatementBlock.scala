@@ -20,12 +20,12 @@ case class StatementBlock(blockBody: Statement*) extends Statement {
       (result._1 + statementResult._1, statementResult._2)
     })._1, (methodEnvironment, typeEnvironment))
 
-  override def toString(preTabs: String): String = {
+  override def toString(preTabs: String) = {
     val innerPreTabs = preTabs + "\t"
     "{\n" + blockBody.foldLeft("")(_ + innerPreTabs + _.toString(innerPreTabs) + "\n") + preTabs + "}"
   }
 
-  override def toString: String = {
+  override def toString = {
     "{\n\t" + blockBody.foldLeft("")(_ + "\t" + _.toString("\t") + "\n") + "}"
   }
 }

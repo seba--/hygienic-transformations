@@ -3,7 +3,6 @@ package lang.lightweightjava.ast.returnvalue
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.This
 import name.Renaming
-import name.namegraph.NameGraph
 
 case class ReturnObjectInstantiation(classRef: ClassRef) extends ReturnValue {
   override def allNames = classRef.allNames
@@ -16,8 +15,8 @@ case class ReturnObjectInstantiation(classRef: ClassRef) extends ReturnValue {
     typeEnvironment
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment): NameGraph =
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) =
     classRef.resolveNames(nameEnvironment)
 
-  override def toString: String = "new " + classRef.toString + "();"
+  override def toString = "new " + classRef.toString + "();"
 }

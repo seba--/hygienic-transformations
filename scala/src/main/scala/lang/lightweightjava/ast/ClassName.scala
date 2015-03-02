@@ -17,7 +17,7 @@ trait ClassRef extends Identifier with AST {
     }
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     // If the class name is pointing to itself (because it is declared here), add only the node but no edges
     if (!nameEnvironment.contains(name) || nameEnvironment(name)._1 == this)
       NameGraph(Set(this), Map())
@@ -26,7 +26,7 @@ trait ClassRef extends Identifier with AST {
       NameGraph(Set(this), Map(this -> nameEnvironment(name)._1))
   }
 
-  override def toString: String = name
+  override def toString = name
 }
 
 object ObjectClass extends Identifier("Object") with ClassRef {

@@ -12,10 +12,10 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
   override def rename(renaming: Renaming) =
     MethodSignature(accessModifier, returnType.rename(renaming), renaming(methodName), parameters.map(_.rename(renaming)): _*)
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     val methodNameGraph = NameGraph(Set(methodName), Map())
     returnType.resolveNames(nameEnvironment) + methodNameGraph + parameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(nameEnvironment))
   }
 
-  override def toString: String = accessModifier.toString + " " + returnType.toString + " " + methodName.toString + "(" + parameters.mkString(", ") + ")"
+  override def toString = accessModifier.toString + " " + returnType.toString + " " + methodName.toString + "(" + parameters.mkString(", ") + ")"
 }

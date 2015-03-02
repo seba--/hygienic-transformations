@@ -17,5 +17,5 @@ case class ObjectInstantiation(target: VariableName, classRef: ClassRef) extends
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
     (target.resolveVariableNames(methodEnvironment) + classRef.resolveNames(nameEnvironment), (methodEnvironment, typeEnvironment))
 
-  override def toString: String = target.toString + " = new " + classRef.toString + "();"
+  override def toString = target.toString + " = new " + classRef.toString + "();"
 }

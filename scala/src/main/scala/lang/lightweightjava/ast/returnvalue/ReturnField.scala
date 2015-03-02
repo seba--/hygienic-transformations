@@ -28,7 +28,7 @@ case class ReturnField(returnObject: TermVariable, returnField: Identifier) exte
     }
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment)
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
@@ -44,5 +44,5 @@ case class ReturnField(returnObject: TermVariable, returnField: Identifier) exte
     }
   }
 
-  override def toString: String = returnObject.toString + "." + returnField.toString
+  override def toString = returnObject.toString + "." + returnField.toString
 }

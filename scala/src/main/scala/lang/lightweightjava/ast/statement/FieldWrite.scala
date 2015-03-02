@@ -43,5 +43,5 @@ case class FieldWrite(targetObject: TermVariable, targetField: Identifier, sourc
     }
   }
 
-  override def toString: String = targetObject.toString + "." + targetField.toString + " = " + source.toString + ";"
+  override def toString = targetObject.toString + "." + targetField.toString + " = " + source.toString + ";"
 }

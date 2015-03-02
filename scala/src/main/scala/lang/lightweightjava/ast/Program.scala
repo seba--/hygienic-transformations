@@ -25,23 +25,23 @@ case class Program(classes: ClassDefinition*) extends AST {
           classDefinition +: currentPath)
     }
 
-  def checkSubclass(subClass : ClassDefinition, parentClass : ClassDefinition) : Boolean = subClass == parentClass ||
+  def checkSubclass(subClass : ClassDefinition, parentClass : ClassDefinition): Boolean = subClass == parentClass ||
     getInheritancePath(subClass).contains(parentClass)
 
-  def checkSubclass(subClass : ClassRef, parentClass : ClassRef) : Boolean = parentClass == ObjectClass || (subClass != ObjectClass &&
+  def checkSubclass(subClass : ClassRef, parentClass : ClassRef): Boolean = parentClass == ObjectClass || (subClass != ObjectClass &&
     checkSubclass(getClassDefinition(subClass.asInstanceOf[ClassName]).get, getClassDefinition(parentClass.asInstanceOf[ClassName]).get))
 
-  def getClassFields(classDefinition: ClassDefinition): Set[FieldDeclaration] =
+  def getClassFields(classDefinition: ClassDefinition) =
     getInheritancePath(classDefinition).flatMap(_.elements.collect({ case f: FieldDeclaration => f})).toSet
 
-  def getClassMethods(classDefinition: ClassDefinition): Seq[MethodDefinition] =
+  def getClassMethods(classDefinition: ClassDefinition) =
     getInheritancePath(classDefinition).reverse.flatMap(_.elements.collect({ case m: MethodDefinition => m}))
 
   def findMethod(classDefinition: ClassDefinition, methodName: Name) = getClassMethods(classDefinition).find(_.signature.methodName.name == methodName)
 
   def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName.name == fieldName)
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     // Generate the class name environment for the whole program, where each class name is mapped to a list of field names and one of method names
     val programEnvironment = nameEnvironment ++ classes.map(c =>
       (c.className.name, (c.className,

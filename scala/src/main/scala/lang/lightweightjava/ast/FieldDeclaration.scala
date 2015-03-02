@@ -11,10 +11,10 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
 
   override def rename(renaming: Renaming) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition): NameGraph = {
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition) = {
     val fieldNameGraph = NameGraph(Set(fieldName), Map())
     fieldType.resolveNames(nameEnvironment) + fieldNameGraph
   }
 
-  override def toString: String = accessModifier.toString + " " + fieldType.toString + " " + fieldName.toString + ";"
+  override def toString = accessModifier.toString + " " + fieldType.toString + " " + fieldName.toString + ";"
 }

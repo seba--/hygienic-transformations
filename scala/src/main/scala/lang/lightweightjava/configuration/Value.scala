@@ -5,5 +5,5 @@ abstract class Value
 case class OID(objectIdentifier: String) extends Value
 
 object NullValue extends Value {
-  override def toString: String = "null"
+  override def toString = "null"
 }

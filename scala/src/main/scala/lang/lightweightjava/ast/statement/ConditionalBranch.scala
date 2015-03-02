@@ -23,12 +23,12 @@ case class ConditionalBranch(leftVariable: TermVariable, rightVariable: TermVari
     (leftVariable.resolveVariableNames(methodEnvironment) + rightVariable.resolveVariableNames(methodEnvironment) +
       ifBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1 + elseBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
 
-  override def toString(preTabs : String) : String = {
+  override def toString(preTabs : String) = {
     val innerPreTabs = preTabs + "\t"
     "if (" + leftVariable.toString + "==" + rightVariable.toString  + ")\n" + innerPreTabs + ifBranch.toString(innerPreTabs) + "\n" + preTabs +
       "else\n" + innerPreTabs + elseBranch.toString(innerPreTabs)
   }
 
-  override def toString: String = "if (" + leftVariable.toString + "==" + rightVariable.toString  + ")\n\t" + ifBranch.toString("\t") + "\n" +
+  override def toString = "if (" + leftVariable.toString + "==" + rightVariable.toString  + ")\n\t" + ifBranch.toString("\t") + "\n" +
     "else\n\t" + elseBranch.toString("\t")
 }

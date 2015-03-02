@@ -46,5 +46,5 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, me
     }
   }
 
-  override def toString: String = sourceObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
+  override def toString = sourceObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
 }

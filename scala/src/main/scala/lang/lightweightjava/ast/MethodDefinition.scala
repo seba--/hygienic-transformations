@@ -1,8 +1,7 @@
 package lang.lightweightjava.ast
 
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.namegraph.NameGraph
-import name.{Identifier, Renaming, Name}
+import name.{Identifier, Name, Renaming}
 
 case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) extends ClassElement {
   override def allNames = signature.allNames ++ methodBody.allNames
@@ -25,13 +24,13 @@ case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) 
     methodBody.returnValue.typeCheckForTypeEnvironment(program, typeEnv, signature.returnType)
   }
 
-  def typeEnvironment(classDefinition : ClassDefinition): TypeEnvironment = {
+  def typeEnvironment(classDefinition : ClassDefinition) = {
     signature.parameters.map(param => (param.name, param.variableType)).toMap[TermVariable, ClassRef] + (This -> classDefinition.className)
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = sys.error("Can't resolve names of method definition without class context")
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) = sys.error("Can't resolve names of method definition without class context")
 
-  def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition : ClassDefinition): NameGraph = {
+  def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition : ClassDefinition) = {
     val methodEnvironment = signature.parameters.map(p => (p.name.name, p.name)).toMap[Name, Identifier] + (This.name -> This) + (Null.name -> Null)
     signature.resolveNames(nameEnvironment) + methodBody.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment(classDefinition))
   }
