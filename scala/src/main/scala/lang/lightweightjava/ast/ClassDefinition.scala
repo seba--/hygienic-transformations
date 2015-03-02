@@ -1,12 +1,37 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.NameGraphExtended
-import name.{Identifier, Renaming}
+import lang.lightweightjava.ClassInterface
+import name.namegraph.{NameGraphExtended, NameGraphModular}
+import name._
 
-case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends AST {
+case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends AST with NominalModular[ClassInterface] {
   require(AST.isLegalName(className.name), "Class name '" + className.name + "' is no legal Java class name")
 
-  override def allNames = elements.foldLeft(Set[Identifier]())(_ ++ _.allNames) ++ superClass.allNames ++ className.allNames
+  override def allNames = elements.flatMap(_.allNames).toSet ++ superClass.allNames ++ className.allNames
+
+  private def exportedFields = elements.collect {
+    case FieldDeclaration(AccessModifier.PUBLIC, _, fieldName) => fieldName
+  }.toSet
+
+  private def exportedMethods = elements.collect {
+    case MethodDefinition(MethodSignature(AccessModifier.PUBLIC, _, methodName, _*), _) => methodName
+  }.toSet
+
+  override def moduleID: Identifier = className
+
+  override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
+    val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
+    (???, classInterface)
+  }
+
+  override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
+    val dependenciesRenamed = metaDependencies.map(i => new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
+    resolveNamesModular(dependenciesRenamed)._1
+  }
+
+  override def dependencies: Set[Name] = allNames.collect {
+    case className:ClassName => className.name
+  }
 
   override def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)

@@ -1,9 +1,7 @@
 package name
 
 trait Meta {
-  def moduleID: Identifier
+  val moduleID: Identifier
 
   def export: Set[Identifier]
-
-  def reverseRenaming: Map[Identifier, Name]
 }

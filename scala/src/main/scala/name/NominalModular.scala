@@ -5,7 +5,7 @@ import name.namegraph.NameGraphModular
 trait NominalModular[T <: Meta] extends Nominal {
   def moduleID: Identifier
 
-  def dependencies: Set[Identifier]
+  def dependencies: Set[Name]
 
   override def rename(renaming: Renaming): NominalModular[T]
 

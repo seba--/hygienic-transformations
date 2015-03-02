@@ -119,7 +119,7 @@ class NameFixModular {
   }
 
   def nameFixModule[S <: Meta, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S]) = {
-    val gVirtual = nameFixVirtual(gS, mT, metaDep, metaDep.foldLeft(Map[Identifier, Name]())((r, meta) => r ++ meta.reverseRenaming))
+    val gVirtual = nameFixVirtual(gS, mT, metaDep, metaDep.flatMap(_.export.map(id => (id, id.originalName))).toMap)
     applyVirtualGraph(mT, metaDep, gVirtual)
   }
 
@@ -127,7 +127,7 @@ class NameFixModular {
     if (mT.isEmpty)
       return Set()
 
-    val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID == i))).get
+    val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID.name == i))).get
     val currentModuleS = mS.find(_.moduleID == currentModuleT.moduleID)
     val (currentGS, currentMetaS) = currentModuleS match {
       case Some(module) => module.resolveNamesModular(metaS)

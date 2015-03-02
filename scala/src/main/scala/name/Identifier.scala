@@ -16,12 +16,15 @@ object Identifier {
 
 class Identifier(val name: Name) {
   protected var id: Identifier.ID = new ID(this)
+  protected var oName: Name = name
 
+  def originalName = oName
   override def toString = name
 
   def rename(newName : Name) = {
     val renamed = new Identifier(newName)
-    renamed.id = this.id
+    renamed.id = id
+    renamed.oName = oName
     renamed
   }
 
