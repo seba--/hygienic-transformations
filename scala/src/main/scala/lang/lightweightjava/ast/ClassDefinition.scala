@@ -19,16 +19,6 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def moduleID: Identifier = className
 
-  override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
-    val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
-    (???, classInterface)
-  }
-
-  override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
-    val dependenciesRenamed = metaDependencies.map(i => new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
-    resolveNamesModular(dependenciesRenamed)._1
-  }
-
   override def dependencies: Set[Name] = allNames.collect {
     case className:ClassName => className.name
   }
@@ -70,6 +60,38 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment) + elements.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(nameEnvironment, this))
+  }
+
+  override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
+    val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
+    var environment: ClassNameEnvironment = Map()
+    for (dependency <- metaDependencies) {
+      if (environment.contains(dependency.moduleID.name))
+        throw new IllegalArgumentException("Multiple instances of class '" + dependency.moduleID.name + "' found!")
+      else {
+        val fieldsMap = dependency.exportedFields.map(_.name).map(n => (n, dependency.exportedFields.filter(_.name == n))).toMap
+        val methodsMap = dependency.exportedMethods.map(_.name).map(n => (n, dependency.exportedMethods.filter(_.name == n))).toMap
+        environment += (dependency.moduleID.name -> Set((dependency.moduleID, fieldsMap, methodsMap)))
+      }
+    }
+
+    val nameGraph = resolveNames(environment)
+    var intEdges: Map[Identifier, Set[Identifier]] = Map()
+    var outEdges: Map[Identifier, Set[Identifier]] = Map()
+
+    for ((v, ds) <- nameGraph.E) {
+      intEdges += (v -> ds.filter(d => nameGraph.V.contains(d)))
+      outEdges += (v -> ds.filter(d => !nameGraph.V.contains(d)))
+    }
+
+    val modularNameGraph = NameGraphModular(nameGraph.V, intEdges, outEdges)
+
+    (modularNameGraph, classInterface)
+  }
+
+  override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
+    val dependenciesRenamed = metaDependencies.map(i => new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
+    resolveNamesModular(dependenciesRenamed)._1
   }
 
   override def toString = "class " + className.toString +

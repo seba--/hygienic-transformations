@@ -1,8 +1,9 @@
 package lang.lightweightjava
 
+import lang.lightweightjava.ast.ClassName
 import name.{Identifier, Meta}
 
-class ClassInterface(val className: Identifier, val exportedFields: Set[Identifier], val exportedMethods: Set[Identifier]) extends Meta {
+class ClassInterface(val className: ClassName, val exportedFields: Set[Identifier], val exportedMethods: Set[Identifier]) extends Meta {
 
   override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[ClassInterface] && obj.asInstanceOf[ClassInterface].className == className
 
