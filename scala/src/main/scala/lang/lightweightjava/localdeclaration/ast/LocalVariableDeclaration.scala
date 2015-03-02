@@ -3,10 +3,17 @@ package lang.lightweightjava.localdeclaration.ast
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Statement, This, VariableName}
 import name.Renaming
+import name.namegraph.NameGraph
 
 case class LocalVariableDeclaration(variableType: ClassRef, name: VariableName) extends Statement {
-  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) =
-    (variableType.resolveNames(nameEnvironment) + name.resolveVariableNames(methodEnvironment + (name.name -> name)), (methodEnvironment + (name.name -> name), typeEnvironment + (name -> variableType)))
+  override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment: TypeEnvironment) = {
+    val redefinedVar =
+      if (methodEnvironment.contains(name.name)) NameGraph(Set(), Map(name -> methodEnvironment(name.name)))
+      else NameGraph(Set(), Map())
+
+    (variableType.resolveNames(nameEnvironment) + name.resolveVariableNames(methodEnvironment + (name.name -> name)) + redefinedVar,
+      (methodEnvironment + (name.name -> name), typeEnvironment + (name -> variableType)))
+  }
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(variableType match {

@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Renaming}
 
 case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, methodParameters: TermVariable*) extends Statement {
@@ -33,13 +33,10 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, me
     val variablesGraph = sourceObject.resolveVariableNames(methodEnvironment) +
       methodParameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveVariableNames(methodEnvironment))
 
-    // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown methods
     if (typeEnvironment.contains(sourceObject) && nameEnvironment.contains(typeEnvironment(sourceObject).name)) {
-      val methodMap = nameEnvironment(typeEnvironment(sourceObject).name)._3
-      if (methodMap.contains(methodName.name))
-        (variablesGraph + NameGraph(Set(methodName), Map(methodName -> methodMap(methodName.name))), (methodEnvironment, typeEnvironment))
-      else
-        (variablesGraph + NameGraph(Set(methodName), Map()), (methodEnvironment, typeEnvironment))
+      val fieldMap = nameEnvironment(typeEnvironment(sourceObject).name).map(_._3).filter(_.contains(methodName.name))
+
+      (variablesGraph + NameGraphExtended(Set(methodName), Map(methodName -> fieldMap.flatMap(_(methodName.name)))), (methodEnvironment, typeEnvironment))
     }
     else {
       (variablesGraph + NameGraph(Set(methodName), Map()), (methodEnvironment, typeEnvironment))

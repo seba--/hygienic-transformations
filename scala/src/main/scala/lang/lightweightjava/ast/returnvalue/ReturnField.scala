@@ -2,7 +2,7 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Renaming}
 
 case class ReturnField(returnObject: TermVariable, returnField: Identifier) extends ReturnValue {
@@ -31,13 +31,10 @@ case class ReturnField(returnObject: TermVariable, returnField: Identifier) exte
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment)
 
-    // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
     if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).name)) {
-      val fieldMap = nameEnvironment(typeEnvironment(returnObject).name)._2
-      if (fieldMap.contains(returnField.name))
-        variablesGraph + NameGraph(Set(returnField), Map(returnField -> fieldMap(returnField.name)))
-      else
-        variablesGraph + NameGraph(Set(returnField), Map())
+      val fieldMap = nameEnvironment(typeEnvironment(returnObject).name).map(_._2).filter(_.contains(returnField.name))
+
+      variablesGraph + NameGraphExtended(Set(returnField), Map(returnField -> fieldMap.flatMap(_(returnField.name))))
     }
     else {
       variablesGraph + NameGraph(Set(returnField), Map())

@@ -2,7 +2,7 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Renaming}
 
 case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, methodParameters: TermVariable*) extends ReturnValue {
@@ -35,13 +35,10 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment) +
       methodParameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveVariableNames(methodEnvironment))
 
-    // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown methods
     if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).name)) {
-      val methodMap = nameEnvironment(typeEnvironment(returnObject).name)._3
-      if (methodMap.contains(methodName.name))
-        variablesGraph + NameGraph(Set(methodName), Map(methodName -> methodMap(methodName.name)))
-      else
-        variablesGraph + NameGraph(Set(methodName), Map())
+      val fieldMap = nameEnvironment(typeEnvironment(returnObject).name).map(_._3).filter(_.contains(methodName.name))
+
+      variablesGraph + NameGraphExtended(Set(methodName), Map(methodName -> fieldMap.flatMap(_(methodName.name))))
     }
     else {
       variablesGraph + NameGraph(Set(methodName), Map())

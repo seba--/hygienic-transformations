@@ -29,6 +29,6 @@ object NameGraphExtended {
 }
 
 case class NameGraphExtended(V: Nodes, E: Map[Identifier, Set[Identifier]]) {
-  def +(g: NameGraphExtended) = NameGraphExtended(V ++ g.V, E ++ g.E)
-  def +(g: NameGraph) = NameGraphExtended(V ++ g.V, E ++ g.E.map(e => (e._1, Set(e._2))))
+  def +(g: NameGraphExtended) = NameGraphExtended(V ++ g.V,
+    (E -- g.E.keys) ++ g.E.map(e => if (E.contains(e._1)) (e._1, E(e._1) ++ e._2) else (e._1, e._2)))
 }

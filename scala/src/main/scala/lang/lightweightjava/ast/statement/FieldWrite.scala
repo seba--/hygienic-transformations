@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Renaming}
 
 case class FieldWrite(targetObject: TermVariable, targetField: Identifier, source: TermVariable) extends Statement {
@@ -30,13 +30,10 @@ case class FieldWrite(targetObject: TermVariable, targetField: Identifier, sourc
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = targetObject.resolveVariableNames(methodEnvironment) + source.resolveVariableNames(methodEnvironment)
 
-    // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
     if (typeEnvironment.contains(targetObject) && nameEnvironment.contains(typeEnvironment(targetObject).name)) {
-      val fieldMap = nameEnvironment(typeEnvironment(targetObject).name)._2
-      if (fieldMap.contains(targetField.name))
-        (variablesGraph + NameGraph(Set(targetField), Map(targetField -> fieldMap(targetField.name))), (methodEnvironment, typeEnvironment))
-      else
-        (variablesGraph + NameGraph(Set(targetField), Map()), (methodEnvironment, typeEnvironment))
+      val fieldMap = nameEnvironment(typeEnvironment(targetObject).name).map(_._2).filter(_.contains(targetField.name))
+
+      (variablesGraph + NameGraphExtended(Set(targetField), Map(targetField -> fieldMap.flatMap(_(targetField.name)))), (methodEnvironment, typeEnvironment))
     }
     else {
       (variablesGraph + NameGraph(Set(targetField), Map()), (methodEnvironment, typeEnvironment))

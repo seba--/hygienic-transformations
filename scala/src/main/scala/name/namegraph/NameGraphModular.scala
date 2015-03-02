@@ -23,7 +23,7 @@ object NameGraphModular {
 }
 
 case class NameGraphModular(V: Nodes, E: Map[Identifier, Set[Identifier]], EOut: Map[Identifier, Set[Identifier]]) {
-  def +(g: NameGraphModular) = NameGraphModular(V ++ g.V, E ++ g.E, EOut ++ g.EOut)
-  def +(g: NameGraphExtended) = NameGraphModular(V ++ g.V, E ++ g.E, EOut)
-  def +(g: NameGraph) = NameGraphModular(V ++ g.V, E ++ g.E.map(e => (e._1, Set(e._2))), EOut)
+  def +(g: NameGraphModular) = NameGraphModular(V ++ g.V,
+    (E -- g.E.keys) ++ g.E.map(e => if (E.contains(e._1)) (e._1, E(e._1) ++ e._2) else (e._1, e._2)),
+    (EOut -- g.EOut.keys) ++ g.EOut.map(e => if (EOut.contains(e._1)) (e._1, EOut(e._1) ++ e._2) else (e._1, e._2)))
 }

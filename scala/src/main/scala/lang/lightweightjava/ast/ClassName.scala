@@ -1,6 +1,6 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.NameGraph
+import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Name, Renaming}
 
 trait ClassRef extends Identifier with AST {
@@ -19,11 +19,11 @@ trait ClassRef extends Identifier with AST {
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     // If the class name is pointing to itself (because it is declared here), add only the node but no edges
-    if (!nameEnvironment.contains(name) || nameEnvironment(name)._1 == this)
+    if (!nameEnvironment.contains(name))
       NameGraph(Set(this), Map())
     // If the class name is pointing to another class name, add it and the edge to the name graph
     else
-      NameGraph(Set(this), Map(this -> nameEnvironment(name)._1))
+      NameGraphExtended(Set(this), Map(this -> nameEnvironment(name).map(_._1)))
   }
 
   override def toString = name

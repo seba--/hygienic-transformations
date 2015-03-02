@@ -15,9 +15,9 @@ package object ast {
 
   type TypeEnvironment = Map[TermVariable, ClassRef]
 
-  // Class name -> (Class ID, (Field name -> Field ID), (Method name -> Method ID)
-  type ClassNameEnvironment = Map[Name, (Identifier, Map[Name, Identifier], Map[Name, Identifier])]
+  // Class name -> Set[Class, (Field name -> Fields), (Method name -> Methods)]
+  type ClassNameEnvironment = Map[Name, Set[(ClassName, Map[Name, Set[Identifier]], Map[Name, Set[Identifier]])]]
 
-  // Variable name -> Variable declaration ID
+  // Variable name -> Variable declaration
   type VariableNameEnvironment = Map[Name, Identifier]
 }

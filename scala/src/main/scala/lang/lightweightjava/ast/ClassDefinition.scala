@@ -1,6 +1,6 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends AST {
@@ -44,28 +44,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    val classNameGraph = className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment)
-
-    // Collect all field/method names
-    val fieldNames = elements.toSeq.collect({ case FieldDeclaration(_, _, name) => name })
-    val methodNames = elements.toSeq.collect({ case MethodDefinition(MethodSignature(_, _, name, _*), _) => name })
-
-    // Group equal field names and then filter so that only duplicate fields remain
-    val doubleFieldNames = fieldNames.foldLeft(Set[Set[Identifier]]())((oldSet, field) => oldSet.find(_.exists(field.name == _.name)) match {
-      case Some(set) => oldSet - set + (set + field)
-      case None => oldSet + Set(field)
-    }).filter(_.size > 1)
-
-    // Group equal method names and then filter so that only duplicate method remain
-    val doubleMethodNames = methodNames.foldLeft(Set[Set[Identifier]]())((oldSet, method) => oldSet.find(_.exists(method.name == _.name)) match {
-      case Some(set) => oldSet - set + (set + method)
-      case None => oldSet + Set(method)
-    }).filter(_.size > 1)
-
-    // Create the error list for the name graph based on the duplicate lists
-    val duplicateErrors = (doubleFieldNames ++ doubleMethodNames).toSet[Set[Identifier]]
-
-    classNameGraph + elements.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(nameEnvironment, this))
+    className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment) + elements.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(nameEnvironment, this))
   }
 
   override def toString = "class " + className.toString +

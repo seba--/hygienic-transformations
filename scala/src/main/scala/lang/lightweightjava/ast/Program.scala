@@ -1,10 +1,10 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.NameGraph
-import name.{Renaming, Identifier, Name}
+import name.namegraph.NameGraphExtended
+import name.{Identifier, Name, Renaming}
 
 case class Program(classes: ClassDefinition*) extends AST {
-  override def allNames = classes.foldLeft(Set[Identifier]())(_ ++ _.allNames) ++ ObjectClass.allNames
+  override def allNames = classes.flatMap(_.allNames).toSet ++ ObjectClass.allNames
 
   override def rename(renaming: Renaming) = Program(classes.map(_.rename(renaming)): _*)
 
@@ -13,7 +13,11 @@ case class Program(classes: ClassDefinition*) extends AST {
     classes.map(_.typeCheckForProgram(this))
   }
 
-  def getClassDefinition(name: ClassName) = classes.find(_.className.name == name.name)
+  def getClassDefinition(name: ClassName) = {
+    val matchingClasses = classes.toSet.filter(_.className.name == name.name)
+    if (matchingClasses.size <= 1) matchingClasses.headOption
+    else throw new IllegalArgumentException("Multiple class definitions for class name '" + name.name + "' found!")
+  }
 
   def getInheritancePath(classDefinition: ClassDefinition, currentPath: Seq[ClassDefinition] = Seq()): Seq[ClassDefinition] =
     classDefinition.superClass match {
@@ -42,22 +46,33 @@ case class Program(classes: ClassDefinition*) extends AST {
   def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName.name == fieldName)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    // Generate the class name environment for the whole program, where each class name is mapped to a list of field names and one of method names
-    val programEnvironment = nameEnvironment ++ classes.map(c =>
-      (c.className.name, (c.className,
-        getClassFields(c).map(f => (f.fieldName.name, f.fieldName)).toMap[Name, Identifier],
-        getClassMethods(c).map(m => (m.signature.methodName.name, m.signature.methodName)).toMap[Name, Identifier])
-      )).toMap[Name, (Identifier, Map[Name, Identifier], Map[Name, Identifier])] +
-        (ObjectClass.name -> (ObjectClass, Map[Name, Identifier](), Map[Name, Identifier]()))
+    val classesMap = classes.map(_.className.name).map(name => (name, classes.toSet.filter(_.className.name == name))).toMap
 
-    // Add references from methods overriding super-class methods to their overriding counterparts
-    val methodOverrideReferences = classes.map(c => (c, c.superClass)).collect {
-      case (classDef, superClass@ClassName(name)) =>
-        classDef.elements.collect({
-          case method@MethodDefinition(MethodSignature(_, _, methodName, _*), _) => (method, methodName) }).map(m => (m._2,
-            findMethod(getClassDefinition(superClass).get, m._2.name).getOrElse(m._1).signature.methodName)).toMap[Identifier, Identifier]
-    }.foldLeft(Map[Identifier, Identifier]())(_ ++ _)
-    classes.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraph(Set(), methodOverrideReferences)
+    // Generate the class name environment for the whole program, where each class name is mapped to a set of corresponding classes,
+    // each with a map for field names and one for method names
+    val programEnvironment: ClassNameEnvironment = nameEnvironment ++ classesMap.map(n => (n._1, n._2.map(c => (c.className,
+      getClassFields(c).map(_.fieldName.name).map(fn => (fn, getClassFields(c).map(_.fieldName).filter(_.name == fn))).toMap[Name, Set[Identifier]],
+      getClassMethods(c).map(_.signature.methodName.name).map(mn => (mn, getClassMethods(c).map(_.signature.methodName).toSet.filter(_.name == mn))).toMap[Name, Set[Identifier]]
+      )))).toMap[Name, Set[(ClassName, Map[Name, Set[Identifier]], Map[Name, Set[Identifier]])]]
+
+    var duplicateReferences: Map[Identifier, Set[Identifier]] = Map()
+    for ((name, classes) <- programEnvironment) {
+      if (classes.size > 1)
+        duplicateReferences ++= classes.map(c => (c._1, classes.map(_._1).toSet[Identifier])).toMap
+
+      for (classEnv <- classes) {
+        for ((fieldName, fields) <- classEnv._2) {
+          if (fields.size > 1)
+            duplicateReferences ++= fields.map(f => (f, fields))
+        }
+
+        for ((methodName, methods) <- classEnv._3) {
+          if (methods.size > 1)
+            duplicateReferences ++= methods.map(m => (m, methods))
+        }
+      }
+    }
+    classes.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraphExtended(Set(), duplicateReferences)
   }
 
   override def toString = classes.foldLeft("")(_ + _.toString + "\n\n")
