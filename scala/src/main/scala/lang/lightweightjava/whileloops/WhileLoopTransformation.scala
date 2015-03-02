@@ -4,7 +4,7 @@ import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.returnvalue.ReturnVariable
 import lang.lightweightjava.ast.statement._
 import lang.lightweightjava.whileloops.ast.WhileLoop
-import name.Name
+import name.Identifier
 
 object WhileLoopTransformation {
   def transform(program : Program) = {
@@ -37,7 +37,7 @@ object WhileLoopTransformation {
       case WhileLoop(leftVariable, rightVariable, loopBody) =>
         // Create a set of helper fields added to transfer the helper method results back to the method
         val addedFields = method.signature.parameters.foldLeft((Set[(VariableDeclaration, FieldDeclaration)](), loopCount))((oldState, param) =>
-          (oldState._1 + ((param, FieldDeclaration(AccessModifier.PRIVATE, param.variableType, Name("loop" + oldState._2 + "_" + param.name.variableName.name)))),
+          (oldState._1 + ((param, FieldDeclaration(AccessModifier.PRIVATE, param.variableType, Identifier("loop" + oldState._2 + "_" + param.name.name)))),
             oldState._2 + 1))
 
         // Create a set of save/restore statements added to transfer the helper method results back to the method
@@ -48,7 +48,7 @@ object WhileLoopTransformation {
         val ifBranch = StatementBlock(remainingStatements.tail:_*)
 
         // Create a helper method that is called recursively at the end of the else-branch
-        val loopMethodName = Name(method.signature.methodName.name + "_loop" + addedFields._2)
+        val loopMethodName = Identifier(method.signature.methodName.name + "_loop" + addedFields._2)
 
         val recursiveCallParameters = method.signature.parameters.map(param => param.name)
         val recursiveCall = VoidMethodCall(This, loopMethodName.fresh, recursiveCallParameters:_*)

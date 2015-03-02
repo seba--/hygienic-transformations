@@ -1,6 +1,5 @@
 package lang.lightweightjava
 
-import lang.lightweightjava.ast.statement.VariableName
 import lang.lightweightjava.configuration.NormalConfiguration
 import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
 import org.scalatest.{FlatSpec, Matchers}
@@ -26,7 +25,8 @@ class LocalDeclarationTest extends FlatSpec with Matchers {
       val transformedProgram = LocalDeclarationTransformation.transform(p.program)
       val interpResult = Interpreter.interpret(NormalConfiguration(transformedProgram, p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       // y.field == y
-      interpResult.heap(interpResult.state(VariableName("y")))._2("field") should be (interpResult.state(VariableName("y")))
+      val yID = interpResult.state.find(_._1.name == "y").get._2
+      interpResult.heap(yID)._2("field") should be (yID)
       info("LDT result:\n" + interpResult.toString)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })

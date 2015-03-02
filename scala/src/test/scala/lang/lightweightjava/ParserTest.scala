@@ -83,4 +83,9 @@ class ParserTest extends FlatSpec with Matchers {
     case Parser.Success(_, _) => fail("Parsing succeeded for an invalid program!")
     case Parser.Error(msg, _) => fail(msg)
   })
+
+  val p =
+    "class Example {\n\tExample field;\n\t\n\tObject method(Example param) {\n\t\tparam.field = this;\n\t\tthis.field = param;\n\t\treturn param;\n\t}\n}"
+  val r = Parser.parseAll(Parser.program, p)
+  val r2 = r;
 }

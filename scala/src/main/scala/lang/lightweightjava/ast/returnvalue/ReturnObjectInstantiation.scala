@@ -2,16 +2,17 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.This
-import name.NameGraph
+import name.Renaming
+import name.namegraph.NameGraph
 
 case class ReturnObjectInstantiation(classRef: ClassRef) extends ReturnValue {
   override def allNames = classRef.allNames
 
-  override def rename(renaming: RenamingFunction) = ReturnObjectInstantiation(classRef.rename(renaming))
+  override def rename(renaming: Renaming) = ReturnObjectInstantiation(classRef.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(program.checkSubclass(classRef, returnType),
-      "Object returned by method in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "' is incompatible to the method return type!")
+      "Object returned by method in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' is incompatible to the method return type!")
     typeEnvironment
   }
 

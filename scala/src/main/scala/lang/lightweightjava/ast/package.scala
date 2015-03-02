@@ -2,7 +2,7 @@ package lang.lightweightjava
 
 import lang.lightweightjava.ast.statement.TermVariable
 import lang.lightweightjava.configuration.Value
-import name.Name
+import name.{Identifier, Name}
 
 package object ast {
   type State = Map[TermVariable, Value]
@@ -16,8 +16,8 @@ package object ast {
   type TypeEnvironment = Map[TermVariable, ClassRef]
 
   // Class name -> (Class ID, (Field name -> Field ID), (Method name -> Method ID)
-  type ClassNameEnvironment = Map[Name, (Name.ID, Map[Name, Name.ID], Map[Name, Name.ID])]
+  type ClassNameEnvironment = Map[Name, (Identifier, Map[Name, Identifier], Map[Name, Identifier])]
 
   // Variable name -> Variable declaration ID
-  type VariableNameEnvironment = Map[Name, Name.ID]
+  type VariableNameEnvironment = Map[Name, Identifier]
 }

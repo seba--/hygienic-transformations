@@ -2,27 +2,29 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.{Name, NameGraph}
+import name.namegraph.NameGraph
+import name.{Identifier, Renaming}
 
-case class ReturnField(returnObject: TermVariable, returnField: Name) extends ReturnValue {
-  require(AST.isLegalName(returnField), "Field name '" + returnField + "' is no legal Java field name")
+case class ReturnField(returnObject: TermVariable, returnField: Identifier) extends ReturnValue {
+  require(AST.isLegalName(returnField.name), "Field name '" + returnField + "' is no legal Java field name")
 
-  override def allNames = returnObject.allNames + returnField.id
+  override def allNames = returnObject.allNames + returnField
 
-  override def rename(renaming: RenamingFunction) = ReturnField(returnObject.rename(renaming), renaming(returnField))
+  override def rename(renaming: Renaming) = ReturnField(returnObject.rename(renaming), renaming(returnField))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
-    require(returnObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")
+    require(returnObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
     typeEnvironment(returnObject) match {
-      case className@ClassName(_) => program.findField(program.getClassDefinition(className).get, returnField) match {
+      case className@ClassName(_) => program.findField(program.getClassDefinition(className).get, returnField.name) match {
         case Some(field) => require(program.checkSubclass(field.fieldType, returnType),
-          "Field returned by a method in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "' is incompatible with the method return type!")
-          require(className.className == typeEnvironment(This).className || field.accessModifier == AccessModifier.PUBLIC, "Trying to access private field '" + field.fieldName + "' of class '" + typeEnvironment(returnObject).asInstanceOf[ClassName].className + "' externally!")
+          "Field returned by a method in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' is incompatible with the method return type!")
+          require(className.name == typeEnvironment(This).name || field.accessModifier == AccessModifier.PUBLIC,
+            "Trying to access private field '" + field.fieldName + "' of class '" + typeEnvironment(returnObject).asInstanceOf[ClassName].name + "' externally!")
           typeEnvironment
         case None =>
-          throw new IllegalArgumentException("Class '" + className.className + "' doesn't have field '" + returnField + "' returned in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")
+          throw new IllegalArgumentException("Class '" + className.name + "' doesn't have field '" + returnField + "' returned in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
       }
-      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have field '" + returnField + "' returned in class '" + typeEnvironment(This).asInstanceOf[ClassName].className + "'")
+      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have field '" + returnField + "' returned in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
     }
   }
 
@@ -30,15 +32,15 @@ case class ReturnField(returnObject: TermVariable, returnField: Name) extends Re
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment)
 
     // As name resolution doesn't require the program to be type checked, we have to to it here and return an error for unknown fields
-    if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).className)) {
-      val fieldMap = nameEnvironment(typeEnvironment(returnObject).className)._2
-      if (fieldMap.contains(returnField))
-        variablesGraph ++ NameGraph(Set(returnField.id), Map(returnField.id -> fieldMap(returnField)), Set())
+    if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).name)) {
+      val fieldMap = nameEnvironment(typeEnvironment(returnObject).name)._2
+      if (fieldMap.contains(returnField.name))
+        variablesGraph + NameGraph(Set(returnField), Map(returnField -> fieldMap(returnField.name)))
       else
-        variablesGraph ++ NameGraph(Set(returnField.id), Map(), Set())
+        variablesGraph + NameGraph(Set(returnField), Map())
     }
     else {
-      variablesGraph ++ NameGraph(Set(returnField.id), Map(), Set())
+      variablesGraph + NameGraph(Set(returnField), Map())
     }
   }
 

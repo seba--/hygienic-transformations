@@ -1,15 +1,16 @@
 package lang.lambda.num
 
-import lang.lambda.{QualifiedVar, Exp}
-import name.{Name, NameGraph}
+import lang.lambda.Exp
+import name.namegraph.NameGraph
+import name.Renaming
 
 /**
  * Created by seba on 01/08/14.
  */
 case class Num(v: Int) extends Exp {
   def allNames = Set()
-  def rename(renaming: RenamingFunction) = this
-  def resolveNames(scope: Scope, modularScope: ModularScope) = NameGraph(Map())
+  def rename(renaming: Renaming) = this
+  def resolveNames(scope: Scope) = NameGraph(Set(), Map())
 
   def unsafeSubst(w: String, e: Exp) = this
 
@@ -19,6 +20,4 @@ case class Num(v: Int) extends Exp {
     case Num(v2) => v == v2
     case _ => false
   }
-
-  override def replaceByQualifiedVar(name: Name, qualifiedVar: QualifiedVar) = this
 }

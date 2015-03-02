@@ -1,12 +1,13 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.{Name, NameGraph}
+import name.namegraph.NameGraph
+import name.{Identifier, Renaming}
 
 case class StatementBlock(blockBody: Statement*) extends Statement {
-  override def allNames = blockBody.foldLeft(Set[Name.ID]())(_ ++ _.allNames)
+  override def allNames = blockBody.foldLeft(Set[Identifier]())(_ ++ _.allNames)
 
-  override def rename(renaming: RenamingFunction) = StatementBlock(blockBody.map(_.rename(renaming)): _*)
+  override def rename(renaming: Renaming) = StatementBlock(blockBody.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     blockBody.foldLeft(typeEnvironment)((oldEnvironment, statement) => statement.typeCheckForTypeEnvironment(program, oldEnvironment))
@@ -14,9 +15,9 @@ case class StatementBlock(blockBody: Statement*) extends Statement {
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
-    (blockBody.foldLeft((NameGraph(Set(), Map(), Set()), (methodEnvironment, typeEnvironment)))((result, statement) => {
+    (blockBody.foldLeft((NameGraph(Set(), Map()), (methodEnvironment, typeEnvironment)))((result, statement) => {
       val statementResult = statement.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)
-      (result._1 ++ statementResult._1, statementResult._2)
+      (result._1 + statementResult._1, statementResult._2)
     })._1, (methodEnvironment, typeEnvironment))
 
   override def toString(preTabs: String): String = {

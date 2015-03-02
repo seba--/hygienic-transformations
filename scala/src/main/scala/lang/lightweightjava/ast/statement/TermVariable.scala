@@ -1,53 +1,56 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.{Name, NameGraph}
+import name.namegraph.NameGraph
+import name.{Identifier, Name, Renaming}
 
-abstract class TermVariable extends AST {
-  override def rename(renaming: RenamingFunction): TermVariable
+trait TermVariable extends Identifier with AST {
+  override def allNames = Set()
 
-  def variableName : Name
-
-  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = resolveVariableNames(Map(variableName -> variableName.id))
-
-  def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = {
-    // If the variable is pointing to itself (because it is declared here), add only the node but no edges
-    if (!methodEnvironment.contains(variableName) || methodEnvironment(variableName) == variableName.id)
-      NameGraph(Set(variableName.id), Map(), Set())
-    // If the variable is pointing to another variable, add it and the edge to the name graph
-    else
-      NameGraph(Set(variableName.id), Map(variableName.id -> methodEnvironment(variableName)), Set())
+  protected def renameVariable(newName : Name) = {
+    if (newName == "this") This
+    else if (newName == "null") Null
+    else {
+      val renamed = VariableName(newName)
+      renamed.id = this.id
+      renamed
+    }
   }
 
-  override def toString: String = variableName.toString
+  override def rename(renaming: Renaming): TermVariable = renameVariable(renaming(this).name)
+
+  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = NameGraph(Set(), Map())
+
+  def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = NameGraph(Set(), Map())
+
+  override def toString: String = name.toString
 }
 
-object This extends TermVariable {
-  private val thisName = Name("this")
-
-  override def variableName = thisName
-
-  override def allNames = Set(variableName.id)
-
-  override def rename(renaming: RenamingFunction) = if (renaming(variableName).name == "this") this else VariableName(renaming(variableName))
+object This extends Identifier("this") with TermVariable {
+  override def fresh = throw new IllegalArgumentException("Can't create fresh instance of 'this' variable!")
 }
 
-case class VariableName(variableName: Name) extends TermVariable {
-  require(AST.isLegalName(variableName), "Variable name '" + variableName + "' is no legal Java variable name")
-
-  override def allNames = Set(variableName.id)
-
-  override def rename(renaming: RenamingFunction) = VariableName(renaming(variableName))
+object Null extends Identifier("null") with TermVariable {
+  override def fresh = throw new IllegalArgumentException("Can't create fresh instance of 'null' variable!")
 }
 
-object Null extends TermVariable {
-  private val nullName = Name("null")
+case class VariableName(override val name: Name) extends Identifier(name) with TermVariable {
+  require(AST.isLegalName(name), "Variable name '" + name + "' is no legal Java variable name")
 
-  override def variableName = nullName
+  override def allNames = Set(this)
 
-  override def allNames = Set(variableName.id)
+  override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = resolveVariableNames(Map(name -> this))
 
-  override def rename(renaming: RenamingFunction) = this
+  override def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraph = {
+    // If the variable is pointing to itself (because it is declared here), add only the node but no edges
+    if (!methodEnvironment.contains(name) || methodEnvironment(name) == this)
+      NameGraph(Set(this), Map())
+    // If the variable is pointing to another variable, add it and the edge to the name graph
+    else
+      NameGraph(Set(this), Map(this -> methodEnvironment(name)))
+  }
+
+  override def fresh = VariableName(name)
 }
 
 

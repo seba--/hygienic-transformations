@@ -1,26 +1,27 @@
 package lang.lightweightjava.ast
 
-import name.{Name, NameGraph}
+import name.namegraph.NameGraph
+import name.{Renaming, Identifier, Name}
 
 case class Program(classes: ClassDefinition*) extends AST {
-  override def allNames = classes.foldLeft(Set[Name.ID]())(_ ++ _.allNames) ++ ObjectClass.allNames
+  override def allNames = classes.foldLeft(Set[Identifier]())(_ ++ _.allNames) ++ ObjectClass.allNames
 
-  override def rename(renaming: RenamingFunction) = Program(classes.map(_.rename(renaming)): _*)
+  override def rename(renaming: Renaming) = Program(classes.map(_.rename(renaming)): _*)
 
   def typeCheck = {
-    require(classes.map(_.className.className).distinct.size == classes.size, "All class definition names need to be unique")
+    require(classes.map(_.className.name).distinct.size == classes.size, "All class definition names need to be unique")
     classes.map(_.typeCheckForProgram(this))
   }
 
-  def getClassDefinition(name: ClassName) = classes.find(_.className == name)
+  def getClassDefinition(name: ClassName) = classes.find(_.className.name == name.name)
 
   def getInheritancePath(classDefinition: ClassDefinition, currentPath: Seq[ClassDefinition] = Seq()): Seq[ClassDefinition] =
     classDefinition.superClass match {
       case ObjectClass => classDefinition +: currentPath
       case ClassName(superClassName) =>
-        if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.className + "'")
+        if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
         else getInheritancePath(getClassDefinition(ClassName(superClassName)).getOrElse(
-          throw new IllegalArgumentException("Could not find definition for super class '" + superClassName + "' of class '" + classDefinition.className.className + "'")),
+          throw new IllegalArgumentException("Could not find definition for super class '" + superClassName + "' of class '" + classDefinition.className.name + "'")),
           classDefinition +: currentPath)
     }
 
@@ -36,27 +37,27 @@ case class Program(classes: ClassDefinition*) extends AST {
   def getClassMethods(classDefinition: ClassDefinition): Seq[MethodDefinition] =
     getInheritancePath(classDefinition).reverse.flatMap(_.elements.collect({ case m: MethodDefinition => m}))
 
-  def findMethod(classDefinition: ClassDefinition, methodName: Name) = getClassMethods(classDefinition).find(_.signature.methodName == methodName)
+  def findMethod(classDefinition: ClassDefinition, methodName: Name) = getClassMethods(classDefinition).find(_.signature.methodName.name == methodName)
 
-  def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName == fieldName)
+  def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName.name == fieldName)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment): NameGraph = {
     // Generate the class name environment for the whole program, where each class name is mapped to a list of field names and one of method names
     val programEnvironment = nameEnvironment ++ classes.map(c =>
-      (c.className.className, (c.className.className.id,
-        getClassFields(c).map(f => (f.fieldName, f.fieldName.id)).toMap[Name, Name.ID],
-        getClassMethods(c).map(m => (m.signature.methodName, m.signature.methodName.id)).toMap[Name, Name.ID])
-      )).toMap[Name, (Name.ID, Map[Name, Name.ID], Map[Name, Name.ID])] +
-        (ObjectClass.className -> (ObjectClass.className.id, Map[Name, Name.ID](), Map[Name, Name.ID]()))
+      (c.className.name, (c.className,
+        getClassFields(c).map(f => (f.fieldName.name, f.fieldName)).toMap[Name, Identifier],
+        getClassMethods(c).map(m => (m.signature.methodName.name, m.signature.methodName)).toMap[Name, Identifier])
+      )).toMap[Name, (Identifier, Map[Name, Identifier], Map[Name, Identifier])] +
+        (ObjectClass.name -> (ObjectClass, Map[Name, Identifier](), Map[Name, Identifier]()))
 
     // Add references from methods overriding super-class methods to their overriding counterparts
     val methodOverrideReferences = classes.map(c => (c, c.superClass)).collect {
       case (classDef, superClass@ClassName(name)) =>
         classDef.elements.collect({
-          case method@MethodDefinition(MethodSignature(_, _, methodName, _*), _) => (method, methodName) }).map(m => (m._2.id,
-            findMethod(getClassDefinition(superClass).get, m._2).getOrElse(m._1).signature.methodName.id)).toMap[Name.ID, Name.ID]
-    }.foldLeft(Map[Name.ID, Name.ID]())(_ ++ _)
-    classes.foldLeft(NameGraph(Set(), Map(), Set()))(_ ++ _.resolveNames(programEnvironment)) ++ NameGraph(Set(), methodOverrideReferences, Set())
+          case method@MethodDefinition(MethodSignature(_, _, methodName, _*), _) => (method, methodName) }).map(m => (m._2,
+            findMethod(getClassDefinition(superClass).get, m._2.name).getOrElse(m._1).signature.methodName)).toMap[Identifier, Identifier]
+    }.foldLeft(Map[Identifier, Identifier]())(_ ++ _)
+    classes.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraph(Set(), methodOverrideReferences)
   }
 
   override def toString = classes.foldLeft("")(_ + _.toString + "\n\n")

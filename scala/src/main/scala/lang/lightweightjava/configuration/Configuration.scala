@@ -8,7 +8,7 @@ abstract class Configuration() {
   def state : State
   def heap : Heap
 
-  def freshName(usedNames : Set[String], oldName: Name) : Name
+  def freshName(usedNames : Set[Name], oldName: Name) : Name
 
   def freshOID(count : Int = 0) : String = {
     val allValues = state.values ++ heap.keys

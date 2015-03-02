@@ -1,10 +1,10 @@
 package lang.lightweightjava.localdeclaration
 
 import lang.lightweightjava.ast._
-import lang.lightweightjava.ast.returnvalue.ReturnMethodCall
+import lang.lightweightjava.ast.returnvalue.{ReturnValue, ReturnMethodCall}
 import lang.lightweightjava.ast.statement._
 import lang.lightweightjava.localdeclaration.ast.LocalVariableDeclaration
-import name.Name
+import name.{Identifier, Name}
 
 
 object LocalDeclarationTransformation {
@@ -18,27 +18,26 @@ object LocalDeclarationTransformation {
 
   private def transformMethod(classDefinition : ClassDefinition, method : MethodDefinition) = {
     var newMethodParameters = Seq[VariableDeclaration]()
-    var variableMappings = Map[Name, Name]()
-    def variableRenaming = (name : Name) => variableMappings.getOrElse(name, name)
+    var variableMappings = Map[Identifier, Name]()
     val newMethodBody = method.methodBody.statements.map {
       case LocalVariableDeclaration(variableType, name) =>
-        val lvdName = newMethodParameters.find(_.name.variableName == name.variableName) match {
-          case Some(param) => param.name.variableName
+        val lvdName = newMethodParameters.find(_.name.name == name.name) match {
+          case Some(param) => param.name
           case None =>
-            newMethodParameters = newMethodParameters :+ VariableDeclaration(variableType, VariableName(name.variableName.fresh))
-            name.variableName
+            newMethodParameters = newMethodParameters :+ VariableDeclaration(variableType, name.fresh)
+            name
         }
-        variableMappings = variableMappings + (name.variableName -> lvdName.fresh)
-        VariableAssignment(VariableName(lvdName.fresh), Null)
-      case statement => statement.rename(variableRenaming).asInstanceOf[statement.type]
+        variableMappings = variableMappings + (name -> lvdName.name)
+        VariableAssignment(lvdName.fresh, Null)
+      case statement => statement.rename(variableMappings).asInstanceOf[statement.type]
     }
     if (newMethodParameters.isEmpty) classDefinition
     else {
-      val newMethodSignature = MethodSignature(AccessModifier.PRIVATE, method.signature.returnType, Name(method.signature.methodName.name + "_ldt"),
-        method.signature.parameters.map(param => VariableDeclaration(param.variableType, VariableName(param.name.variableName.fresh))) ++ newMethodParameters:_*)
-      val newMethod = MethodDefinition(newMethodSignature, MethodBody(method.methodBody.returnValue.rename(variableRenaming), newMethodBody:_*))
+      val newMethodSignature = MethodSignature(AccessModifier.PRIVATE, method.signature.returnType, Identifier(method.signature.methodName.name + "_ldt"),
+        method.signature.parameters.map(param => VariableDeclaration(param.variableType, param.name.fresh)) ++ newMethodParameters:_*)
+      val newMethod = MethodDefinition(newMethodSignature, MethodBody(method.methodBody.returnValue.rename(variableMappings).asInstanceOf[ReturnValue], newMethodBody:_*))
 
-      val replacedOldMethod = MethodDefinition(method.signature, MethodBody(ReturnMethodCall(This, Name(method.signature.methodName.name + "_ldt"),
+      val replacedOldMethod = MethodDefinition(method.signature, MethodBody(ReturnMethodCall(This, Identifier(method.signature.methodName.name + "_ldt"),
         method.signature.parameters.map(param => param.name) ++ newMethodParameters.map(_ => Null):_*)))
       val replacedElements = classDefinition.elements.map(element => if (element == method) replacedOldMethod else element)
       ClassDefinition(classDefinition.className, classDefinition.superClass, replacedElements :+ newMethod:_*)
