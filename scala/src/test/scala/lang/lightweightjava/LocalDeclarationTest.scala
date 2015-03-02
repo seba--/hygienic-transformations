@@ -25,7 +25,7 @@ class LocalDeclarationTest extends FlatSpec with Matchers {
       val transformedProgram = LocalDeclarationTransformation.transform(p.program)
       val interpResult = Interpreter.interpret(NormalConfiguration(transformedProgram, p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       // y.field == y
-      val yID = interpResult.state.find(_._1.name == "y").get._2
+      val yID = interpResult.state.find(_._1 == "y").get._2
       interpResult.heap(yID)._2("field") should be (yID)
       info("LDT result:\n" + interpResult.toString)
     case Parser.NoSuccess(msg, _) => fail(msg)

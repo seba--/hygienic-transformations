@@ -34,7 +34,13 @@ object Null extends Identifier("null") with TermVariable {
   override def fresh = throw new IllegalArgumentException("Can't create fresh instance of 'null' variable!")
 }
 
-case class VariableName(override val name: Name) extends Identifier(name) with TermVariable {
+object VariableName {
+  implicit def apply(name: Name): VariableName = {
+    new VariableName(name)
+  }
+}
+
+class VariableName(override val name: Name) extends Identifier(name) with TermVariable {
   require(AST.isLegalName(name), "Variable name '" + name + "' is no legal Java variable name")
 
   override def allNames = Set(this)
@@ -44,10 +50,10 @@ case class VariableName(override val name: Name) extends Identifier(name) with T
   override def resolveVariableNames(methodEnvironment : VariableNameEnvironment) = {
     // If the variable is pointing to itself (because it is declared here), add only the node but no edges
     if (!methodEnvironment.contains(name) || methodEnvironment(name) == this)
-      NameGraph(Set(this), Map())
+      NameGraphExtended(Set(this), Map())
     // If the variable is pointing to another variable, add it and the edge to the name graph
     else
-      NameGraph(Set(this), Map(this -> methodEnvironment(name)))
+      NameGraphExtended(Set(this), Map(this -> Set(methodEnvironment(name))))
   }
 
   override def fresh = VariableName(name)

@@ -9,8 +9,8 @@ case class VariableAssignment(target: VariableName, source: TermVariable) extend
   override def rename(renaming: Renaming) = VariableAssignment(target.rename(renaming).asInstanceOf[VariableName], source.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
-    require(source == Null || program.checkSubclass(typeEnvironment(source), typeEnvironment(target)),
-      "Variables assigned in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' are incompatible!")
+    require(source == Null || program.checkSubclass(typeEnvironment(source.name), typeEnvironment(target.name)),
+      "Variables assigned in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
     typeEnvironment
   }
 

@@ -13,35 +13,35 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
   override def rename(renaming: Renaming) = ReturnMethodCall(returnObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
-    typeEnvironment(returnObject) match {
-      case className@ClassName(_) => program.findMethod(program.getClassDefinition(className).get, methodName.name) match {
+    typeEnvironment(returnObject.name) match {
+      case className:ClassName => program.findMethod(program.getClassDefinition(className).get, methodName.name) match {
         case Some(method) => require(methodParameters.size == method.signature.parameters.size,
-          "Method '" + methodName + "' is called with an invalid number of parameters in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
-          methodParameters.zip(method.signature.parameters).map(param => require(param._1 == Null || program.checkSubclass(typeEnvironment(param._1), param._2.variableType),
-            "Method '" + methodName + "' is called with an incompatible value for parameter '" + param._2.name + "' in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'"))
-          require(className.name == typeEnvironment(This).name || method.signature.accessModifier == AccessModifier.PUBLIC,
-            "Trying to call private method '" + method.signature.methodName + "' of class '" + typeEnvironment(returnObject).asInstanceOf[ClassName].name + "' externally!")
+          "Method '" + methodName + "' is called with an invalid number of parameters in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
+          methodParameters.zip(method.signature.parameters).map(param => require(param._1 == Null || program.checkSubclass(typeEnvironment(param._1.name), param._2.variableType),
+            "Method '" + methodName + "' is called with an incompatible value for parameter '" + param._2.name + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'"))
+          require(className.name == typeEnvironment(This.name).name || method.signature.accessModifier == AccessModifier.PUBLIC,
+            "Trying to call private method '" + method.signature.methodName + "' of class '" + typeEnvironment(returnObject.name).asInstanceOf[ClassName].name + "' externally!")
           require(program.checkSubclass(method.signature.returnType, returnType),
-            "Method return value returned by a method in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' is incompatible to the method return type!")
+            "Method return value returned by a method in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is incompatible to the method return type!")
           typeEnvironment
         case None =>
-          throw new IllegalArgumentException("Class '" + className.name + "' doesn't have method '" + methodName + "' called in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
+          throw new IllegalArgumentException("Class '" + className.name + "' doesn't have method '" + methodName + "' called in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
       }
-      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have method '" + methodName + "' called in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
+      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have method '" + methodName + "' called in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
     }
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = returnObject.resolveVariableNames(methodEnvironment) +
-      methodParameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveVariableNames(methodEnvironment))
+      methodParameters.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveVariableNames(methodEnvironment))
 
-    if (typeEnvironment.contains(returnObject) && nameEnvironment.contains(typeEnvironment(returnObject).name)) {
-      val fieldMap = nameEnvironment(typeEnvironment(returnObject).name).map(_._3).filter(_.contains(methodName.name))
+    if (typeEnvironment.contains(returnObject.name) && nameEnvironment.contains(typeEnvironment(returnObject.name).name)) {
+      val fieldMap = nameEnvironment(typeEnvironment(returnObject.name).name).map(_._3).filter(_.contains(methodName.name))
 
       variablesGraph + NameGraphExtended(Set(methodName), Map(methodName -> fieldMap.flatMap(_(methodName.name))))
     }
     else {
-      variablesGraph + NameGraph(Set(methodName), Map())
+      variablesGraph + NameGraphExtended(Set(methodName), Map())
     }
   }
 

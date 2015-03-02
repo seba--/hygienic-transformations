@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
-import name.namegraph.{NameGraphExtended, NameGraph}
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 case class FieldWrite(targetObject: TermVariable, targetField: Identifier, source: TermVariable) extends Statement {
@@ -12,31 +12,31 @@ case class FieldWrite(targetObject: TermVariable, targetField: Identifier, sourc
   override def rename(renaming: Renaming) = FieldWrite(targetObject.rename(renaming), renaming(targetField), source.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
-    require(targetObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
-    typeEnvironment(targetObject) match {
-      case className@ClassName(_) => program.findField(program.getClassDefinition(className).get, targetField.name) match {
-        case Some(field) => require(source == Null || program.checkSubclass(typeEnvironment(source), field.fieldType),
-          "Field and the variable it is assigned in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' are incompatible!")
-          require(className.name == typeEnvironment(This).name || field.accessModifier == AccessModifier.PUBLIC,
-            "Trying to access private field '" + field.fieldName + "' of class '" + typeEnvironment(targetObject).asInstanceOf[ClassName].name + "' externally!")
+    require(targetObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
+    typeEnvironment(targetObject.name) match {
+      case className:ClassName => program.findField(program.getClassDefinition(className).get, targetField.name) match {
+        case Some(field) => require(source == Null || program.checkSubclass(typeEnvironment(source.name), field.fieldType),
+          "Field and the variable it is assigned in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
+          require(className.name == typeEnvironment(This.name).name || field.accessModifier == AccessModifier.PUBLIC,
+            "Trying to access private field '" + field.fieldName + "' of class '" + typeEnvironment(targetObject.name).asInstanceOf[ClassName].name + "' externally!")
           typeEnvironment
         case None =>
-          throw new IllegalArgumentException("Class '" + className.name + "' doesn't have field '" + targetField + "' written in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
+          throw new IllegalArgumentException("Class '" + className.name + "' doesn't have field '" + targetField + "' written in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
       }
-      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have field '" + targetField + "' written in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "'")
+      case _ => throw new IllegalArgumentException("Class 'Object' doesn't have field '" + targetField + "' written in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
     }
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) = {
     val variablesGraph = targetObject.resolveVariableNames(methodEnvironment) + source.resolveVariableNames(methodEnvironment)
 
-    if (typeEnvironment.contains(targetObject) && nameEnvironment.contains(typeEnvironment(targetObject).name)) {
-      val fieldMap = nameEnvironment(typeEnvironment(targetObject).name).map(_._2).filter(_.contains(targetField.name))
+    if (typeEnvironment.contains(targetObject.name) && nameEnvironment.contains(typeEnvironment(targetObject.name).name)) {
+      val fieldMap = nameEnvironment(typeEnvironment(targetObject.name).name).map(_._2).filter(_.contains(targetField.name))
 
       (variablesGraph + NameGraphExtended(Set(targetField), Map(targetField -> fieldMap.flatMap(_(targetField.name)))), (methodEnvironment, typeEnvironment))
     }
     else {
-      (variablesGraph + NameGraph(Set(targetField), Map()), (methodEnvironment, typeEnvironment))
+      (variablesGraph + NameGraphExtended(Set(targetField), Map()), (methodEnvironment, typeEnvironment))
     }
   }
 

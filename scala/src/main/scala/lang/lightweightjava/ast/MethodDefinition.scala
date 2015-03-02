@@ -1,6 +1,6 @@
 package lang.lightweightjava.ast
 
-import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
+import lang.lightweightjava.ast.statement.{Null, This}
 import name.{Identifier, Name, Renaming}
 
 case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) extends ClassElement {
@@ -12,7 +12,7 @@ case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) 
     require(signature.parameters.map(_.name.name).distinct.size == signature.parameters.size,
       "Parameter names for method definition '" + signature.methodName.name + "' need to be unique")
     require(signature.parameters.map(_.variableType).forall {
-      case className@ClassName(_) => program.getClassDefinition(className).isDefined
+      case className:ClassName => program.getClassDefinition(className).isDefined
       case _ => true
     }, "Could not find definition for some method parameter types of method '" + signature.methodName + "' of class '" + classDefinition.className.name + "'")
   }
@@ -25,7 +25,7 @@ case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) 
   }
 
   def typeEnvironment(classDefinition : ClassDefinition) = {
-    signature.parameters.map(param => (param.name, param.variableType)).toMap[TermVariable, ClassRef] + (This -> classDefinition.className)
+    signature.parameters.map(param => (param.name.name, param.variableType)).toMap[Name, ClassRef] + (This.name -> classDefinition.className)
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = sys.error("Can't resolve names of method definition without class context")

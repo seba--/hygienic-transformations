@@ -11,9 +11,9 @@ case class ConditionalBranch(leftVariable: TermVariable, rightVariable: TermVari
 
   override def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment) = {
     require(leftVariable == Null || rightVariable == Null ||
-      program.checkSubclass(typeEnvironment(leftVariable), typeEnvironment(rightVariable)) ||
-      program.checkSubclass(typeEnvironment(rightVariable), typeEnvironment(leftVariable)),
-      "Variables compared in conditional branch in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' are incompatible!")
+      program.checkSubclass(typeEnvironment(leftVariable.name), typeEnvironment(rightVariable.name)) ||
+      program.checkSubclass(typeEnvironment(rightVariable.name), typeEnvironment(leftVariable.name)),
+      "Variables compared in conditional branch in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
     ifBranch.typeCheckForTypeEnvironment(program, typeEnvironment)
     elseBranch.typeCheckForTypeEnvironment(program, typeEnvironment)
     typeEnvironment

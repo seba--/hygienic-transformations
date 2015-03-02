@@ -1,6 +1,5 @@
 package lang.lightweightjava
 
-import lang.lightweightjava.ast.statement.VariableName
 import lang.lightweightjava.configuration.{NormalConfiguration, NullValue}
 import lang.lightweightjava.whileloops.WhileLoopTransformation
 import org.scalatest.{FlatSpec, Matchers}
@@ -28,9 +27,9 @@ class WhileLoopTest extends FlatSpec with Matchers {
       val transformedProgram = WhileLoopTransformation.transform(p.program)
       val interpResult = Interpreter.interpret(NormalConfiguration(transformedProgram, p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       // x != y
-      interpResult.state.find(_._1.name == "x").get._2 shouldNot be (interpResult.state(VariableName("y")))
+      interpResult.state.find(_._1 == "x").get._2 shouldNot be (interpResult.state("y"))
       // z == null
-      interpResult.state.find(_._1.name == "z").get._2 should be (NullValue)
+      interpResult.state.find(_._1 == "z").get._2 should be (NullValue)
 
       info("LDT result:\n" + interpResult.toString)
     case Parser.NoSuccess(msg, _) => fail(msg)

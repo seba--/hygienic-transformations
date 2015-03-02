@@ -4,7 +4,7 @@ import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.returnvalue._
 import lang.lightweightjava.ast.statement._
 import lang.lightweightjava.configuration._
-import name.{Identifier, Name}
+import name.Name
 
 object Interpreter {
   def interpret(configuration: Configuration): Configuration = {
@@ -26,50 +26,50 @@ object Interpreter {
 
           // Temporary variables for configuration parameters that can be overwritten
           // and are used for the next interpretation step
-          var newState = state + (Null -> NullValue)
+          var newState = state + (Null.name -> NullValue)
           var newHeap = heap
           var newProgramFlow = programFlow.tail
           var exception: LangException = null
 
           programFlow.head match {
             case ConditionalBranch(leftVariable, rightVariable, ifBranch, elseBranch) =>
-              if (state(leftVariable) == state(rightVariable)) newProgramFlow = ifBranch +: newProgramFlow
+              if (state(leftVariable.name) == state(rightVariable.name)) newProgramFlow = ifBranch +: newProgramFlow
               else newProgramFlow = elseBranch +: newProgramFlow
 
-            case FieldRead(target, sourceObject, sourceField) => newState(sourceObject) match {
+            case FieldRead(target, sourceObject, sourceField) => newState(sourceObject.name) match {
               case oid@OID(_) =>
                 val (_, fields) = newHeap(oid)
-                newState = newState + (target -> fields(sourceField.name))
+                newState = newState + (target.name -> fields(sourceField.name))
               case NullValue => exception = NullPointerException
             }
 
-            case FieldWrite(targetObject, targetField, source) => newState(targetObject) match {
+            case FieldWrite(targetObject, targetField, source) => newState(targetObject.name) match {
               case oid@OID(_) =>
                 val (objectType, fields) = newHeap(oid)
-                val updatedFieldMap = fields + (targetField.name -> newState(source))
+                val updatedFieldMap = fields + (targetField.name -> newState(source.name))
                 newHeap = newHeap + (oid -> (objectType, updatedFieldMap))
               case NullValue => exception = NullPointerException
             }
 
-            case MethodCall(target, sourceObject, methodName, methodParameters@_*) => newState(sourceObject) match {
+            case MethodCall(target, sourceObject, methodName, methodParameters@_*) => newState(sourceObject.name) match {
               case oid@OID(_) =>
                 val (objectType, _) = newHeap(oid)
                 val methodDefinition = program.findMethod(program.getClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
                 methodDefinition match {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
-                    var renamedParameters = parameters.foldLeft(Map[Identifier, Name]())((renamedMap, parameter) =>
-                      renamedMap + (parameter.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
+                    var renamedParameters = parameters.foldLeft(Map[Name, Name]())((renamedMap, parameter) =>
+                      renamedMap + (parameter.name.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
                     // Generate a fresh name for "this"
                     val thisRenaming = configuration.freshName(renamedParameters.values.toSet, This.name)
-                    renamedParameters = renamedParameters + (This -> thisRenaming)
+                    renamedParameters = renamedParameters + (This.name -> thisRenaming)
                     // Perform the renaming to fresh names
-                    val renamedMethodBody = methodBody.rename(renamedParameters).asInstanceOf[MethodBody]
+                    val renamedMethodBody = methodBody.rename(id => id.rename(renamedParameters.getOrElse(id.name, id.name))).asInstanceOf[MethodBody]
                     // Add the values used for the call to the stack (and let "this" point to the OID of the method owning object)
                     newState = newState ++ parameters.
                       zip(methodParameters).
-                      map(p => (VariableName(renamedParameters(p._1.name)), newState(p._2))).
-                      toMap[TermVariable, Value] + (VariableName(thisRenaming) -> oid)
+                      map(p => (renamedParameters(p._1.name.name), newState(p._2.name))).
+                      toMap[Name, Value] + (thisRenaming -> oid)
                     // Add the method body at the front the program flow (and replace this statement by a simple assignment of the return value)
                     newProgramFlow = (renamedMethodBody.statements :+ (renamedMethodBody.returnValue match {
                       case ReturnVariable(returnVariable) => VariableAssignment(target, returnVariable)
@@ -81,25 +81,25 @@ object Interpreter {
               case NullValue => exception = NullPointerException
             }
 
-            case VoidMethodCall(sourceObject, methodName, methodParameters@_*) => newState(sourceObject) match {
+            case VoidMethodCall(sourceObject, methodName, methodParameters@_*) => newState(sourceObject.name) match {
               case oid@OID(_) =>
                 val (objectType, _) = newHeap(oid)
                 val methodDefinition = program.findMethod(program.getClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
                 methodDefinition match {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
-                    var renamedParameters = parameters.foldLeft(Map[Identifier, Name]())((renamedMap, parameter) =>
-                      renamedMap + (parameter.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
+                    var renamedParameters = parameters.foldLeft(Map[Name, Name]())((renamedMap, parameter) =>
+                      renamedMap + (parameter.name.name -> configuration.freshName(renamedMap.values.toSet, parameter.name.name)))
                     // Generate a fresh name for "this"
                     val thisRenaming = configuration.freshName(renamedParameters.values.toSet, This.name)
-                    renamedParameters = renamedParameters + (This -> thisRenaming)
+                    renamedParameters = renamedParameters + (This.name -> thisRenaming)
                     // Perform the renaming to fresh names
-                    val renamedMethodBody = methodBody.rename(renamedParameters).asInstanceOf[MethodBody]
+                    val renamedMethodBody = methodBody.rename(id => id.rename(renamedParameters.getOrElse(id.name, id.name))).asInstanceOf[MethodBody]
                     // Add the values used for the call to the stack (and let "this" point to the OID of the method owning object)
                     newState = newState ++ parameters.
                       zip(methodParameters).
-                      map(p => (VariableName(renamedParameters(p._1.name)), newState(p._2))).
-                      toMap[TermVariable, Value] + (VariableName(thisRenaming) -> oid)
+                      map(p => (renamedParameters(p._1.name.name), newState(p._2.name))).
+                      toMap[Name, Value] + (thisRenaming -> oid)
                     // Add the method body at the front the program flow (and replace this statement by a simple assignment of the return value)
                     newProgramFlow = renamedMethodBody.statements ++: newProgramFlow
                 }
@@ -109,7 +109,7 @@ object Interpreter {
             case ObjectInstantiation(target, classRef) =>
               val newValue = OID(configuration.freshOID())
               val newFieldsList: Map[Name, Value] = classRef match {
-                case className@ClassName(name) =>
+                case className:ClassName =>
                   val classFields = program.getClassFields(program.getClassDefinition(className).get)
                   // All class fields are initialized as "null"
                   classFields.map(field => (field.fieldName.name, NullValue)).toMap[Name, Value]
@@ -117,12 +117,12 @@ object Interpreter {
                 case _ => Map()
               }
               val newHeapEntry = (classRef, newFieldsList)
-              newState = newState + (target -> newValue)
+              newState = newState + (target.name -> newValue)
               newHeap = newHeap + (newValue -> newHeapEntry)
 
             case StatementBlock(blockBody@_*) => newProgramFlow = blockBody ++: newProgramFlow
 
-            case VariableAssignment(target, source) => newState = newState + (target -> newState(source))
+            case VariableAssignment(target, source) => newState = newState + (target.name -> newState(source.name))
           }
 
           if (exception == null) interpretInternal(NormalConfiguration(program, newState, newHeap, newProgramFlow: _*))

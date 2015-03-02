@@ -1,6 +1,6 @@
 package lang.lightweightjava
 
-import lang.lightweightjava.ast.statement.{Null, VariableName}
+import lang.lightweightjava.ast.statement.Null
 import org.scalatest.{FlatSpec, Matchers}
 
 class InterpreterTest extends FlatSpec with Matchers {
@@ -43,18 +43,18 @@ class InterpreterTest extends FlatSpec with Matchers {
   "Interpreter" should "correctly interpret the valid example program" in (Parser.parseAll(Parser.configuration, p1 + st1) match {
     case Parser.Success(p, _) =>
       val interpResult = Interpreter.interpret(p)
-      val xID = interpResult.state.find(_._1.name == "x").get._2
-      val yID = interpResult.state.find(_._1.name == "y").get._2
-      val zID = interpResult.state.find(_._1.name == "z").get._2
+      val xID = interpResult.state.find(_._1 == "x").get._2
+      val yID = interpResult.state.find(_._1 == "y").get._2
+      val zID = interpResult.state.find(_._1 == "z").get._2
 
       // x == y
-      interpResult.state(VariableName("x")) should be (yID)
+      interpResult.state("x") should be (yID)
       // x.field == z
       interpResult.heap(xID)._2("field") should be (zID)
       // y.field == z
       interpResult.heap(yID)._2("field") should be (zID)
       // z.field == null
-      interpResult.heap(zID)._2("field") should be (interpResult.state(Null))
+      interpResult.heap(zID)._2("field") should be (interpResult.state(Null.name))
       info("P1 result:\n" + interpResult.toString)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
@@ -63,13 +63,13 @@ class InterpreterTest extends FlatSpec with Matchers {
     case Parser.Success(p, _) =>
       val interpResult = Interpreter.interpret(p)
       // x == y
-      interpResult.state(VariableName("x")) should be (interpResult.state(VariableName("y")))
+      interpResult.state("x") should be (interpResult.state("y"))
       // x.field == z
-      interpResult.heap(interpResult.state(VariableName("x")))._2("field") should be (interpResult.state(VariableName("z")))
+      interpResult.heap(interpResult.state("x"))._2("field") should be (interpResult.state("z"))
       // y.field == z
-      interpResult.heap(interpResult.state(VariableName("y")))._2("field") should be (interpResult.state(VariableName("z")))
+      interpResult.heap(interpResult.state("y"))._2("field") should be (interpResult.state("z"))
       // z.field == x
-      interpResult.heap(interpResult.state(VariableName("z")))._2("field") should be (interpResult.state(VariableName("x")))
+      interpResult.heap(interpResult.state("z"))._2("field") should be (interpResult.state("x"))
       info("\n\n\nP2 result:\n" + interpResult.toString)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })

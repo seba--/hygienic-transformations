@@ -16,14 +16,14 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     val classMethods = program.getClassMethods(this)
     require(className != superClass, "Class '" + className.name + "' can't be it's own super-class")
     superClass match {
-      case className@ClassName(_) =>
+      case className:ClassName =>
         val superClassDefinition = program.getClassDefinition(className).get
         require(elements.collect({ case FieldDeclaration(_, _, name) => name.name }).toSet.intersect(program.getClassFields(superClassDefinition).map(_.fieldName.name)).size == 0,
           "Class '" + className + "' overshadows fields of it's super-classes")
         require(classMethods.forall(method => program.findMethod(superClassDefinition, method.signature.methodName.name) match {
           case Some(superClassMethod) => method.signature.accessModifier == superClassMethod.signature.accessModifier &&
-            method.signature.returnType == superClassMethod.signature.returnType &&
-            method.signature.parameters.map(_.variableType) == superClassMethod.signature.parameters.map(_.variableType)
+            method.signature.returnType.name == superClassMethod.signature.returnType.name &&
+            method.signature.parameters.map(_.variableType.name) == superClassMethod.signature.parameters.map(_.variableType.name)
           case None => true
         }), "Class '" + className + "' overwrites a super-class method with a different access modifier, return type or different parameter types")
       case _ => ;
@@ -33,7 +33,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     require(elements.count(_.isInstanceOf[MethodDefinition]) == elements.collect({ case MethodDefinition(MethodSignature(_, _, name, _*), _) => name }).size,
       "Method names of class '" + className.name + "' are not distinct")
     require(classFields.map(_.fieldType).forall {
-      case className@ClassName(_) => program.getClassDefinition(className).isDefined
+      case className:ClassName => program.getClassDefinition(className).isDefined
       case ObjectClass => true
     }, "Could not find definition for some field types of class '" + className.name + "'")
   }

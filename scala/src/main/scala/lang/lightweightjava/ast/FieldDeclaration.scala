@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast
 
 import lang.lightweightjava.ast.AccessModifier._
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef, fieldName: Identifier) extends ClassElement {
@@ -12,7 +12,7 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
   override def rename(renaming: Renaming) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition) = {
-    val fieldNameGraph = NameGraph(Set(fieldName), Map())
+    val fieldNameGraph = NameGraphExtended(Set(fieldName), Map())
     fieldType.resolveNames(nameEnvironment) + fieldNameGraph
   }
 

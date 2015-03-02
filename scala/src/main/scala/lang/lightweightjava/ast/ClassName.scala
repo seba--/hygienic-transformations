@@ -1,6 +1,6 @@
 package lang.lightweightjava.ast
 
-import name.namegraph.{NameGraphExtended, NameGraph}
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Name, Renaming}
 
 trait ClassRef extends Identifier with AST {
@@ -20,7 +20,7 @@ trait ClassRef extends Identifier with AST {
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     // If the class name is pointing to itself (because it is declared here), add only the node but no edges
     if (!nameEnvironment.contains(name))
-      NameGraph(Set(this), Map())
+      NameGraphExtended(Set(this), Map())
     // If the class name is pointing to another class name, add it and the edge to the name graph
     else
       NameGraphExtended(Set(this), Map(this -> nameEnvironment(name).map(_._1)))
@@ -33,7 +33,13 @@ object ObjectClass extends Identifier("Object") with ClassRef {
   override def fresh = throw new IllegalArgumentException("Can't create fresh instance of Object class!")
 }
 
-case class ClassName(override val name: Name) extends Identifier(name) with ClassRef {
+object ClassName {
+  implicit def apply(name: Name): ClassName = {
+    new ClassName(name)
+  }
+}
+
+class ClassName(override val name: Name) extends Identifier(name) with ClassRef {
   require(AST.isLegalName(name), "Class name '" + name + "' is no legal Java class name")
   require(name != "Object", "Can't redefine 'Object' class!")
 

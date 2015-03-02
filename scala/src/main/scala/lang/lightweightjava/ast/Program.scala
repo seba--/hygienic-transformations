@@ -22,9 +22,9 @@ case class Program(classes: ClassDefinition*) extends AST {
   def getInheritancePath(classDefinition: ClassDefinition, currentPath: Seq[ClassDefinition] = Seq()): Seq[ClassDefinition] =
     classDefinition.superClass match {
       case ObjectClass => classDefinition +: currentPath
-      case ClassName(superClassName) =>
+      case superClassName:ClassName =>
         if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
-        else getInheritancePath(getClassDefinition(ClassName(superClassName)).getOrElse(
+        else getInheritancePath(getClassDefinition(superClassName).getOrElse(
           throw new IllegalArgumentException("Could not find definition for super class '" + superClassName + "' of class '" + classDefinition.className.name + "'")),
           classDefinition +: currentPath)
     }

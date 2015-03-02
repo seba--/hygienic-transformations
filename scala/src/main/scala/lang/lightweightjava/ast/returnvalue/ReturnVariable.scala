@@ -10,8 +10,8 @@ case class ReturnVariable(variable: TermVariable) extends ReturnValue {
   override def rename(renaming: Renaming) = ReturnVariable(variable.rename(renaming))
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
-    require(variable == Null || program.checkSubclass(typeEnvironment(variable), returnType),
-      "Variable returned by a method in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' is incompatible to return type!")
+    require(variable == Null || program.checkSubclass(typeEnvironment(variable.name), returnType),
+      "Variable returned by a method in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is incompatible to return type!")
     typeEnvironment
   }
 

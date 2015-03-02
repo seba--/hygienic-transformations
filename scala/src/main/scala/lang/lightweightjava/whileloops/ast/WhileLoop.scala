@@ -12,9 +12,9 @@ case class WhileLoop(leftVariable: TermVariable, rightVariable: TermVariable, lo
 
   override def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment) = {
     require(leftVariable == Null || rightVariable == Null ||
-      program.checkSubclass(typeEnvironment(leftVariable), typeEnvironment(rightVariable)) ||
-      program.checkSubclass(typeEnvironment(rightVariable), typeEnvironment(leftVariable)),
-      "Variables compared in loop header in class '" + typeEnvironment(This).asInstanceOf[ClassName].name + "' are incompatible!")
+      program.checkSubclass(typeEnvironment(leftVariable.name), typeEnvironment(rightVariable.name)) ||
+      program.checkSubclass(typeEnvironment(rightVariable.name), typeEnvironment(leftVariable.name)),
+      "Variables compared in loop header in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
     loopBody.typeCheckForTypeEnvironment(program, typeEnvironment)
     typeEnvironment
   }

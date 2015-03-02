@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast
 
 import lang.lightweightjava.ast.AccessModifier._
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef, methodName: Identifier, parameters: VariableDeclaration*) extends AST {
@@ -13,8 +13,8 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
     MethodSignature(accessModifier, returnType.rename(renaming), renaming(methodName), parameters.map(_.rename(renaming)): _*)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    val methodNameGraph = NameGraph(Set(methodName), Map())
-    returnType.resolveNames(nameEnvironment) + methodNameGraph + parameters.foldLeft(NameGraph(Set(), Map()))(_ + _.resolveNames(nameEnvironment))
+    val methodNameGraph = NameGraphExtended(Set(methodName), Map())
+    returnType.resolveNames(nameEnvironment) + methodNameGraph + parameters.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(nameEnvironment))
   }
 
   override def toString = accessModifier.toString + " " + returnType.toString + " " + methodName.toString + "(" + parameters.mkString(", ") + ")"

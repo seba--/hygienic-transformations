@@ -1,11 +1,10 @@
 package lang.lightweightjava
 
-import lang.lightweightjava.ast.statement.TermVariable
 import lang.lightweightjava.configuration.Value
 import name.{Identifier, Name}
 
 package object ast {
-  type State = Map[TermVariable, Value]
+  type State = Map[Name, Value]
 
   def State(): State = Map()
 
@@ -13,7 +12,7 @@ package object ast {
 
   def Heap(): Heap = Map()
 
-  type TypeEnvironment = Map[TermVariable, ClassRef]
+  type TypeEnvironment = Map[Name, ClassRef]
 
   // Class name -> Set[Class, (Field name -> Fields), (Method name -> Methods)]
   type ClassNameEnvironment = Map[Name, Set[(ClassName, Map[Name, Set[Identifier]], Map[Name, Set[Identifier]])]]
