@@ -36,10 +36,10 @@ case class Program(classes: ClassDefinition*) extends AST {
     checkSubclass(getClassDefinition(subClass.asInstanceOf[ClassName]).get, getClassDefinition(parentClass.asInstanceOf[ClassName]).get))
 
   def getClassFields(classDefinition: ClassDefinition) =
-    getInheritancePath(classDefinition).flatMap(_.elements.collect({ case f: FieldDeclaration => f})).toSet
+    getInheritancePath(classDefinition).flatMap(_.fields).toSet
 
   def getClassMethods(classDefinition: ClassDefinition) =
-    getInheritancePath(classDefinition).reverse.flatMap(_.elements.collect({ case m: MethodDefinition => m}))
+    getInheritancePath(classDefinition).reverse.flatMap(_.methods)
 
   def findMethod(classDefinition: ClassDefinition, methodName: Name) = getClassMethods(classDefinition).find(_.signature.methodName.name == methodName)
 

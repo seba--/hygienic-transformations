@@ -13,7 +13,7 @@ object LocalDeclarationTransformation {
   }
 
   private def transformClass(classDefinition : ClassDefinition) = {
-    classDefinition.elements.collect({ case method@MethodDefinition(_, _) => method}).foldLeft(classDefinition)(transformMethod)
+    classDefinition.methods.foldLeft(classDefinition)(transformMethod)
   }
 
   private def transformMethod(classDefinition : ClassDefinition, method : MethodDefinition) = {

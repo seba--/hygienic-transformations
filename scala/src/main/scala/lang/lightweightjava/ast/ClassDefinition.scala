@@ -9,15 +9,14 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def allNames = elements.flatMap(_.allNames).toSet ++ superClass.allNames ++ className.allNames
 
-  private def exportedFields = elements.collect {
-    case FieldDeclaration(AccessModifier.PUBLIC, _, fieldName) => fieldName
-  }.toSet
+  val fields = elements.collect({ case f: FieldDeclaration => f }).toSet
+  val methods = elements.collect({ case m: MethodDefinition => m }).toSet
 
-  private def exportedMethods = elements.collect {
-    case MethodDefinition(MethodSignature(AccessModifier.PUBLIC, _, methodName, _*), _) => methodName
-  }.toSet
+  private val exportedFields = fields.filter(_.accessModifier == AccessModifier.PUBLIC).map(_.fieldName)
 
-  override def moduleID: Identifier = className
+  private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
+
+  override val moduleID: Identifier = className
 
   override def dependencies: Set[Name] = allNames.collect {
     case className:ClassName => className.name
@@ -33,7 +32,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     superClass match {
       case className:ClassName =>
         val superClassDefinition = program.getClassDefinition(className).get
-        require(elements.collect({ case FieldDeclaration(_, _, name) => name.name }).toSet.intersect(program.getClassFields(superClassDefinition).map(_.fieldName.name)).size == 0,
+        require(fields.map(_.fieldName.name).intersect(program.getClassFields(superClassDefinition).map(_.fieldName.name)).size == 0,
           "Class '" + className + "' overshadows fields of it's super-classes")
         require(classMethods.forall(method => program.findMethod(superClassDefinition, method.signature.methodName.name) match {
           case Some(superClassMethod) => method.signature.accessModifier == superClassMethod.signature.accessModifier &&
@@ -43,9 +42,9 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
         }), "Class '" + className + "' overwrites a super-class method with a different access modifier, return type or different parameter types")
       case _ => ;
     }
-    require(elements.count(_.isInstanceOf[FieldDeclaration]) == elements.collect({ case FieldDeclaration(_, _, name) => name }).size,
+    require(fields.size == fields.map(_.fieldName.name).size,
       "Field names of class '" + className.name + "' are not distinct")
-    require(elements.count(_.isInstanceOf[MethodDefinition]) == elements.collect({ case MethodDefinition(MethodSignature(_, _, name, _*), _) => name }).size,
+    require(methods.size == methods.map(_.signature.methodName.name).size,
       "Method names of class '" + className.name + "' are not distinct")
     require(classFields.map(_.fieldType).forall {
       case className:ClassName => program.getClassDefinition(className).isDefined
@@ -65,6 +64,10 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
     val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
     var environment: ClassNameEnvironment = Map()
+    val ownFieldsMap = fields.map(_.fieldName.name).map(n => (n, fields.map(_.fieldName).filter(_.name == n))).toMap
+    val ownMethodsMap = methods.map(_.signature.methodName.name).map(n => (n, methods.map(_.signature.methodName).filter(_.name == n))).toMap
+    environment += (className.name -> Set((className, ownFieldsMap, ownMethodsMap)))
+
     for (dependency <- metaDependencies) {
       if (environment.contains(dependency.moduleID.name))
         throw new IllegalArgumentException("Multiple instances of class '" + dependency.moduleID.name + "' found!")
@@ -84,13 +87,14 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
       outEdges += (v -> ds.filter(d => !nameGraph.V.contains(d)))
     }
 
-    val modularNameGraph = NameGraphModular(nameGraph.V, intEdges, outEdges)
+    val modularNameGraph = NameGraphModular(nameGraph.V, intEdges.filter(_._2.size > 0), outEdges.filter(_._2.size > 0))
 
     (modularNameGraph, classInterface)
   }
 
   override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
-    val dependenciesRenamed = metaDependencies.map(i => new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
+    val dependenciesRenamed = metaDependencies.map(i =>
+      new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
     resolveNamesModular(dependenciesRenamed)._1
   }
 

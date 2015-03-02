@@ -17,7 +17,7 @@ object WhileLoopTransformation {
 
   private def transformClass(classDefinition : ClassDefinition, loopCount : Int) = {
     // Transform each method of the class separately, keeping a running counter of added helper methods
-    classDefinition.elements.collect({ case method@MethodDefinition(_, _) => method}).foldLeft((classDefinition, loopCount))(
+    classDefinition.methods.foldLeft((classDefinition, loopCount))(
       (oldResult, method) => transformMethod(oldResult._1, method, oldResult._2))
   }
 
