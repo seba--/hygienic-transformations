@@ -12,8 +12,8 @@ case class FieldDeclaration(accessModifier: AccessModifier, fieldType: ClassRef,
   override def rename(renaming: Renaming) = FieldDeclaration(accessModifier, fieldType.rename(renaming), renaming(fieldName))
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition: ClassDefinition) = {
-    val fieldNameGraph = NameGraphExtended(Set(fieldName), Map())
-    fieldType.resolveNames(nameEnvironment) + fieldNameGraph
+
+    fieldType.resolveNames(nameEnvironment) + NameGraphExtended(Set(fieldName), Map())
   }
 
   override def toString = accessModifier.toString + " " + fieldType.toString + " " + fieldName.toString + ";"

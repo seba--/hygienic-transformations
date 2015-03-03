@@ -28,11 +28,12 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     val classMethods = program.getClassMethods(this)
     require(className != superClass, "Class '" + className.name + "' can't be it's own super-class")
     superClass match {
-      case className:ClassName =>
-        val superClassDefinition = program.getClassDefinition(className).get
-        require(fields.map(_.fieldName.name).intersect(program.getClassFields(superClassDefinition).map(_.fieldName.name)).size == 0,
+      case superClassName:ClassName =>
+        val superClassDefinition = program.getClassDefinition(superClassName)
+        require(superClassDefinition.isDefined, "Super-class '" + superClassName.name + "' of class '" + className.name + "' can't be resolved")
+        require(fields.map(_.fieldName.name).intersect(program.getClassFields(superClassDefinition.get).map(_.fieldName.name)).size == 0,
           "Class '" + className + "' overshadows fields of it's super-classes")
-        require(classMethods.forall(method => program.findMethod(superClassDefinition, method.signature.methodName.name) match {
+        require(classMethods.forall(method => program.findMethod(superClassDefinition.get, method.signature.methodName.name) match {
           case Some(superClassMethod) => method.signature.accessModifier == superClassMethod.signature.accessModifier &&
             method.signature.returnType.name == superClassMethod.signature.returnType.name &&
             method.signature.parameters.map(_.variableType.name) == superClassMethod.signature.parameters.map(_.variableType.name)
@@ -56,14 +57,43 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment) + elements.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(nameEnvironment, this))
+    var duplicateReferences: Map[Identifier, Set[Identifier]] = Map()
+    val classes = nameEnvironment(className.name)
+    if (classes.size > 1)
+      duplicateReferences += (className -> (classes.map(_._1.asInstanceOf[Identifier]) - className))
+
+    val ownClass = classes.find(_._1 == className).get
+    for (classEnv <- classes) {
+      for ((fieldName, fields) <- classEnv._2) {
+         if (ownClass._2.contains(fieldName) && fields.size > 1)
+           duplicateReferences ++= ownClass._2(fieldName).map(f => (f, fields - f))
+      }
+
+      for ((methodName, methods) <- classEnv._3) {
+        if (ownClass._3.contains(methodName) && methods.size > 1)
+          duplicateReferences ++= ownClass._3(methodName).map(m => (m, methods - m))
+      }
+    }
+
+    className.resolveNames(nameEnvironment) + superClass.resolveNames(nameEnvironment) +
+      elements.foldLeft(NameGraphExtended(Set(), duplicateReferences))(_ + _.resolveNames(nameEnvironment, this))
   }
 
   override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
     val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
     var environment: ClassNameEnvironment = Map()
-    val ownFieldsMap = fields.map(_.fieldName).groupBy(_.name)
-    val ownMethodsMap = methods.map(_.signature.methodName).groupBy(_.name)
+
+    val (superClassFields:Set[Identifier], superClassMethods:Set[Identifier]) = metaDependencies.find(_.className.name == superClass.name) match {
+      case Some(superInterface) => (superInterface.exportedFields, superInterface.exportedMethods)
+      case None => (Set(), Set())
+    }
+
+    // Merging the mappings of super class and current class together
+    val ownFieldsMap = superClassFields.groupBy(_.name) ++
+      fields.map(_.fieldName).groupBy(_.name).map(m => (m._1, superClassFields.groupBy(_.name).getOrElse(m._1, Set()) ++ m._2)).toMap
+    val ownMethodsMap = superClassMethods.groupBy(_.name) ++
+      methods.map(_.signature.methodName).groupBy(_.name).map(m => (m._1, superClassMethods.groupBy(_.name).getOrElse(m._1, Set()) ++ m._2)).toMap
+
     environment += (className.name -> Set((className, ownFieldsMap, ownMethodsMap)))
 
     for (dependency <- metaDependencies) {
@@ -80,7 +110,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     var intEdges: Map[Identifier, Set[Identifier]] = Map()
     var outEdges: Map[Identifier, Set[Identifier]] = Map()
 
-    for ((v, ds) <- nameGraph.E) {
+    for ((v, ds) <- nameGraph.E.filter(e => nameGraph.V.contains(e._1))) {
       intEdges += (v -> ds.filter(d => nameGraph.V.contains(d)))
       outEdges += (v -> ds.filter(d => !nameGraph.V.contains(d)))
     }

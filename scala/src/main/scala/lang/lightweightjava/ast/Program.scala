@@ -1,7 +1,7 @@
 package lang.lightweightjava.ast
 
 import name.namegraph.NameGraphExtended
-import name.{Identifier, Name, Renaming}
+import name.{Name, Renaming}
 
 case class Program(classes: ClassDefinition*) extends AST {
   override def allNames = classes.flatMap(_.allNames).toSet ++ ObjectClass.allNames
@@ -24,9 +24,8 @@ case class Program(classes: ClassDefinition*) extends AST {
       case ObjectClass => classDefinition +: currentPath
       case superClassName:ClassName =>
         if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
-        else getInheritancePath(getClassDefinition(superClassName).getOrElse(
-          throw new IllegalArgumentException("Could not find definition for super class '" + superClassName + "' of class '" + classDefinition.className.name + "'")),
-          classDefinition +: currentPath)
+        else if (getClassDefinition(superClassName).isDefined) getInheritancePath(getClassDefinition(superClassName).get, classDefinition +: currentPath)
+        else classDefinition +: currentPath
     }
 
   def checkSubclass(subClass : ClassDefinition, parentClass : ClassDefinition): Boolean = subClass == parentClass ||
@@ -54,24 +53,7 @@ case class Program(classes: ClassDefinition*) extends AST {
         getClassMethods(c).toSet[MethodDefinition].map(_.signature.methodName).groupBy(_.name)
         )).groupBy(_._1.name)
 
-    var duplicateReferences: Map[Identifier, Set[Identifier]] = Map()
-    for ((name, classes) <- programEnvironment) {
-      if (classes.size > 1)
-        duplicateReferences ++= classes.map(_._1).map(c => (c, classes.map(_._1.asInstanceOf[Identifier])))
-
-      for (classEnv <- classes) {
-        for ((fieldName, fields) <- classEnv._2) {
-          if (fields.size > 1)
-            duplicateReferences ++= fields.map(f => (f, fields))
-        }
-
-        for ((methodName, methods) <- classEnv._3) {
-          if (methods.size > 1)
-            duplicateReferences ++= methods.map(m => (m, methods))
-        }
-      }
-    }
-    classes.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraphExtended(Set(), duplicateReferences)
+    classes.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraphExtended(Set(), Map())
   }
 
   override def toString = classes.foldLeft("")(_ + _.toString + "\n\n")

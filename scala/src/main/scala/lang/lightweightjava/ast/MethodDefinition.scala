@@ -32,7 +32,9 @@ case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) 
 
   def resolveNames(nameEnvironment: ClassNameEnvironment, classDefinition : ClassDefinition) = {
     val methodEnvironment = signature.parameters.map(p => (p.variableName.name, p.variableName)).toMap[Name, Identifier] + (This.name -> This) + (Null.name -> Null)
+
     signature.resolveNames(nameEnvironment) + methodBody.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment(classDefinition))
+
   }
 
   override def toString: String = signature.toString + " {\n" + methodBody.toString + "\n\t}\n"
