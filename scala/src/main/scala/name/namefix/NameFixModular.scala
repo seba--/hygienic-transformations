@@ -71,7 +71,7 @@ class NameFixModular {
       else if (rel2.intersect(externalNames).isEmpty)
         rel2.map(r => (r, fresh))
       else
-        sys.error("Unable to fix module without renaming external identifiers!")
+        throw new IllegalArgumentException("Unable to fix module without renaming external identifiers!")
     }
   }
 
@@ -114,7 +114,7 @@ class NameFixModular {
           renaming ++= (relV -- externalNames).map(r => (r, propagatedNames.head))
         }
         else
-          sys.error("Unable to retain relations to external identifiers with different names!")
+          throw new IllegalArgumentException("Unable to retain relations to external identifiers with different names!")
       }
     }
 

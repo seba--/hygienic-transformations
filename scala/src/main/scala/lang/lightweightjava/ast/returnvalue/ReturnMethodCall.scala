@@ -2,7 +2,7 @@ package lang.lightweightjava.ast.returnvalue
 
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
-import name.namegraph.{NameGraphExtended, NameGraph}
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, methodParameters: TermVariable*) extends ReturnValue {
@@ -45,5 +45,5 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
     }
   }
 
-  override def toString = returnObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ");"
+  override def toString = returnObject.toString + "." + methodName.toString + "(" + methodParameters.mkString(", ") + ")"
 }

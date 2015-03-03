@@ -21,8 +21,8 @@ class Identifier(val name: Name) {
   protected var id: Identifier.ID = new ID(this)
   protected var oName: Name = name
 
-  val originalName = oName
-  override def toString = name
+  def originalName = oName
+  override def toString = name //+ "/" + id.hashCode() % 10000  // Useful for debugging
 
   def rename(newName : Name) = {
     val renamed = new Identifier(newName)

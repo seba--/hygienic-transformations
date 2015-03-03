@@ -23,8 +23,6 @@ trait TermVariable extends Identifier with AST {
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = NameGraph(Set(), Map())
 
   def resolveVariableNames(methodEnvironment : VariableNameEnvironment): NameGraphExtended = NameGraph(Set(), Map())
-
-  override def toString = name.toString
 }
 
 object This extends Identifier("this") with TermVariable {

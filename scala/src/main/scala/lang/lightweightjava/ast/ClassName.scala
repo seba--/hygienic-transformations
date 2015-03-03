@@ -26,8 +26,6 @@ trait ClassRef extends Identifier with AST {
     else
       NameGraphExtended(Set(this), Map(this -> nameEnvironment(name).map(_._1)))
   }
-
-  override def toString = name
 }
 
 object ObjectClass extends Identifier("Object") with ClassRef {
