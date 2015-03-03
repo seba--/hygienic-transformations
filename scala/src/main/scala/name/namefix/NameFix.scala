@@ -3,7 +3,7 @@ package name.namefix
 import name.Gensym._
 import name._
 import name.namegraph.NameGraph.Nodes
-import name.namegraph.{NameGraphExtended, NameGraph}
+import name.namegraph.{NameGraphModular, NameGraphExtended, NameGraph}
 
 /**
  * Created by seba on 01/08/14.
@@ -11,9 +11,12 @@ import name.namegraph.{NameGraphExtended, NameGraph}
 object NameFix {
   val fixer = new NameFix
   val fixerExtended = new NameFixExtended
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = fixerExtended.nameFix(gs, t)
-  def nameFix[T <: Nominal](gs: NameGraphExtended, t: T): T = fixerExtended.nameFix(gs, t)
+  val fixerModular = new NameFixModular
 
+  def nameFix[T <: Nominal](gs: NameGraph, t: T) = fixerExtended.nameFix(gs, t)
+  def nameFix[T <: Nominal](gs: NameGraphExtended, t: T) = fixerExtended.nameFix(gs, t)
+  def nameFix[S <: Meta, T <: NominalModular[S]](gs: NameGraphModular, t: T, metaDep: Set[S]) = fixerModular.nameFixModule(gs, t, metaDep)._1
+  def nameFix[S <: Meta, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]) = fixerModular.nameFixModules(mS, metaS, mT, metaT)
 }
 
 class NameFix {

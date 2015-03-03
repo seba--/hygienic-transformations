@@ -18,7 +18,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def dependencies: Set[Name] = allNames.collect {
     case className:ClassName => className.name
-  }
+  } - className.name
 
   override def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
@@ -79,7 +79,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
       elements.foldLeft(NameGraphExtended(Set(), duplicateReferences))(_ + _.resolveNames(nameEnvironment, this))
   }
 
-  override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
+  override def resolveNamesModular(metaDependencies: Set[ClassInterface] = Set()): (NameGraphModular, ClassInterface) = {
     val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
     var environment: ClassNameEnvironment = Map()
 

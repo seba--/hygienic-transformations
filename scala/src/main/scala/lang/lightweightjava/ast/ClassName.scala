@@ -13,6 +13,7 @@ trait ClassRef extends Identifier with AST {
     else {
       val renamed = ClassName(newName)
       renamed.id = this.id
+      renamed.oName = this.oName
       renamed
     }
   }

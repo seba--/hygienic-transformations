@@ -15,10 +15,13 @@ object Identifier {
 }
 
 class Identifier(val name: Name) {
+  override def equals(obj: scala.Any) = obj.isInstanceOf[Identifier] && obj.asInstanceOf[Identifier].id == id
+  override def hashCode(): Int = id.hashCode()
+
   protected var id: Identifier.ID = new ID(this)
   protected var oName: Name = name
 
-  def originalName = oName
+  val originalName = oName
   override def toString = name
 
   def rename(newName : Name) = {

@@ -12,7 +12,7 @@ object LocalDeclarationTransformation {
     Program(program.classes.map(transformClass):_*)
   }
 
-  private def transformClass(classDefinition : ClassDefinition) = {
+  def transformClass(classDefinition : ClassDefinition) = {
     classDefinition.methods.foldLeft(classDefinition)(transformMethod)
   }
 

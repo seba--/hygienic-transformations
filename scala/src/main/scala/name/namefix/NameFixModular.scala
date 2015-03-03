@@ -21,12 +21,12 @@ class NameFixModular {
     newResult
   }
 
-  protected def findCapturedNodes(gs: NameGraphModular, gt: NameGraphModular): Nodes = {
+  protected def findCapturedNodes(gs: NameGraphModular, gt: NameGraphModular) = {
     val names = gt.V ++ gt.EOut.values.flatten
     names.filter(v => (gs.V.contains(v) || gs.EOut.values.exists(_.contains(v))) && (findRelations(v, gt) -- findRelations(v, gs)).size > 0)
   }
 
-  protected def compRenamings(gs: NameGraphModular, gt: NameGraphModular, t: Nominal, toRename: Nodes): Map[Identifier, Name] = {
+  protected def compRenamings(gs: NameGraphModular, gt: NameGraphModular, t: Nominal, toRename: Nodes) = {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- toRename if findRelations(v, gt).intersect(renaming.keySet).isEmpty) {
@@ -44,9 +44,11 @@ class NameFixModular {
 
     if (capture.isEmpty)
       gT
-
-    val newRenaming = compRenamings(gS, gT, mT, capture)
-    nameFixVirtual(gS, mT, metaDep, virtualRenaming ++ newRenaming)
+    else {
+      val newRenaming = compRenamings(gS, gT, mT, capture)
+      val mTNew = mT.rename(newRenaming)
+      nameFixVirtual(gS, mTNew, metaDep, virtualRenaming ++ newRenaming)
+    }
   }
 
   protected def applyVirtualGraph[S <: Meta, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
@@ -90,14 +92,15 @@ class NameFixModular {
 
     if (renaming.isEmpty)
       (m, metaM)
+    else {
+      val mNew = m.rename(renaming).asInstanceOf[T]
 
-    val mNew = m.rename(renaming).asInstanceOf[T]
-
-    removeUnintendedRelations(mNew, metaDep, gVirtual)
+      removeUnintendedRelations(mNew, metaDep, gVirtual)
+    }
   }
 
   protected def addIntendedRelations[S <: Meta, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
-    val (gM, metaM) = m.resolveNamesModular(metaDep)
+    val (gM, _) = m.resolveNamesModular(metaDep)
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- gM.V) {
@@ -115,7 +118,7 @@ class NameFixModular {
       }
     }
 
-    m.rename(renaming)
+    m.rename(renaming).asInstanceOf[T]
   }
 
   def nameFixModule[S <: Meta, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S]) = {
@@ -125,18 +128,19 @@ class NameFixModular {
 
   def nameFixModules[S <: Meta, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]): Set[T] = {
     if (mT.isEmpty)
-      return Set()
+      Set()
+    else {
+      val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID.name == i))).get
+      val currentModuleS = mS.find(_.moduleID == currentModuleT.moduleID)
+      val (currentGS, currentMetaS) = currentModuleS match {
+        case Some(module) => module.resolveNamesModular(metaS)
+        case None => (NameGraphModular(Set(), Map(), Map()), null)
+      }
 
-    val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID.name == i))).get
-    val currentModuleS = mS.find(_.moduleID == currentModuleT.moduleID)
-    val (currentGS, currentMetaS) = currentModuleS match {
-      case Some(module) => module.resolveNamesModular(metaS)
-      case None => (NameGraphModular(Set(), Map(), Map()), null)
+      val (currentModuleFixed, metaFixed) = nameFixModule(currentGS, currentModuleT, metaT)
+      val newMetaS = if (currentMetaS != null) metaS + currentMetaS.asInstanceOf[S] else metaS
+
+      nameFixModules(mS, newMetaS, mT - currentModuleT, metaT + metaFixed) + currentModuleFixed.asInstanceOf[T]
     }
-
-    val (currentModuleFixed, metaFixed) = nameFixModule(currentGS, currentModuleT, metaT)
-    val newMetaS = if (currentMetaS != null) metaS + currentMetaS.asInstanceOf[S] else metaS
-
-    nameFixModules(mS, newMetaS, mT - currentModuleT, metaT + metaFixed) + currentModuleFixed.asInstanceOf[T]
-   }
+  }
  }
