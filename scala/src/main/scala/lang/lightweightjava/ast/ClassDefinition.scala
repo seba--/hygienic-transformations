@@ -13,9 +13,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   val methods = elements.collect({ case m: MethodDefinition => m }).toSet
 
   private val exportedFields = fields.filter(_.accessModifier == AccessModifier.PUBLIC).map(_.fieldName)
-
   private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
-
   override val moduleID: Identifier = className
 
   override def dependencies: Set[Name] = allNames.collect {
@@ -64,16 +62,16 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   override def resolveNamesModular(metaDependencies: Set[ClassInterface]): (NameGraphModular, ClassInterface) = {
     val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
     var environment: ClassNameEnvironment = Map()
-    val ownFieldsMap = fields.map(_.fieldName.name).map(n => (n, fields.map(_.fieldName).filter(_.name == n))).toMap
-    val ownMethodsMap = methods.map(_.signature.methodName.name).map(n => (n, methods.map(_.signature.methodName).filter(_.name == n))).toMap
+    val ownFieldsMap = fields.map(_.fieldName).groupBy(_.name)
+    val ownMethodsMap = methods.map(_.signature.methodName).groupBy(_.name)
     environment += (className.name -> Set((className, ownFieldsMap, ownMethodsMap)))
 
     for (dependency <- metaDependencies) {
       if (environment.contains(dependency.moduleID.name))
         throw new IllegalArgumentException("Multiple instances of class '" + dependency.moduleID.name + "' found!")
       else {
-        val fieldsMap = dependency.exportedFields.map(_.name).map(n => (n, dependency.exportedFields.filter(_.name == n))).toMap
-        val methodsMap = dependency.exportedMethods.map(_.name).map(n => (n, dependency.exportedMethods.filter(_.name == n))).toMap
+        val fieldsMap = dependency.exportedFields.groupBy(_.name)
+        val methodsMap = dependency.exportedMethods.groupBy(_.name)
         environment += (dependency.moduleID.name -> Set((dependency.moduleID, fieldsMap, methodsMap)))
       }
     }
@@ -94,7 +92,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
     val dependenciesRenamed = metaDependencies.map(i =>
-      new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(f => renaming(f))))
+      new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(m => renaming(m))))
     resolveNamesModular(dependenciesRenamed)._1
   }
 

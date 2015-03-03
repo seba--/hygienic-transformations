@@ -39,13 +39,13 @@ class NameGraphModularTest extends FlatSpec with Matchers {
        meta.exportedMethods.size should be (1)
      case Parser.NoSuccess(msg, _) => fail(msg)
    })
-  it should "contain 14 nodes, 5 internal edges from 5 nodes and 0 external edges for the class with unresolved dependencies" in (Parser.parseAll(Parser.classDef, p2) match {
+  it should "contain 15 nodes, 6 internal edges from 6 nodes and 0 external edges for the class with unresolved dependencies" in (Parser.parseAll(Parser.classDef, p2) match {
     case Parser.Success(p, _) =>
       val (nameGraph, meta) = p.resolveNamesModular(Set())
-      nameGraph.V.size should be (14)
-      nameGraph.E.size should be (5)
+      nameGraph.V.size should be (15)
+      nameGraph.E.size should be (6)
       nameGraph.EOut.size should be (0)
-      nameGraph.E.values.flatten.size should be (5)
+      nameGraph.E.values.flatten.size should be (6)
       meta.exportedFields.size should be (0)
       meta.exportedMethods.size should be (1)
     case Parser.NoSuccess(msg, _) => fail(msg)

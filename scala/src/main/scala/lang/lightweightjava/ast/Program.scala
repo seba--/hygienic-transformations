@@ -46,19 +46,18 @@ case class Program(classes: ClassDefinition*) extends AST {
   def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName.name == fieldName)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    val classesMap = classes.map(_.className.name).map(name => (name, classes.toSet.filter(_.className.name == name))).toMap
-
     // Generate the class name environment for the whole program, where each class name is mapped to a set of corresponding classes,
     // each with a map for field names and one for method names
-    val programEnvironment: ClassNameEnvironment = nameEnvironment ++ classesMap.map(n => (n._1, n._2.map(c => (c.className,
-      getClassFields(c).map(_.fieldName.name).map(fn => (fn, getClassFields(c).map(_.fieldName).filter(_.name == fn))).toMap[Name, Set[Identifier]],
-      getClassMethods(c).map(_.signature.methodName.name).map(mn => (mn, getClassMethods(c).map(_.signature.methodName).toSet.filter(_.name == mn))).toMap[Name, Set[Identifier]]
-      )))).toMap[Name, Set[(ClassName, Map[Name, Set[Identifier]], Map[Name, Set[Identifier]])]]
+    val programEnvironment: ClassNameEnvironment = nameEnvironment ++ classes.toSet[ClassDefinition].map(
+      c => (c.className,
+        getClassFields(c).map(_.fieldName).groupBy(_.name),
+        getClassMethods(c).toSet[MethodDefinition].map(_.signature.methodName).groupBy(_.name)
+        )).groupBy(_._1.name)
 
     var duplicateReferences: Map[Identifier, Set[Identifier]] = Map()
     for ((name, classes) <- programEnvironment) {
       if (classes.size > 1)
-        duplicateReferences ++= classes.map(c => (c._1, classes.map(_._1).toSet[Identifier])).toMap
+        duplicateReferences ++= classes.map(_._1).map(c => (c, classes.map(_._1.asInstanceOf[Identifier])))
 
       for (classEnv <- classes) {
         for ((fieldName, fields) <- classEnv._2) {
