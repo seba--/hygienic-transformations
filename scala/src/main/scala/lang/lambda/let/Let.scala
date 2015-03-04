@@ -15,7 +15,7 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
 
   override def hashCode = 17 * x.name.hashCode + 31 * bound.hashCode() + 47 * body.hashCode()
 
-  def allNames = bound.allNames ++ body.allNames + x
+  def allNames = bound.allNames ++ body.allNames + x.name
   def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)

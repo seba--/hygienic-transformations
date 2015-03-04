@@ -16,9 +16,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
   override val moduleID: Identifier = className
 
-  override def dependencies: Set[Name] = allNames.collect {
-    case className:ClassName => className.name
-  } - className.name
+  override def dependencies: Set[Name] = resolveNamesModular(Set())._1.V.collect({ case className:ClassName => className.name }) - className.name
 
   override def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)

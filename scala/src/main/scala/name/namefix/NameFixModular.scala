@@ -30,7 +30,7 @@ class NameFixModular {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- toRename if findRelations(v, gt).intersect(renaming.keySet).isEmpty) {
-      val fresh = gensym(v.name, t.allNames.map(_.name) ++ gt.EOut.values.flatten.map(_.name) ++ renaming.values)
+      val fresh = gensym(v.name, t.allNames ++ gt.EOut.values.flatten.map(_.name) ++ renaming.values)
       val relatedNames = findRelations(v, gs)
       renaming ++= relatedNames.map(r => (r, fresh))
     }
@@ -80,7 +80,7 @@ class NameFixModular {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- gM.V) {
-      val fresh = gensym(v.name, m.allNames.map(_.name) ++ gM.EOut.values.flatten.map(_.name) ++ renaming.values)
+      val fresh = gensym(v.name, m.allNames ++ gM.EOut.values.flatten.map(_.name) ++ renaming.values)
 
       val relM = findRelations(v, gM)
       val relV = findRelations(v, gVirtual)
@@ -130,7 +130,10 @@ class NameFixModular {
     if (mT.isEmpty)
       Set()
     else {
-      val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID.name == i))).get
+      val currentModuleT = mT.find(m => m.dependencies.forall(i => metaT.exists(_.moduleID.name == i))) match {
+        case Some(module) => module
+        case None => throw new IllegalArgumentException("Unable to resolve these modules based on their dependencies: " + mT.map(_.moduleID).mkString(", "))
+      }
       val currentModuleS = mS.find(_.moduleID == currentModuleT.moduleID)
       val (currentGS, currentMetaS) = currentModuleS match {
         case Some(module) => module.resolveNamesModular(metaS)

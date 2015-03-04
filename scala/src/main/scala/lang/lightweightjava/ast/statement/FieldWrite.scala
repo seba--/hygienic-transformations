@@ -7,7 +7,7 @@ import name.{Identifier, Renaming}
 case class FieldWrite(targetObject: TermVariable, targetField: Identifier, source: TermVariable) extends Statement {
   require(AST.isLegalName(targetField.name), "Field name '" + targetField + "' is no legal Java field name")
 
-  override def allNames = targetObject.allNames ++ source.allNames + targetField
+  override def allNames = targetObject.allNames ++ source.allNames + targetField.name
 
   override def rename(renaming: Renaming) = FieldWrite(targetObject.rename(renaming), renaming(targetField), source.rename(renaming))
 

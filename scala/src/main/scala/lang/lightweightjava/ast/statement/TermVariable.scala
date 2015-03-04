@@ -42,7 +42,7 @@ object VariableName {
 class VariableName(override val name: Name) extends Identifier(name) with TermVariable {
   require(AST.isLegalName(name), "Variable name '" + name + "' is no legal Java variable name")
 
-  override def allNames = Set(this)
+  override def allNames = Set(this.name)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = resolveVariableNames(Map(name -> this))
 

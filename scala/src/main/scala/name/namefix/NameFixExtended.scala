@@ -25,7 +25,7 @@ class NameFixExtended {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- toRename if findRelations(v, gt).intersect(renaming.keySet).isEmpty) {
-      val fresh = gensym(v.name, t.allNames.map(_.name) ++ renaming.values)
+      val fresh = gensym(v.name, t.allNames ++ renaming.values)
       val relatedNames = findRelations(v, gs)
       renaming ++= relatedNames.map(r => (r, fresh))
     }

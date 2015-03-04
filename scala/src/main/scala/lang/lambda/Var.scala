@@ -13,7 +13,7 @@ case class Var(x: Identifier) extends Exp {
   }
   override def hashCode = x.name.hashCode()
 
-  def allNames = Set(x)
+  def allNames = Set(x.name)
   def rename(renaming: Renaming) = Var(renaming(x))
   def resolveNames(scope: Scope) =
     if (scope.contains(x.name))

@@ -7,7 +7,7 @@ import name.namegraph.NameGraphExtended
  */
 trait Nominal {
 
-  def allNames: Set[Identifier]
+  def allNames: Set[Name]
   def rename(renaming: Renaming): Nominal
   def resolveNames: NameGraphExtended
 

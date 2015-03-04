@@ -7,7 +7,7 @@ import name.{Identifier, Renaming}
 case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef, methodName: Identifier, parameters: VariableDeclaration*) extends AST {
   require(AST.isLegalName(methodName.name), "Method name '" + methodName + "' is no legal Java method name")
 
-  override def allNames = parameters.flatMap(_.allNames).toSet ++ returnType.allNames + methodName
+  override def allNames = parameters.flatMap(_.allNames).toSet ++ returnType.allNames + methodName.name
 
   override def rename(renaming: Renaming) =
     MethodSignature(accessModifier, returnType.rename(renaming), renaming(methodName), parameters.map(_.rename(renaming)): _*)

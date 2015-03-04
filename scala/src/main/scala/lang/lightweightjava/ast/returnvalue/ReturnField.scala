@@ -8,7 +8,7 @@ import name.{Identifier, Renaming}
 case class ReturnField(returnObject: TermVariable, returnField: Identifier) extends ReturnValue {
   require(AST.isLegalName(returnField.name), "Field name '" + returnField + "' is no legal Java field name")
 
-  override def allNames = returnObject.allNames + returnField
+  override def allNames = returnObject.allNames + returnField.name
 
   override def rename(renaming: Renaming) = ReturnField(returnObject.rename(renaming), renaming(returnField))
 

@@ -3,12 +3,12 @@ package lang.lightweightjava.ast.returnvalue
 import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.statement.{Null, TermVariable, This}
 import name.namegraph.NameGraphExtended
-import name.{Identifier, Renaming}
+import name.{Name, Identifier, Renaming}
 
 case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, methodParameters: TermVariable*) extends ReturnValue {
   require(AST.isLegalName(methodName.name), "Method name '" + methodName + "' is no legal Java method name")
 
-  override def allNames = returnObject.allNames ++ methodParameters.foldLeft(Set[Identifier]())(_ ++ _.allNames) + methodName
+  override def allNames = returnObject.allNames ++ methodParameters.foldLeft(Set[Name]())(_ ++ _.allNames) + methodName.name
 
   override def rename(renaming: Renaming) = ReturnMethodCall(returnObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
 

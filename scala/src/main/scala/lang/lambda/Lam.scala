@@ -13,7 +13,7 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
   }
   override def hashCode = 17 * x.name.hashCode + 31 * body.hashCode()
 
-  def allNames = body.allNames + x
+  def allNames = body.allNames + x.name
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbody = body.resolveNames(scope + (x.name -> x))

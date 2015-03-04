@@ -36,12 +36,12 @@ class NameFix {
     (notPreserveVar ++ notPreserveDef).values.toSet
   }
 
-  def compRenamings(gs: NameGraph, t: Nominal, capture: Nodes): Map[Identifier, Name] = {
+  def compRenamings(gs: NameGraph, gt: NameGraph, t: Nominal, capture: Nodes): Map[Identifier, Name] = {
     var renaming: Map[Identifier, Name] = Map()
-    val newIds = t.allNames -- gs.V
+    val newIds = gt.V -- gs.V
 
     for (d <- capture) {
-      val fresh = gensym(d.name, t.allNames.map(_.name) ++ renaming.values)
+      val fresh = gensym(d.name, t.allNames ++ renaming.values)
       if (gs.V.contains(d)) {
         renaming += (d -> fresh)
         for ((v2,d2) <- gs.E if d == d2)
@@ -62,7 +62,7 @@ class NameFix {
     if (capture.isEmpty)
       t
     else {
-      val renaming = compRenamings(gs, t, capture)
+      val renaming = compRenamings(gs, gt, t, capture)
       val tNew = t.rename(renaming).asInstanceOf[T]
       nameFix(gs, tNew)
     }

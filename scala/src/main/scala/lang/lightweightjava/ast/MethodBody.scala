@@ -3,10 +3,10 @@ package lang.lightweightjava.ast
 import lang.lightweightjava.ast.returnvalue.ReturnValue
 import lang.lightweightjava.ast.statement.Statement
 import name.namegraph.NameGraphExtended
-import name.{Identifier, Renaming}
+import name.{Name, Renaming}
 
 case class MethodBody(returnValue: ReturnValue, statements: Statement*) extends AST {
-  override def allNames = statements.foldLeft(Set[Identifier]())(_ ++ _.allNames) ++ returnValue.allNames
+  override def allNames = statements.foldLeft(Set[Name]())(_ ++ _.allNames) ++ returnValue.allNames
 
   override def rename(renaming: Renaming) = MethodBody(returnValue.rename(renaming), statements.map(_.rename(renaming)): _*)
 

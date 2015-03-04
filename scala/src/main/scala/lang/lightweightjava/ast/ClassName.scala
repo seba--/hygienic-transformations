@@ -4,7 +4,7 @@ import name.namegraph.NameGraphExtended
 import name.{Identifier, Name, Renaming}
 
 trait ClassRef extends Identifier with AST {
-  override def allNames = Set(this)
+  override def allNames = Set(this.name)
 
   override def rename(renaming: Renaming): ClassRef = renameClass(renaming(this).name)
 

@@ -2,10 +2,10 @@ package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
 import name.namegraph.NameGraphExtended
-import name.{Identifier, Renaming}
+import name.{Name, Renaming}
 
 case class StatementBlock(blockBody: Statement*) extends Statement {
-  override def allNames = blockBody.foldLeft(Set[Identifier]())(_ ++ _.allNames)
+  override def allNames = blockBody.foldLeft(Set[Name]())(_ ++ _.allNames)
 
   override def rename(renaming: Renaming) = StatementBlock(blockBody.map(_.rename(renaming)): _*)
 

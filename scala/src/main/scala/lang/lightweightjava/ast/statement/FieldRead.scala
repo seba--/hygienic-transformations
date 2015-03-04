@@ -7,7 +7,7 @@ import name.{Identifier, Renaming}
 case class FieldRead(target: VariableName, sourceObject: TermVariable, sourceField: Identifier) extends Statement {
   require(AST.isLegalName(sourceField.name), "Field name '" + sourceField + "' is no legal Java field name")
 
-  override def allNames = sourceObject.allNames ++ target.allNames + sourceField
+  override def allNames = sourceObject.allNames ++ target.allNames + sourceField.name
 
   override def rename(renaming: Renaming) = FieldRead(target.rename(renaming).asInstanceOf[VariableName], sourceObject.rename(renaming), renaming(sourceField))
 

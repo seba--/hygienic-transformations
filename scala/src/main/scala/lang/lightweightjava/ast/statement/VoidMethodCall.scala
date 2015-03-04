@@ -2,12 +2,12 @@ package lang.lightweightjava.ast.statement
 
 import lang.lightweightjava.ast._
 import name.namegraph.NameGraphExtended
-import name.{Identifier, Renaming}
+import name.{Name, Identifier, Renaming}
 
 case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, methodParameters: TermVariable*) extends Statement {
   require(AST.isLegalName(methodName.name), "Method name '" + methodName + "' is no legal Java method name")
 
-  override def allNames = sourceObject.allNames ++ methodParameters.foldLeft(Set[Identifier]())(_ ++ _.allNames) + methodName
+  override def allNames = sourceObject.allNames ++ methodParameters.foldLeft(Set[Name]())(_ ++ _.allNames) + methodName.name
 
   override def rename(renaming: Renaming) =
     VoidMethodCall(sourceObject.rename(renaming), renaming(methodName), methodParameters.map(_.rename(renaming)): _*)
