@@ -14,7 +14,7 @@ case class ReturnMethodCall(returnObject: TermVariable, methodName: Identifier, 
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     typeEnvironment(returnObject.name) match {
-      case className:ClassName => program.findMethod(program.getClassDefinition(className).get, methodName.name) match {
+      case className:ClassName => program.findMethod(program.findClassDefinition(className).get, methodName.name) match {
         case Some(method) => require(methodParameters.size == method.signature.parameters.size,
           "Method '" + methodName + "' is called with an invalid number of parameters in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
           methodParameters.zip(method.signature.parameters).map(param => require(param._1 == Null || program.checkSubclass(typeEnvironment(param._1.name), param._2.variableType),

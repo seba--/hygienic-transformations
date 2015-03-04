@@ -17,7 +17,7 @@ case class LocalVariableDeclaration(variableType: ClassRef, variableName: Variab
 
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(variableType match {
-      case className:ClassName => program.getClassDefinition(className).isDefined
+      case className:ClassName => program.findClassDefinition(className).isDefined
       case _ => true
     }, "Could not find definition of type '" + variableType.toString + "' for declaration of variable '" + variableName.toString + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
     typeEnvironment.get(variableName.name) match {

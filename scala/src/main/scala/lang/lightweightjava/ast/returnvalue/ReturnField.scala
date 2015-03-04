@@ -15,7 +15,7 @@ case class ReturnField(returnObject: TermVariable, returnField: Identifier) exte
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(returnObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
     typeEnvironment(returnObject.name) match {
-      case className:ClassName => program.findField(program.getClassDefinition(className).get, returnField.name) match {
+      case className:ClassName => program.findField(program.findClassDefinition(className).get, returnField.name) match {
         case Some(field) => require(program.checkSubclass(field.fieldType, returnType),
           "Field returned by a method in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is incompatible with the method return type!")
           require(className.name == typeEnvironment(This.name).name || field.accessModifier == AccessModifier.PUBLIC,

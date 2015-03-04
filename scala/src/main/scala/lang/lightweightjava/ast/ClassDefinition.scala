@@ -23,15 +23,15 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   override def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
 
-  private def typeCheckInternal(program : Program) = {
-    val classFields = program.getClassFields(this)
-    val classMethods = program.getClassMethods(this)
+  def typeCheckForProgram(program : Program) = {
+    val classFields = program.findAllFields(this)
+    val classMethods = program.findAllMethods(this)
     require(className != superClass, "Class '" + className.name + "' can't be it's own super-class")
     superClass match {
       case superClassName:ClassName =>
-        val superClassDefinition = program.getClassDefinition(superClassName)
+        val superClassDefinition = program.findClassDefinition(superClassName)
         require(superClassDefinition.isDefined, "Super-class '" + superClassName.name + "' of class '" + className.name + "' can't be resolved")
-        require(fields.map(_.fieldName.name).intersect(program.getClassFields(superClassDefinition.get).map(_.fieldName.name)).size == 0,
+        require(fields.map(_.fieldName.name).intersect(program.findAllFields(superClassDefinition.get).map(_.fieldName.name)).size == 0,
           "Class '" + className + "' overshadows fields of it's super-classes")
         require(classMethods.forall(method => program.findMethod(superClassDefinition.get, method.signature.methodName.name) match {
           case Some(superClassMethod) => method.signature.accessModifier == superClassMethod.signature.accessModifier &&
@@ -46,14 +46,11 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     require(methods.size == methods.map(_.signature.methodName.name).size,
       "Method names of class '" + className.name + "' are not distinct")
     require(classFields.map(_.fieldType).forall {
-      case className:ClassName => program.getClassDefinition(className).isDefined
+      case className:ClassName => program.findClassDefinition(className).isDefined
       case ObjectClass => true
     }, "Could not find definition for some field types of class '" + className.name + "'")
-  }
 
-  def typeCheckForProgram(program : Program) = {
-    typeCheckInternal(program)
-    program.getClassMethods(this).map(_.typeCheckForClassDefinition(program, this))
+    program.findAllMethods(this).foreach(_.typeCheckForClassDefinition(program, this))
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {

@@ -54,7 +54,7 @@ object Interpreter {
             case MethodCall(target, sourceObject, methodName, methodParameters@_*) => newState(sourceObject.name) match {
               case oid@OID(_) =>
                 val (objectType, _) = newHeap(oid)
-                val methodDefinition = program.findMethod(program.getClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
+                val methodDefinition = program.findMethod(program.findClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
                 methodDefinition match {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
@@ -84,7 +84,7 @@ object Interpreter {
             case VoidMethodCall(sourceObject, methodName, methodParameters@_*) => newState(sourceObject.name) match {
               case oid@OID(_) =>
                 val (objectType, _) = newHeap(oid)
-                val methodDefinition = program.findMethod(program.getClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
+                val methodDefinition = program.findMethod(program.findClassDefinition(objectType.asInstanceOf[ClassName]).get, methodName.name).get
                 methodDefinition match {
                   case MethodDefinition(MethodSignature(_, _, _, parameters@_*), methodBody) =>
                     // Generate a map with fresh names for each method parameter
@@ -110,7 +110,7 @@ object Interpreter {
               val newValue = OID(configuration.freshOID())
               val newFieldsList: Map[Name, Value] = classRef match {
                 case className:ClassName =>
-                  val classFields = program.getClassFields(program.getClassDefinition(className).get)
+                  val classFields = program.findAllFields(program.findClassDefinition(className).get)
                   // All class fields are initialized as "null"
                   classFields.map(field => (field.fieldName.name, NullValue)).toMap[Name, Value]
                 // Object class doesn't have fields

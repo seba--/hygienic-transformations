@@ -10,47 +10,47 @@ case class Program(classes: ClassDefinition*) extends AST {
 
   def typeCheck = {
     require(classes.map(_.className.name).distinct.size == classes.size, "All class definition names need to be unique")
-    classes.map(_.typeCheckForProgram(this))
+    classes.foreach(_.typeCheckForProgram(this))
   }
 
-  def getClassDefinition(name: ClassName) = {
+  def findClassDefinition(name: ClassName) = {
     val matchingClasses = classes.toSet.filter(_.className.name == name.name)
     if (matchingClasses.size <= 1) matchingClasses.headOption
     else throw new IllegalArgumentException("Multiple class definitions for class name '" + name.name + "' found!")
   }
 
-  def getInheritancePath(classDefinition: ClassDefinition, currentPath: Seq[ClassDefinition] = Seq()): Seq[ClassDefinition] =
+  def computeInheritancePath(classDefinition: ClassDefinition, currentPath: Seq[ClassDefinition] = Seq()): Seq[ClassDefinition] =
     classDefinition.superClass match {
       case ObjectClass => classDefinition +: currentPath
       case superClassName:ClassName =>
         if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
-        else if (getClassDefinition(superClassName).isDefined) getInheritancePath(getClassDefinition(superClassName).get, classDefinition +: currentPath)
+        else if (findClassDefinition(superClassName).isDefined) computeInheritancePath(findClassDefinition(superClassName).get, classDefinition +: currentPath)
         else classDefinition +: currentPath
     }
 
   def checkSubclass(subClass : ClassDefinition, parentClass : ClassDefinition): Boolean = subClass == parentClass ||
-    getInheritancePath(subClass).contains(parentClass)
+    computeInheritancePath(subClass).contains(parentClass)
 
   def checkSubclass(subClass : ClassRef, parentClass : ClassRef): Boolean = parentClass == ObjectClass || (subClass != ObjectClass &&
-    checkSubclass(getClassDefinition(subClass.asInstanceOf[ClassName]).get, getClassDefinition(parentClass.asInstanceOf[ClassName]).get))
+    checkSubclass(findClassDefinition(subClass.asInstanceOf[ClassName]).get, findClassDefinition(parentClass.asInstanceOf[ClassName]).get))
 
-  def getClassFields(classDefinition: ClassDefinition) =
-    getInheritancePath(classDefinition).flatMap(_.fields).toSet
+  def findAllFields(classDefinition: ClassDefinition) =
+    computeInheritancePath(classDefinition).flatMap(_.fields).toSet
 
-  def getClassMethods(classDefinition: ClassDefinition) =
-    getInheritancePath(classDefinition).reverse.flatMap(_.methods)
+  def findAllMethods(classDefinition: ClassDefinition) =
+    computeInheritancePath(classDefinition).reverse.flatMap(_.methods)
 
-  def findMethod(classDefinition: ClassDefinition, methodName: Name) = getClassMethods(classDefinition).find(_.signature.methodName.name == methodName)
+  def findMethod(classDefinition: ClassDefinition, methodName: Name) = findAllMethods(classDefinition).find(_.signature.methodName.name == methodName)
 
-  def findField(classDefinition: ClassDefinition, fieldName: Name) = getClassFields(classDefinition).find(_.fieldName.name == fieldName)
+  def findField(classDefinition: ClassDefinition, fieldName: Name) = findAllFields(classDefinition).find(_.fieldName.name == fieldName)
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     // Generate the class name environment for the whole program, where each class name is mapped to a set of corresponding classes,
     // each with a map for field names and one for method names
     val programEnvironment: ClassNameEnvironment = nameEnvironment ++ classes.toSet[ClassDefinition].map(
       c => (c.className,
-        getClassFields(c).map(_.fieldName).groupBy(_.name),
-        getClassMethods(c).toSet[MethodDefinition].map(_.signature.methodName).groupBy(_.name)
+        findAllFields(c).map(_.fieldName).groupBy(_.name),
+        findAllMethods(c).toSet[MethodDefinition].map(_.signature.methodName).groupBy(_.name)
         )).groupBy(_._1.name)
 
     classes.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraphExtended(Set(), Map())

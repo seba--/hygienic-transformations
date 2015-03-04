@@ -12,7 +12,7 @@ case class MethodDefinition(signature: MethodSignature, methodBody: MethodBody) 
     require(signature.parameters.map(_.variableName.name).distinct.size == signature.parameters.size,
       "Parameter names for method definition '" + signature.methodName.name + "' need to be unique")
     require(signature.parameters.map(_.variableType).forall {
-      case className:ClassName => program.getClassDefinition(className).isDefined
+      case className:ClassName => program.findClassDefinition(className).isDefined
       case _ => true
     }, "Could not find definition for some method parameter types of method '" + signature.methodName + "' of class '" + classDefinition.className.name + "'")
   }

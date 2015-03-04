@@ -14,7 +14,7 @@ case class FieldWrite(targetObject: TermVariable, targetField: Identifier, sourc
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(targetObject != Null, "Can't access fields of 'null' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
     typeEnvironment(targetObject.name) match {
-      case className:ClassName => program.findField(program.getClassDefinition(className).get, targetField.name) match {
+      case className:ClassName => program.findField(program.findClassDefinition(className).get, targetField.name) match {
         case Some(field) => require(source == Null || program.checkSubclass(typeEnvironment(source.name), field.fieldType),
           "Field and the variable it is assigned in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
           require(className.name == typeEnvironment(This.name).name || field.accessModifier == AccessModifier.PUBLIC,
