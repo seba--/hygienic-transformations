@@ -51,7 +51,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
   val st = "x = new B();\n" +
     "y = x.method();"
 
-  "Name Fix" should "fix the modular LDT test program with a cross-module capture" in ((Parser.parseAll(Parser.classDef, m1a), Parser.parseAll(Parser.classDef, m1b)) match {
+  "Modular Name Fix" should "fix the modular LDT test program with a cross-module capture" in ((Parser.parseAll(Parser.classDef, m1a), Parser.parseAll(Parser.classDef, m1b)) match {
     case (Parser.Success(originalA, _), Parser.Success(originalB, _)) =>
       val p = Parser.parseAll(Parser.configuration, st).get
 
@@ -79,7 +79,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
       info("Name graph stats for M1B after fixing: " + fixedGraphB.V.size + " nodes, " + fixedGraphB.E.values.flatten.size + " internal edges, " + fixedGraphB.EOut.values.flatten.size + " external edges")
     case _ => fail("Parsing error!")
   })
-  "Name Fix" should "propagate and fix the modular LDT test program with a cross-module capture" in ((Parser.parseAll(Parser.classDef, m2a), Parser.parseAll(Parser.classDef, m2b)) match {
+  it should "propagate and fix the modular LDT test program with a cross-module capture" in ((Parser.parseAll(Parser.classDef, m2a), Parser.parseAll(Parser.classDef, m2b)) match {
     case (Parser.Success(originalA, _), Parser.Success(originalB, _)) =>
       val p = Parser.parseAll(Parser.configuration, st).get
 
@@ -99,12 +99,12 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val result = Interpreter.interpret(NormalConfiguration(Program(fixedModules.toSeq:_*), p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       result.state("x") should be (result.state("y"))
 
-      info("Name graph stats for M1A before transformation: " + originalGraphA.V.size + " nodes, " + originalGraphA.E.values.flatten.size + " internal edges, " + originalGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1A after transformation: " + transformedGraphA.V.size + " nodes, " + transformedGraphA.E.values.flatten.size + " internal edges, " + transformedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1A after fixing: " + fixedGraphA.V.size + " nodes, " + fixedGraphA.E.values.flatten.size + " internal edges, " + fixedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B before transformation: " + originalGraphB.V.size + " nodes, " + originalGraphB.E.values.flatten.size + " internal edges, " + originalGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B after transformation: " + transformedGraphB.V.size + " nodes, " + transformedGraphB.E.values.flatten.size + " internal edges, " + transformedGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B after fixing: " + fixedGraphB.V.size + " nodes, " + fixedGraphB.E.values.flatten.size + " internal edges, " + fixedGraphB.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2A before transformation: " + originalGraphA.V.size + " nodes, " + originalGraphA.E.values.flatten.size + " internal edges, " + originalGraphA.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2A after transformation: " + transformedGraphA.V.size + " nodes, " + transformedGraphA.E.values.flatten.size + " internal edges, " + transformedGraphA.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2A after fixing: " + fixedGraphA.V.size + " nodes, " + fixedGraphA.E.values.flatten.size + " internal edges, " + fixedGraphA.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2B before transformation: " + originalGraphB.V.size + " nodes, " + originalGraphB.E.values.flatten.size + " internal edges, " + originalGraphB.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2B after transformation: " + transformedGraphB.V.size + " nodes, " + transformedGraphB.E.values.flatten.size + " internal edges, " + transformedGraphB.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2B after fixing: " + fixedGraphB.V.size + " nodes, " + fixedGraphB.E.values.flatten.size + " internal edges, " + fixedGraphB.EOut.values.flatten.size + " external edges")
     case _ => fail("Parsing error!")
   })
   
@@ -121,7 +121,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
   //
   // To solve the post-transformation conflict, NameFix can either rename the original or the synthesized method,
   // which leads to different situations for the dependent module B
-  "Name Fix" should "fix the scenario (see comment in code) if the original method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
+  it should "fix the scenario (see comment in code) if the original method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
     case Parser.Success(originalB, _) =>
       val classID = ClassName("A")
       val methodID = Identifier("method")
@@ -136,7 +136,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
       NameFix.nameFix(Set(originalB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
     case _ => fail("Parsing error!")
   })
-  "Name Fix" should "fail to fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
+  it should "fail to fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
     case Parser.Success(originalB, _) =>
       val classID = ClassName("A")
       val methodID = Identifier("method")

@@ -28,7 +28,7 @@ class NameGraphModularTest extends FlatSpec with Matchers {
       "   }\n" +
       "}\n"
 
-   "Name Graph" should "contain 16 nodes, 11 internal edges from 11 nodes, and 0 external edges for the class with no dependencies" in (Parser.parseAll(Parser.classDef, p1) match {
+   "Modular Name Graph" should "contain 16 nodes, 11 internal edges from 11 nodes, and 0 external edges for the class with no dependencies" in (Parser.parseAll(Parser.classDef, p1) match {
      case Parser.Success(p, _) =>
        val (nameGraph, meta) = p.resolveNamesModular()
        nameGraph.V.size should be (16)

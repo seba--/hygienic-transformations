@@ -88,7 +88,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (11)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 16 nodes and 11 edges from 11 nodes for the correct program with method overriding" in (Parser.parseAll(Parser.program, p1 + p2) match {
+  it should "contain 31 nodes and 25 edges from 25 nodes for the correct program with method overriding" in (Parser.parseAll(Parser.program, p1 + p2) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (31)
@@ -96,7 +96,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (25)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 16 nodes and 11 edges from 11 nodes for the program with an undefined class reference" in (Parser.parseAll(Parser.program, p2) match {
+  it should "contain 15 nodes and 6 edges from 6 nodes for the program with an undefined class reference" in (Parser.parseAll(Parser.program, p2) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (15)
@@ -112,7 +112,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (10)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 18 nodes and 16 edges from 14 nodes for the program with overlapping method definitions" in (Parser.parseAll(Parser.program, pOverlappingMethods) match {
+  it should "contain 18 nodes and 14 edges from 14 nodes for the program with overlapping method definitions" in (Parser.parseAll(Parser.program, pOverlappingMethods) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (18)
@@ -120,7 +120,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (14)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 0 nodes and 0 edges from 0 nodes for the program with multiple declarations of the same field" in (Parser.parseAll(Parser.program, pMultipleFields) match {
+  it should "contain 17 nodes and 14 edges from 13 nodes for the program with multiple declarations of the same field" in (Parser.parseAll(Parser.program, pMultipleFields) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (17)
@@ -128,7 +128,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (14)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 18 nodes and 16 edges from 14 nodes for the program with overlapping method definitions and inheritance" in (Parser.parseAll(Parser.program, pOverlappingMethods + p2) match {
+  it should "contain 33 nodes and 27 edges from 30 nodes for the program with overlapping method definitions and inheritance" in (Parser.parseAll(Parser.program, pOverlappingMethods + p2) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (33)
@@ -136,7 +136,7 @@ class NameGraphTest extends FlatSpec with Matchers {
       nameGraph.E.values.flatten.size should be (30)
     case Parser.NoSuccess(msg, _) => fail(msg)
   })
-  it should "contain 0 nodes and 0 edges from 0 nodes for the program with multiple declarations of the same field and inheritance" in (Parser.parseAll(Parser.program, pMultipleFields + p2) match {
+  it should "contain 32 nodes and 27 edges from 29 nodes for the program with multiple declarations of the same field and inheritance" in (Parser.parseAll(Parser.program, pMultipleFields + p2) match {
     case Parser.Success(p, _) =>
       val nameGraph = p.asInstanceOf[Nominal].resolveNames
       nameGraph.V.size should be (32)
