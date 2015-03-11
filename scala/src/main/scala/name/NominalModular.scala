@@ -15,9 +15,9 @@ trait NominalModular[T <: Meta] extends Nominal {
       case Some(name2) => name.rename(name2)
     })
 
-  def resolveNamesModular(metaDependencies: Set[T]): (NameGraphModular, T)
+  def resolveNamesModular(dependencies: Set[T]): (NameGraphModular, T)
 
-  def resolveNamesVirtual(metaDependencies: Set[T], renaming: Renaming): NameGraphModular
+  def resolveNamesVirtual(dependencies: Set[T], renaming: Renaming): NameGraphModular
 
   def resolveNamesVirtual(metaDependencies: Set[T], renaming: Map[Identifier, Name]): NameGraphModular =
     resolveNamesVirtual(metaDependencies, name => renaming.get(name) match {

@@ -111,7 +111,8 @@ class NameFixModular {
         val externalNames = gVirtual.EOut.values.flatten.toSet
         val propagatedNames = relV.intersect(externalNames).map(_.name)
         if (propagatedNames.size == 1) {
-          renaming ++= (relV -- externalNames).map(r => (r, propagatedNames.head))
+          val propagatedName = propagatedNames.head
+          renaming ++= (relV -- externalNames).map(r => r -> propagatedName)
         }
         else
           throw new IllegalArgumentException("Unable to retain relations to external identifiers with different names!")

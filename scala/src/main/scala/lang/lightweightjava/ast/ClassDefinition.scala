@@ -75,7 +75,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   }
 
   override def resolveNamesModular(metaDependencies: Set[ClassInterface] = Set()): (NameGraphModular, ClassInterface) = {
-    val classInterface = new ClassInterface(className, exportedFields, exportedMethods)
+    val classInterface = ClassInterface(className, exportedFields, exportedMethods)
     var environment: ClassNameEnvironment = Map()
 
     val (superClassFields:Set[Identifier], superClassMethods:Set[Identifier]) = metaDependencies.find(_.className.name == superClass.name) match {
@@ -117,7 +117,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   override def resolveNamesVirtual(metaDependencies: Set[ClassInterface], renaming: Renaming): NameGraphModular = {
     val dependenciesRenamed = metaDependencies.map(i =>
-      new ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(m => renaming(m))))
+      ClassInterface(i.moduleID, i.exportedFields.map(f => renaming(f)), i.exportedMethods.map(m => renaming(m))))
     resolveNamesModular(dependenciesRenamed)._1
   }
 
