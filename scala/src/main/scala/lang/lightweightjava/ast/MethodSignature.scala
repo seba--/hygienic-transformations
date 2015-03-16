@@ -14,6 +14,7 @@ case class MethodSignature(accessModifier: AccessModifier, returnType: ClassRef,
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     val methodNameGraph = NameGraphExtended(Set(methodName), Map())
+
     returnType.resolveNames(nameEnvironment) + methodNameGraph + parameters.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(nameEnvironment))
   }
 

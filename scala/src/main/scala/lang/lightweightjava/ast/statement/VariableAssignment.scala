@@ -11,6 +11,7 @@ case class VariableAssignment(target: VariableName, source: TermVariable) extend
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(source == Null || program.checkSubclass(typeEnvironment(source.name), typeEnvironment(target.name)),
       "Variables assigned in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
+
     typeEnvironment
   }
 

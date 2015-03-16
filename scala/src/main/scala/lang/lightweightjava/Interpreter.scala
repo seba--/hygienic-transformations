@@ -12,7 +12,7 @@ object Interpreter {
     // it can be assumed that the program is correctly typed.
     // Please also note that only the program is type checked, so type errors in the program flow
     // might cause undefined behavior or runtime errors. This is as defined by LJ specification.
-    configuration.program.typeCheck
+    configuration.program.typeCheck()
 
     // Using a separate method here to avoid unnecessary type checks after each interpretation step.
     interpretInternal(configuration)
@@ -125,8 +125,10 @@ object Interpreter {
             case VariableAssignment(target, source) => newState = newState + (target.name -> newState(source.name))
           }
 
-          if (exception == null) interpretInternal(NormalConfiguration(program, newState, newHeap, newProgramFlow: _*))
-          else ExceptionConfiguration(program, newState, newHeap, exception)
+          if (exception == null)
+            interpretInternal(NormalConfiguration(program, newState, newHeap, newProgramFlow: _*))
+          else
+            ExceptionConfiguration(program, newState, newHeap, exception)
         }
 
       case ExceptionConfiguration(program, state, heap, exception) => sys.error("Can't interpret exception configuration: " + exception.message)

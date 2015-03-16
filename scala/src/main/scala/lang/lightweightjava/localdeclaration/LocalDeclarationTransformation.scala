@@ -33,14 +33,22 @@ object LocalDeclarationTransformation {
     }
     if (newMethodParameters.isEmpty) classDefinition
     else {
-      val accessModifier = if (useAccessModifiers) AccessModifier.PRIVATE else AccessModifier.PUBLIC
+      val accessModifier =
+        if (useAccessModifiers) AccessModifier.PRIVATE
+        else AccessModifier.PUBLIC
+
       val newMethodSignature = MethodSignature(accessModifier, method.signature.returnType, Identifier(method.signature.methodName.name + "_ldt"),
         method.signature.parameters.map(param => VariableDeclaration(param.variableType, param.variableName)) ++ newMethodParameters:_*)
       val newMethod = MethodDefinition(newMethodSignature, MethodBody(method.methodBody.returnValue.rename(variableMappings).asInstanceOf[ReturnValue], newMethodBody:_*))
 
       val replacedOldMethod = MethodDefinition(method.signature, MethodBody(ReturnMethodCall(This, Identifier(method.signature.methodName.name + "_ldt"),
         method.signature.parameters.map(param => param.variableName) ++ newMethodParameters.map(_ => Null):_*)))
-      val replacedElements = classDefinition.elements.map(element => if (element == method) replacedOldMethod else element)
+      val replacedElements = classDefinition.elements.map(element =>
+        if (element == method)
+          replacedOldMethod
+        else
+          element)
+
       ClassDefinition(classDefinition.className, classDefinition.superClass, replacedElements :+ newMethod:_*)
     }
 

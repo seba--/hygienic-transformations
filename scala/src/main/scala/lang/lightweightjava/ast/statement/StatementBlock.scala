@@ -14,6 +14,7 @@ case class StatementBlock(blockBody: Statement*) extends Statement {
     typeEnvironment
   }
 
+  // Aggregate the final name graph of the block by resolving each statement with the name environment after the previous ones are evaluated
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
     (blockBody.foldLeft((NameGraphExtended(Set(), Map()), (methodEnvironment, typeEnvironment)))((result, statement) => {
       val statementResult = statement.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)

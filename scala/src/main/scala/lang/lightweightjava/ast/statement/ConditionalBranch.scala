@@ -14,14 +14,17 @@ case class ConditionalBranch(leftVariable: TermVariable, rightVariable: TermVari
       program.checkSubclass(typeEnvironment(leftVariable.name), typeEnvironment(rightVariable.name)) ||
       program.checkSubclass(typeEnvironment(rightVariable.name), typeEnvironment(leftVariable.name)),
       "Variables compared in conditional branch in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
+
     ifBranch.typeCheckForTypeEnvironment(program, typeEnvironment)
     elseBranch.typeCheckForTypeEnvironment(program, typeEnvironment)
+
     typeEnvironment
   }
 
   override def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment: VariableNameEnvironment, typeEnvironment : TypeEnvironment) =
     (leftVariable.resolveVariableNames(methodEnvironment) + rightVariable.resolveVariableNames(methodEnvironment) +
-      ifBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1 + elseBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
+      ifBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1 +
+      elseBranch.resolveNames(nameEnvironment, methodEnvironment, typeEnvironment)._1, (methodEnvironment, typeEnvironment))
 
   override def toString(preTabs : String) = {
     val innerPreTabs = preTabs + "\t"

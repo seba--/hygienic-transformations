@@ -22,7 +22,7 @@ class Identifier(val name: Name) {
   protected var oName: Name = name
 
   def originalName = oName
-  override def toString = name //+ "/" + id.hashCode() % 10000  // Useful for debugging
+  override def toString = name
 
   def rename(newName : Name) = {
     val renamed = new Identifier(newName)

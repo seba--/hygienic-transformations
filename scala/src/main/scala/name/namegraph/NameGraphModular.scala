@@ -24,5 +24,6 @@ object NameGraphModular {
 
 case class NameGraphModular(V: Nodes, E: Map[Identifier, Set[Identifier]], EOut: Map[Identifier, Set[Identifier]]) {
   def +(g: NameGraphModular) = NameGraphModular(V ++ g.V,
-    E ++ g.E.map(e => (e._1, E.getOrElse(e._1, Set()) ++ e._2)), EOut ++ g.EOut.map(e => (e._1, EOut.getOrElse(e._1, Set()) ++ e._2)))
+    E ++ g.E.map(e => (e._1, E.getOrElse(e._1, Set()) ++ e._2)),
+    EOut ++ g.EOut.map(e => (e._1, EOut.getOrElse(e._1, Set()) ++ e._2)))
 }

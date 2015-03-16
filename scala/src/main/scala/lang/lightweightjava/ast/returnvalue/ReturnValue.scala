@@ -9,7 +9,8 @@ abstract class ReturnValue extends AST {
 
   def typeCheckForTypeEnvironment(program : Program, typeEnvironment : TypeEnvironment, returnType : ClassRef) : TypeEnvironment
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment) = sys.error("Can't resolve return value names without method context")
+  override def resolveNames(nameEnvironment: ClassNameEnvironment) =
+    throw new IllegalArgumentException("Can't resolve return value names without method context")
 
   def resolveNames(nameEnvironment: ClassNameEnvironment, methodEnvironment : VariableNameEnvironment, typeEnvironment : TypeEnvironment) : NameGraphExtended
 

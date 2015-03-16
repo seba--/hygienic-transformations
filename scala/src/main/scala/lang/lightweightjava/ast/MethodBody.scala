@@ -17,6 +17,7 @@ case class MethodBody(returnValue: ReturnValue, statements: Statement*) extends 
       val statementResult = statement.resolveNames(nameEnvironment, result._2._1, result._2._2)
       (result._1 + statementResult._1, statementResult._2)
     })
+
     returnValue.resolveNames(nameEnvironment, methodBodyResult._2._1, methodBodyResult._2._2) + methodBodyResult._1
   }
 

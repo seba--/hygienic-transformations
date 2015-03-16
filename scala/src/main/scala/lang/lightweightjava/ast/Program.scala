@@ -8,7 +8,7 @@ case class Program(classes: ClassDefinition*) extends AST {
 
   override def rename(renaming: Renaming) = Program(classes.map(_.rename(renaming)): _*)
 
-  def typeCheck = {
+  def typeCheck() = {
     require(classes.map(_.className.name).distinct.size == classes.size, "All class definition names need to be unique")
     classes.foreach(_.typeCheckForProgram(this))
   }
@@ -23,8 +23,10 @@ case class Program(classes: ClassDefinition*) extends AST {
     classDefinition.superClass match {
       case ObjectClass => classDefinition +: currentPath
       case superClassName:ClassName =>
-        if (currentPath.contains(classDefinition)) throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
-        else if (findClassDefinition(superClassName).isDefined) computeInheritancePath(findClassDefinition(superClassName).get, classDefinition +: currentPath)
+        if (currentPath.contains(classDefinition))
+          throw new IllegalArgumentException("Encountered cyclic inheritance for class '" + classDefinition.className.name + "'")
+        else if (findClassDefinition(superClassName).isDefined)
+          computeInheritancePath(findClassDefinition(superClassName).get, classDefinition +: currentPath)
         else classDefinition +: currentPath
     }
 

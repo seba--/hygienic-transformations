@@ -4,6 +4,8 @@ import lang.lightweightjava.ast._
 import name.namegraph.{NameGraphExtended, NameGraph}
 import name.{Identifier, Name, Renaming}
 
+import scala.language.implicitConversions
+
 trait TermVariable extends Identifier with AST {
   override def allNames = Set()
 

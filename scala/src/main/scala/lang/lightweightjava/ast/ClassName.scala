@@ -3,6 +3,8 @@ package lang.lightweightjava.ast
 import name.namegraph.NameGraphExtended
 import name.{Identifier, Name, Renaming}
 
+import scala.language.implicitConversions
+
 trait ClassRef extends Identifier with AST {
   override def allNames = Set(this.name)
 

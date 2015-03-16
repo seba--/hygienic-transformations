@@ -12,6 +12,7 @@ case class ReturnObjectInstantiation(classRef: ClassRef) extends ReturnValue {
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment, returnType : ClassRef) = {
     require(program.checkSubclass(classRef, returnType),
       "Object returned by method in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' is incompatible to the method return type!")
+
     typeEnvironment
   }
 

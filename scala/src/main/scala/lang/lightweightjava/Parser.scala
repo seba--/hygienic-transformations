@@ -11,11 +11,8 @@ import name.Identifier
 
 import scala.util.parsing.combinator.JavaTokenParsers
 
-/**
- * Created by nico on 28.10.14.
- */
 object Parser extends JavaTokenParsers {
-  override def ident = super.ident.filter(AST.isLegalName(_))
+  override def ident = super.ident.filter(AST.isLegalName)
 
   def configuration:Parser[Configuration] = program ~ statement.* ^^
     (i => NormalConfiguration(i._1, State(), Heap(), i._2:_*))

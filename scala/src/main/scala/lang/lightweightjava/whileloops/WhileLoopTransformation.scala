@@ -79,10 +79,15 @@ object WhileLoopTransformation {
         val elseTransformed = transformMethodRecursive(ifTransformed._2, method, Seq(elseBranch), ifTransformed._3)
         val recursiveResult = transformMethodRecursive(elseTransformed._2, method, remainingStatements.tail, elseTransformed._3)
         (ConditionalBranch(leftVariable, rightVariable,
-          if (ifTransformed._1.length > 1) StatementBlock(ifTransformed._1:_*)
-          else ifTransformed._1.head,
-          if (elseTransformed._1.length > 1) StatementBlock(elseTransformed._1:_*)
-          else elseTransformed._1.head) +: recursiveResult._1, recursiveResult._2, recursiveResult._3)
+          if (ifTransformed._1.length > 1)
+            StatementBlock(ifTransformed._1:_*)
+          else
+            ifTransformed._1.head,
+            if (elseTransformed._1.length > 1)
+              StatementBlock(elseTransformed._1:_*)
+            else
+              elseTransformed._1.head)
+          +: recursiveResult._1, recursiveResult._2, recursiveResult._3)
 
       case StatementBlock(statements @ _*) =>
         // The body of the statement block needs to be handled separately as if it was a individual sub-method

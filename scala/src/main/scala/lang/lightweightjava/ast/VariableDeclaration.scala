@@ -11,8 +11,10 @@ case class VariableDeclaration(variableType: ClassRef, variableName: VariableNam
 
   def resolveNames(nameEnvironment: ClassNameEnvironment, paramEnvironment: VariableNameEnvironment) = {
     val redefinedVar =
-      if (paramEnvironment.contains(variableName.name)) NameGraph(Set(), Map(variableName -> paramEnvironment(variableName.name)))
-      else NameGraph(Set(), Map())
+      if (paramEnvironment.contains(variableName.name))
+        NameGraph(Set(), Map(variableName -> paramEnvironment(variableName.name)))
+      else
+        NameGraph(Set(), Map())
 
     variableType.resolveNames(nameEnvironment) + variableName.resolveNames(nameEnvironment) + redefinedVar
   }

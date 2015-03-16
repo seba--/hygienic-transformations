@@ -11,6 +11,7 @@ case class ObjectInstantiation(target: VariableName, classRef: ClassRef) extends
   override def typeCheckForTypeEnvironment(program: Program, typeEnvironment: TypeEnvironment) = {
     require(program.checkSubclass(classRef, typeEnvironment(target.name)),
       "Variable and the object it is assigned in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "' are incompatible!")
+
     typeEnvironment
   }
 

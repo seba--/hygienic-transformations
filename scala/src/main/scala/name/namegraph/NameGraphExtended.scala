@@ -23,12 +23,18 @@ object NameGraphExtended {
 
   implicit def apply(g: NameGraphExtended): NameGraph = {
     new NameGraph(g.V, g.E.filter(_._2.size > 0).map(e => (e._1,
-      if (e._2.size == 1) e._2.head
-      else throw new IllegalArgumentException("Can't convert extended name graph with multi-references to simple name graph!"))))
+      if (e._2.size == 1)
+        e._2.head
+      else
+        throw new IllegalArgumentException("Can't convert extended name graph with multi-references to simple name graph!"))))
   }
 }
 
 case class NameGraphExtended(V: Nodes, E: Map[Identifier, Set[Identifier]]) {
   def +(g: NameGraphExtended) = NameGraphExtended(V ++ g.V,
-    (E -- g.E.keys) ++ g.E.map(e => if (E.contains(e._1)) (e._1, E(e._1) ++ e._2) else (e._1, e._2)))
+    (E -- g.E.keys) ++ g.E.map(e =>
+      if (E.contains(e._1))
+        (e._1, E(e._1) ++ e._2)
+      else
+        (e._1, e._2)))
 }
