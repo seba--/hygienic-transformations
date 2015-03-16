@@ -129,8 +129,8 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val methodLdtOrigID = Identifier("method_ldt")
       val methodLdtOrigRenamedID = methodLdtOrigID.rename("method_ldt_0")
 
-      val metaOriginalA = new ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
-      val metaTransformedA = new ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigRenamedID))
+      val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
+      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigRenamedID))
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
 
       NameFix.nameFix(Set(originalB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
@@ -144,8 +144,8 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val methodLdtOrigID = Identifier("method_ldt")
       val methodLdtSynRenamedID = methodLdtSynID.rename("method_ldt_0")
 
-      val metaOriginalA = new ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
-      val metaTransformedA = new ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynRenamedID))
+      val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
+      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynRenamedID))
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
 
       info("Name fix error: " + intercept[IllegalArgumentException] {

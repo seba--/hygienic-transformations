@@ -38,7 +38,7 @@ class NameFixModular {
     renaming
   }
 
-  protected def nameFixVirtual[S <: Meta, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S], virtualRenaming: Map[Identifier, Name]): NameGraphModular = {
+  protected def nameFixVirtual[S <: MetaInterface, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S], virtualRenaming: Map[Identifier, Name]): NameGraphModular = {
     val gT = mT.resolveNamesVirtual(metaDep, virtualRenaming)
     val capture = findCapturedNodes(gS, gT)
 
@@ -51,12 +51,12 @@ class NameFixModular {
     }
   }
 
-  protected def applyVirtualGraph[S <: Meta, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
+  protected def applyVirtualGraph[S <: MetaInterface, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
     val m2 = addIntendedRelations(m, metaDep, gVirtual)
     removeUnintendedRelations(m2, metaDep, gVirtual)
   }
 
-  protected def selectRenaming[S <: Meta](rel1: Nodes, rel2: Nodes, fresh: Name, g: NameGraphModular, meta: S) = {
+  protected def selectRenaming[S <: MetaInterface](rel1: Nodes, rel2: Nodes, fresh: Name, g: NameGraphModular, meta: S) = {
     val externalNames = g.EOut.values.flatten.toSet
 
     if ((rel1 ++ rel2).intersect(externalNames).isEmpty) {
@@ -75,7 +75,7 @@ class NameFixModular {
     }
   }
 
-  protected def removeUnintendedRelations[S <: Meta, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular): (T, S) = {
+  protected def removeUnintendedRelations[S <: MetaInterface, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular): (T, S) = {
     val (gM, metaM) = m.resolveNamesModular(metaDep)
     var renaming: Map[Identifier, Name] = Map()
 
@@ -99,7 +99,7 @@ class NameFixModular {
     }
   }
 
-  protected def addIntendedRelations[S <: Meta, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
+  protected def addIntendedRelations[S <: MetaInterface, T <: NominalModular[S]](m: T, metaDep: Set[S], gVirtual: NameGraphModular) = {
     val (gM, _) = m.resolveNamesModular(metaDep)
     var renaming: Map[Identifier, Name] = Map()
 
@@ -122,12 +122,12 @@ class NameFixModular {
     m.rename(renaming).asInstanceOf[T]
   }
 
-  def nameFixModule[S <: Meta, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S]) = {
+  def nameFixModule[S <: MetaInterface, T <: NominalModular[S]](gS: NameGraphModular, mT: T, metaDep: Set[S]) = {
     val gVirtual = nameFixVirtual(gS, mT, metaDep, metaDep.flatMap(_.export.map(id => (id, id.originalName))).toMap)
     applyVirtualGraph(mT, metaDep, gVirtual)
   }
 
-  def nameFixModules[S <: Meta, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]): Set[T] = {
+  def nameFixModules[S <: MetaInterface, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]): Set[T] = {
     if (mT.isEmpty)
       Set()
     else {

@@ -15,8 +15,8 @@ object NameFix {
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T) = fixerExtended.nameFix(gs, t)
   def nameFix[T <: Nominal](gs: NameGraphExtended, t: T) = fixerExtended.nameFix(gs, t)
-  def nameFix[S <: Meta, T <: NominalModular[S]](gs: NameGraphModular, t: T, metaDep: Set[S]) = fixerModular.nameFixModule(gs, t, metaDep)._1
-  def nameFix[S <: Meta, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]) = fixerModular.nameFixModules(mS, metaS, mT, metaT)
+  def nameFix[S <: MetaInterface, T <: NominalModular[S]](gs: NameGraphModular, t: T, metaDep: Set[S]) = fixerModular.nameFixModule(gs, t, metaDep)._1
+  def nameFix[S <: MetaInterface, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]) = fixerModular.nameFixModules(mS, metaS, mT, metaT)
 }
 
 class NameFix {

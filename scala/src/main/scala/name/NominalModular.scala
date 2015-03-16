@@ -2,7 +2,7 @@ package name
 
 import name.namegraph.NameGraphModular
 
-trait NominalModular[T <: Meta] extends Nominal {
+trait NominalModular[T <: MetaInterface] extends Nominal {
   val moduleID: Identifier
 
   def dependencies: Set[Name]
