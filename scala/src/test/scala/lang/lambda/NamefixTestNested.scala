@@ -3,7 +3,7 @@ package lang.lambda
 import lang.lambda._
 import lang.lambda.let._
 import lang.lambda.num._
-import name.{NameFixIncremental, NameFix, NameGraph}
+import name.{NameFix, NameGraph}
 import org.scalatest._
 
 /**
@@ -12,7 +12,6 @@ import org.scalatest._
 class NamefixTestNested extends FunSuite {
 
   val fixer = new NameFix
-  val incFixer = new NameFixIncremental
 
   val p =
     Let("x", Num(1),
@@ -38,11 +37,6 @@ class NamefixTestNested extends FunSuite {
     assert (g.E(x1use(fixed).id) == x1def(fixed).id)
     assert (g.E(x2use(fixed).id) == x2def(fixed).id)
     assert (g.E(x3use(fixed).id) == x3def(fixed).id)
-
-    val incFixed = incFixer.nameFixIncremental(gs, p, Map(x3use(p).id -> x3def(p).id))
-    assert (g.E(x1use(incFixed).id) == x1def(incFixed).id)
-    assert (g.E(x2use(incFixed).id) == x2def(incFixed).id)
-    assert (g.E(x3use(incFixed).id) == x3def(incFixed).id)
   }
 
   test ("fix nested 2") {
@@ -53,11 +47,6 @@ class NamefixTestNested extends FunSuite {
     assert (g.E(x1use(fixed).id) == x1def(fixed).id)
     assert (g.E(x2use(fixed).id) == x1def(fixed).id)
     assert (g.E(x3use(fixed).id) == x2def(fixed).id)
-
-    val incFixed = incFixer.nameFixIncremental(gs, p, Map(x2use(p).id -> x2def(p).id, x3use(p).id -> x3def(p).id))
-    assert (g.E(x1use(incFixed).id) == x1def(incFixed).id)
-    assert (g.E(x2use(incFixed).id) == x1def(incFixed).id)
-    assert (g.E(x3use(incFixed).id) == x2def(incFixed).id)
   }
 
   test ("fix nested 3") {
