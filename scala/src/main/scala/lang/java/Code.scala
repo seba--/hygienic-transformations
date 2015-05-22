@@ -10,11 +10,13 @@ class Code(sourceFiles: Seq[File]) extends Nominal {
     this(Java.makeTemporarySourceFiles(sourceFileCodes))
   }
 
-  val unit = Java.parseSourceFiles(sourceFiles)
-//  val ast = unit.getAST
-
+  val units = Java.parseSourceFiles(sourceFiles)
+  
   def allNames: Set[Name.ID] = ???
   def rename(renaming: Renaming): Nominal = ???
-  def resolveNames: NameGraph = ???
+  
+  lazy val resolveNames: NameGraph = {
+    ???
+  }
 
 }

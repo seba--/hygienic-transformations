@@ -27,7 +27,7 @@ class JavacBindingTests extends FunSuite {
       |}
     """.stripMargin
 
-  val person = loadSourceCode("Person", personCode).unit.head
+  val person = loadSourceCode("Person", personCode).units.head
   object personStuff {
     val clazz = person.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
     val field_name = clazz.getMembers.get(0).asInstanceOf[JCVariableDecl]
