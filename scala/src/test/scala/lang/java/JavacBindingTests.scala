@@ -1,13 +1,19 @@
 package lang.java
 
+import java.io.{OutputStream, PrintWriter}
+
 import com.sun.tools.javac.code.Symbol
+import com.sun.tools.javac.main.JavaCompiler
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
+import com.sun.tools.javac.util.Log
 import name.NameGraph
 import org.eclipse.jdt.core.dom.{ExpressionStatement, SimpleName, ReturnStatement, TypeDeclaration}
 import org.scalatest._
 
 class JavacBindingTests extends FunSuite {
+
+  val nullWriter = new PrintWriter(new OutputStream() {def write(b: Int) {}})
 
   def assertEdge(tree: Tree, refDec: (JCTree, JCTree), sym: Symbol = null): Unit = {
     val ref = refDec._1
@@ -158,6 +164,20 @@ class JavacBindingTests extends FunSuite {
     assertEdge(tree, field_studentId_getterReference -> field_studentId, field_studentId.sym)
     assertNotEdge(tree, field_birthDate_getterReference -> field_studentId)
     assertNotEdge(tree, field_name_getterReference -> field_studentId)
+  }
+
+  test("inconsistent renaming field birthDate->birthDate2 in Person") {
+    import personStuff._
+    val old = tree.nodeMap(field_birthDate)
+    val renaming = Map(old.id -> "birthDate2")
+
+    tree.silent {
+      tree.rename(renaming)
+    }
+
+    assert(field_birthDate.sym != field_birthDate_getterReference.sym)
+    assert(field_name.sym != field_birthDate_getterReference.sym)
+    assert(field_birthDate.sym != field_name_getterReference.sym)
   }
 
 }

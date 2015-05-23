@@ -1,7 +1,5 @@
 package lang.java
 
-import com.sun.source.tree._
-import com.sun.source.util.TreeScanner
 import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
@@ -19,13 +17,13 @@ object JName {
   def unapply(n: JName): Option[(String, JCTree)] = Some((n.name, n.node))
 }
 
-class NameGraphExtractor extends TreeScanner[Void, Void] {
+class NameGraphExtractor extends NameVisitor[Void, Void] {
   var names = Set[Name.ID]()
   var edges = Map[Name.ID, Name.ID]()
   var symMap = Map[Symbol, Name]()
   var nodeMap = Map[JCTree, Name]()
 
-  private def addDef(node: JCTree, sym: Symbol): Unit = {
+  private def addDec(node: JCTree, sym: Symbol): Unit = {
     val dec = symMap.get(sym) match {
       case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
       case Some(name@Name(_)) =>
@@ -40,7 +38,7 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
     }
   }
 
-  private def addUse(refnode: JCTree, sym: Symbol): Unit = {
+  private def addRef(refnode: JCTree, sym: Symbol): Unit = {
     val dec = symMap.get(sym) match {
       case Some(n) => n
       case None => // external name or name that comes later in the tree
@@ -55,37 +53,9 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
     edges += ref.id -> dec.id
   }
 
-
-
-
-  override def visitClass(node : ClassTree, p : Void) : Void = node match {
-    case n: JCClassDecl =>
-      addDef(n, n.sym)
-      super.visitClass(node, p)
-  }
-
-  override def visitMethod(node: MethodTree, p: Void): Void = node match {
-    case n: JCMethodDecl =>
-      addDef(n, n.sym)
-      super.visitMethod(node, p)
-  }
-
-  // field decls, param decls, local var decls
-  override def visitVariable(node: VariableTree, p: Void): Void = node match {
-    case n: JCVariableDecl =>
-      addDef(n, n.sym)
-      super.visitVariable(node, p)
-  }
-
-  override def visitMemberSelect(node: MemberSelectTree, p: Void): Void = node match {
-    case n: JCFieldAccess =>
-      addUse(n, n.sym)
-      super.visitMemberSelect(node, p)
-  }
-
-  override def visitIdentifier(node: IdentifierTree, p: Void): Void = node match {
-    case n: JCIdent =>
-      addUse(n, n.sym)
-      super.visitIdentifier(node, p)
-  }
+  override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)
+  override def visitMethodDecl(node: JCMethodDecl, p: Void) = addDec(node, node.sym)
+  override def visitVariableDecl(node: JCVariableDecl, p: Void) = addDec(node, node.sym)
+  override def visitFieldAccess(node: JCFieldAccess, p: Void) = addRef(node, node.sym)
+  override def visitIdentifierAccess(node: JCIdent, p: Void) = addRef(node, node.sym)
 }

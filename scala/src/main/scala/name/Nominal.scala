@@ -15,6 +15,6 @@ trait Nominal {
   def rename(renaming: Map[Name.ID, String]): Nominal =
     rename(name => renaming.get(name.id) match {
       case None => name
-      case Some(name2) => Name(name2)
+      case Some(name2) => new Name(name2, name.id)
     })
 }
