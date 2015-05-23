@@ -22,6 +22,8 @@ object Name {
     nameO
   }
   def apply(name: String, id: ID) = new Name(name, id)
+
+  def unapply(n: Name): Option[String] = Some(n.name)
 }
 
 class Name(val name: String, val id: Name.ID) {

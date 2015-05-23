@@ -21,4 +21,16 @@ object NameGraph {
 import NameGraph._
 case class NameGraph(V: Nodes, E: Edges) {
   def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E)
+
+  def prettyPrint = {
+    var s = new StringBuilder
+    s ++= "NameGraph(\n"
+    s ++= "Nodes{"
+    s ++= V.mkString("\n  ,")
+    s ++= "  },\n"
+    s ++= "Edges{"
+    s ++= E.mkString("\n  ,")
+    s ++= "  }\n"
+    s ++= ")"
+  }
 }

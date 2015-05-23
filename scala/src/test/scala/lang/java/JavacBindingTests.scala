@@ -7,7 +7,7 @@ import org.scalatest._
 class JavacBindingTests extends FunSuite {
 
 
-  def loadSourceCode(unitName: String, sourceCode: String): Code = new Code(Map(unitName -> sourceCode))
+  def loadSourceCode(unitName: String, sourceCode: String): Tree = new Tree(Map(unitName -> sourceCode))
 
   val personCode =
     """
@@ -24,10 +24,17 @@ class JavacBindingTests extends FunSuite {
       |
       |  public String getName() { return name; }
       |  public Date getBirthDate() { return birthDate; }
+      |  @Override
+      |  public String toString() {
+      |    String n = getName();
+      |    Date d = getBirthDate();
+      |    return n + " ~ " + d;
+      |  }
       |}
     """.stripMargin
 
-  val person = loadSourceCode("Person", personCode).units.head
+  val personTree = loadSourceCode("Person", personCode)
+  val person = personTree.units.head
   object personStuff {
     val clazz = person.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
     val field_name = clazz.getMembers.get(0).asInstanceOf[JCVariableDecl]
@@ -49,5 +56,10 @@ class JavacBindingTests extends FunSuite {
     assertResult(field_birthDate.sym)(field_birthDate_getterReference.sym)
     assert(field_name.sym != field_birthDate_getterReference.sym)
     assert(field_birthDate.sym != field_name_getterReference.sym)
+  }
+
+  test("extract name graph") {
+    val names = personTree.resolveNames
+    println(names.prettyPrint)
   }
 }
