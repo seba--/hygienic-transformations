@@ -168,14 +168,31 @@ class JavacBindingTests extends FunSuite {
 
   test("inconsistent renaming field birthDate->birthDate2 in Person") {
     import personStuff._
-    val old = tree.nodeMap(field_birthDate)
-    val renaming = Map(old.id -> "birthDate2")
+    val renaming = Map(tree.nodeMap(field_birthDate).id -> "birthDate2")
 
     tree.silent {
       tree.rename(renaming)
     }
 
     assert(field_birthDate.sym != field_birthDate_getterReference.sym)
+    assert(field_name.sym != field_birthDate_getterReference.sym)
+    assert(field_birthDate.sym != field_name_getterReference.sym)
+  }
+
+  test("consistent renaming field birthDate->birthDate2 in Person") {
+    import personStuff._
+    val constructorRef = constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
+
+    val renaming = Map(
+      tree.nodeMap(field_birthDate).id -> "birthDate2",
+      tree.nodeMap(constructorRef).id -> "birthDate2",
+      tree.nodeMap(field_birthDate_getterReference).id -> "birthDate2"
+    )
+
+    tree.rename(renaming)
+
+    assertResult(field_name.sym)(field_name_getterReference.sym)
+    assertResult(field_birthDate.sym)(field_birthDate_getterReference.sym)
     assert(field_name.sym != field_birthDate_getterReference.sym)
     assert(field_birthDate.sym != field_name_getterReference.sym)
   }
