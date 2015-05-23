@@ -23,6 +23,7 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
   var names = Set[Name.ID]()
   var edges = Map[Name.ID, Name.ID]()
   var symMap = Map[Symbol, Name]()
+  var nodeMap = Map[JCTree, Name]()
 
   private def addDef(node: JCTree, sym: Symbol): Unit = {
     val dec = symMap.get(sym) match {
@@ -30,15 +31,16 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
       case Some(name@Name(_)) =>
         val n = new JName(name.name, node, name.id)
         symMap += sym -> n
+        nodeMap += node -> n
       case None =>
         val n = JName(sym.name.toString, node)
         symMap += sym -> n
+        nodeMap += node -> n
         names += n.id
     }
   }
 
   private def addUse(refnode: JCTree, sym: Symbol): Unit = {
-    val ref = JName(sym.name.toString, refnode)
     val dec = symMap.get(sym) match {
       case Some(n) => n
       case None => // external name or name that comes later in the tree
@@ -47,7 +49,9 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
         names += n.id
         n
     }
+    val ref = JName(sym.name.toString, refnode)
     names += ref.id
+    nodeMap += refnode -> ref
     edges += ref.id -> dec.id
   }
 
@@ -66,15 +70,12 @@ class NameGraphExtractor extends TreeScanner[Void, Void] {
       super.visitMethod(node, p)
   }
 
+  // field decls, param decls, local var decls
   override def visitVariable(node: VariableTree, p: Void): Void = node match {
     case n: JCVariableDecl =>
       addDef(n, n.sym)
       super.visitVariable(node, p)
   }
-
-  override def visitEnhancedForLoop(node : EnhancedForLoopTree, p : Void) : Void = ???
-
-  override def visitForLoop(node : ForLoopTree, p : Void) : Void = ???
 
   override def visitMemberSelect(node: MemberSelectTree, p: Void): Void = node match {
     case n: JCFieldAccess =>

@@ -1,6 +1,9 @@
 package lang.java
 
+import com.sun.tools.javac.code.Symbol
+import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
+import name.NameGraph
 import org.eclipse.jdt.core.dom.{ExpressionStatement, SimpleName, ReturnStatement, TypeDeclaration}
 import org.scalatest._
 
@@ -58,8 +61,27 @@ class JavacBindingTests extends FunSuite {
     assert(field_birthDate.sym != field_name_getterReference.sym)
   }
 
+  def assertEdge(tree: Tree, refDec: (JCTree, JCTree), sym: Symbol = null): Unit = {
+    val ref = refDec._1
+    val dec = refDec._2
+    if (sym != null)
+      assert(tree.symMap(sym).id == tree.nodeMap(dec).id)
+    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
+    assert(tree.nodeMap(dec).id == tree.resolveNames.E(tree.nodeMap(ref).id))
+  }
+
+  def assertNotEdge(tree: Tree, refDec: (JCTree, JCTree)): Unit = {
+    val ref = refDec._1
+    val dec = refDec._2
+    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
+    assert(tree.nodeMap(dec).id != tree.resolveNames.E(tree.nodeMap(ref).id))
+  }
+
   test("extract name graph") {
-    val names = personTree.resolveNames
-    println(names.prettyPrint)
+    import personStuff._
+    assertEdge(personTree, field_name_getterReference -> field_name, field_name.sym)
+    assertEdge(personTree, field_birthDate_getterReference -> field_birthDate, field_birthDate.sym)
+    assertNotEdge(personTree, field_birthDate_getterReference -> field_name)
+    assertNotEdge(personTree, field_name_getterReference -> field_birthDate)
   }
 }
