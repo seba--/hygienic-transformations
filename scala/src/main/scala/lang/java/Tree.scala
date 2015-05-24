@@ -27,9 +27,6 @@ class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal
     for (unit <- units) {
       val newUnit = unit.accept(visitor, null).asInstanceOf[JCCompilationUnit]
       newUnit.sourcefile = unit.sourcefile
-//      newUnit.packge = unit.packge
-//      newUnit.namedImportScope = unit.namedImportScope
-//      newUnit.starImportScope = unit.starImportScope
       newUnits = newUnits :+ newUnit
     }
     Java.reanalyzeTrees(newUnits, context)
