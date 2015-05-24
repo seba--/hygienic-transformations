@@ -13,8 +13,6 @@ import org.scalatest._
 
 class JavacBindingTests extends FunSuite {
 
-  val nullWriter = new PrintWriter(new OutputStream() {def write(b: Int) {}})
-
   def assertEdge(tree: Tree, refDec: (JCTree, JCTree), sym: Symbol = null): Unit = {
     val ref = refDec._1
     val dec = refDec._2
@@ -78,8 +76,7 @@ class JavacBindingTests extends FunSuite {
       |}
     """.stripMargin
 
-  val personTree = Tree(Map("Person" -> personCode))
-  val person = personTree.units.head
+  val personTree = Tree.fromSourceCode(Map("Person" -> personCode))
   case class personStuff(tree: Tree) {
     val person = tree.units.head
     val clazz_person = person.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
@@ -96,7 +93,7 @@ class JavacBindingTests extends FunSuite {
     val field_birthDate_getterReference = getBirthDate_ret.getExpression.asInstanceOf[JCIdent]
   }
 
-  val studentTree = Tree(Map("Person" -> personCode, "Student" -> studentCode))
+  val studentTree = Tree.fromSourceCode(Map("Person" -> personCode, "Student" -> studentCode))
   val studentPerson = studentTree.units.head
   val student = studentTree.units.tail.head
   object studentStuff {
