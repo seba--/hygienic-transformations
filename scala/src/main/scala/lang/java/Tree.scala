@@ -11,7 +11,7 @@ import name.{NameGraph, Name, Nominal}
 
 class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal {
 
-  val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Name], Map[JCTree, Name]) = {
+  lazy val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Name], Map[JCTree, Name]) = {
     val visitor = new NameGraphExtractor
     for (unit <- units)
       unit.accept(visitor, null)
@@ -29,8 +29,7 @@ class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal
       newUnit.sourcefile = unit.sourcefile
       newUnits = newUnits :+ newUnit
     }
-    Java.reanalyzeTrees(newUnits, context)
-    new Tree(newUnits, context)
+    Tree.fromTrees(newUnits, context)
   }
 
   def silent[T](f: => T) = {
@@ -50,12 +49,17 @@ class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal
 
 
 object Tree {
-  def apply(sourceFiles: Seq[File]): Tree = {
-    val (units, context) = Java.parseSourceFiles(sourceFiles)
+  def fromSourceFiles(sourceFiles: Seq[File]): Tree = {
+    val (units, context) = Java.analyzeSourceFiles(sourceFiles)
     new Tree(units, context)
   }
 
-  def apply(sourceFileCodes/* name -> code*/: Map[String, String]): Tree = {
-    Tree(Java.makeTemporarySourceFiles(sourceFileCodes))
+  def fromSourceCode(sourceFileCodes/* name -> code*/: Map[String, String]): Tree = {
+    Tree.fromSourceFiles(Java.makeTemporarySourceFiles(sourceFileCodes))
+  }
+
+  def fromTrees(newUnits: List[JCCompilationUnit], context: Context): Tree = {
+    Java.reanalyzeTrees(newUnits, context)
+    new Tree(newUnits, context)
   }
 }

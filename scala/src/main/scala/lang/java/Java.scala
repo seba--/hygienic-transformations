@@ -42,7 +42,7 @@ object Java {
     sourceFiles
   }
 
-  def parseSourceFiles(sourceFiles: Seq[File]): (List[JCCompilationUnit], Context) = {
+  def analyzeSourceFiles(sourceFiles: Seq[File]): (List[JCCompilationUnit], Context) = {
     val compiler = ToolProvider.getSystemJavaCompiler();
     val fileManager = compiler.getStandardFileManager(null, null, null);
     val compilationUnits = fileManager.getJavaFileObjects(sourceFiles: _*)
