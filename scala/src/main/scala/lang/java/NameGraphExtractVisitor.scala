@@ -1,5 +1,6 @@
 package lang.java
 
+import com.sun.source.util.TreeScanner
 import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
@@ -17,7 +18,7 @@ object JName {
   def unapply(n: JName): Option[(String, JCTree)] = Some((n.name, n.node))
 }
 
-class NameGraphExtractor extends NameVisitor[Void, Void] {
+class NameGraphExtractor extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
   var names = Set[Name.ID]()
   var edges = Map[Name.ID, Name.ID]()
   var symMap = Map[Symbol, Name]()

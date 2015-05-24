@@ -78,10 +78,10 @@ class JavacBindingTests extends FunSuite {
       |}
     """.stripMargin
 
-  val personTree = new Tree(Map("Person" -> personCode))
+  val personTree = Tree(Map("Person" -> personCode))
   val person = personTree.units.head
-  object personStuff {
-    val tree = personTree
+  case class personStuff(tree: Tree) {
+    val person = tree.units.head
     val clazz_person = person.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
     val field_name = clazz_person.getMembers.get(0).asInstanceOf[JCVariableDecl]
     val field_birthDate = clazz_person.getMembers.get(1).asInstanceOf[JCVariableDecl]
@@ -96,7 +96,7 @@ class JavacBindingTests extends FunSuite {
     val field_birthDate_getterReference = getBirthDate_ret.getExpression.asInstanceOf[JCIdent]
   }
 
-  val studentTree = new Tree(Map("Person" -> personCode, "Student" -> studentCode))
+  val studentTree = Tree(Map("Person" -> personCode, "Student" -> studentCode))
   val studentPerson = studentTree.units.head
   val student = studentTree.units.tail.head
   object studentStuff {
@@ -124,7 +124,8 @@ class JavacBindingTests extends FunSuite {
   }
 
   test("resolve Person field access") {
-    import personStuff._
+    val person = personStuff(personTree)
+    import person._
     assertResult(field_name.sym)(field_name_getterReference.sym)
     assertResult(field_birthDate.sym)(field_birthDate_getterReference.sym)
     assert(field_name.sym != field_birthDate_getterReference.sym)
@@ -132,7 +133,8 @@ class JavacBindingTests extends FunSuite {
   }
 
   test("extract Person name graph") {
-    import personStuff._
+    val person = personStuff(personTree)
+    import person._
     assertEdge(tree, field_name_getterReference -> field_name, field_name.sym)
     assertEdge(tree, field_birthDate_getterReference -> field_birthDate, field_birthDate.sym)
     assertNotEdge(tree, field_birthDate_getterReference -> field_name)
@@ -167,34 +169,49 @@ class JavacBindingTests extends FunSuite {
   }
 
   test("inconsistent renaming field birthDate->birthDate2 in Person") {
-    import personStuff._
-    val renaming = Map(tree.nodeMap(field_birthDate).id -> "birthDate2")
+    import personTree.nodeMap
+    val person = personStuff(personTree)
+    val renaming = Map(nodeMap(person.field_birthDate).id -> "birthDate2")
 
-    tree.silent {
-      tree.rename(renaming)
+    val renamedPersonTree = personTree.silent { // silence "cannot find symbol 'birthDate'"
+      personTree.rename(renaming).asInstanceOf[Tree]
     }
 
+    val renamedPerson = personStuff(renamedPersonTree)
+    import renamedPerson._
     assert(field_birthDate.sym != field_birthDate_getterReference.sym)
     assert(field_name.sym != field_birthDate_getterReference.sym)
     assert(field_birthDate.sym != field_name_getterReference.sym)
+
+    assertEdge(tree, field_name_getterReference -> field_name, field_name.sym)
+    assertNotEdge(tree, field_birthDate_getterReference -> field_birthDate)
+    assertNotEdge(tree, field_birthDate_getterReference -> field_name)
+    assertNotEdge(tree, field_name_getterReference -> field_birthDate)
   }
 
   test("consistent renaming field birthDate->birthDate2 in Person") {
-    import personStuff._
-    val constructorRef = constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
-
+    import personTree.nodeMap
+    val person = personStuff(personTree)
+    val constructorRef = person.constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
     val renaming = Map(
-      tree.nodeMap(field_birthDate).id -> "birthDate2",
-      tree.nodeMap(constructorRef).id -> "birthDate2",
-      tree.nodeMap(field_birthDate_getterReference).id -> "birthDate2"
+      nodeMap(person.field_birthDate).id -> "birthDate2",
+      nodeMap(constructorRef).id -> "birthDate2",
+      nodeMap(person.field_birthDate_getterReference).id -> "birthDate2"
     )
 
-    tree.rename(renaming)
+    val renamedPersonTree = personTree.rename(renaming).asInstanceOf[Tree]
 
+    val renamedPerson = personStuff(renamedPersonTree)
+    import renamedPerson._
     assertResult(field_name.sym)(field_name_getterReference.sym)
     assertResult(field_birthDate.sym)(field_birthDate_getterReference.sym)
     assert(field_name.sym != field_birthDate_getterReference.sym)
     assert(field_birthDate.sym != field_name_getterReference.sym)
+
+    assertEdge(tree, field_name_getterReference -> field_name, field_name.sym)
+    assertEdge(tree, field_birthDate_getterReference -> field_birthDate, field_birthDate.sym)
+    assertNotEdge(tree, field_birthDate_getterReference -> field_name)
+    assertNotEdge(tree, field_name_getterReference -> field_birthDate)
   }
 
 }

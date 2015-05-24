@@ -2,22 +2,14 @@ package lang.java
 
 import java.io.File
 
-import com.sun.source.tree.{IdentifierTree, CompilationUnitTree}
-import com.sun.source.util.TreeScanner
-import com.sun.tools.javac.api.JavacTaskImpl
+import com.sun.source.tree.TreeVisitor
 import com.sun.tools.javac.code.Symbol
-import com.sun.tools.javac.tree.JCTree.JCIdent
-import com.sun.tools.javac.tree.{TreeCopier, JCTree}
-import com.sun.tools.javac.util.Log
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit
+import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
+import com.sun.tools.javac.util.{Context, Log}
 import name.{NameGraph, Name, Nominal}
 
-class Tree(sourceFiles: Seq[File]) extends Nominal {
-
-  def this(sourceFileCodes/* name -> code*/: Map[String, String]) = {
-    this(Java.makeTemporarySourceFiles(sourceFileCodes))
-  }
-
-  val (units, context) = Java.parseSourceFiles(sourceFiles)
+class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal {
 
   val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Name], Map[JCTree, Name]) = {
     val visitor = new NameGraphExtractor
@@ -30,12 +22,18 @@ class Tree(sourceFiles: Seq[File]) extends Nominal {
   def allNames: Set[Name.ID] = resolveNames.V
 
   def rename(renaming: Renaming): Nominal = {
-    val visitor = new RenameVisitor(renaming, nodeMap)
+    val visitor = new RenameVisitor(renaming, nodeMap, TreeMaker.instance(context)).asInstanceOf[TreeVisitor[Void,Void]]
+    var newUnits = List[JCCompilationUnit]()
     for (unit <- units) {
-      unit.accept(visitor, null)
+      val newUnit = unit.accept(visitor, null).asInstanceOf[JCCompilationUnit]
+      newUnit.sourcefile = unit.sourcefile
+//      newUnit.packge = unit.packge
+//      newUnit.namedImportScope = unit.namedImportScope
+//      newUnit.starImportScope = unit.starImportScope
+      newUnits = newUnits :+ newUnit
     }
-    Java.reanalyzeTrees(units, context)
-    this
+    Java.reanalyzeTrees(newUnits, context)
+    new Tree(newUnits, context)
   }
 
   def silent[T](f: => T) = {
@@ -53,3 +51,14 @@ class Tree(sourceFiles: Seq[File]) extends Nominal {
   }
 }
 
+
+object Tree {
+  def apply(sourceFiles: Seq[File]): Tree = {
+    val (units, context) = Java.parseSourceFiles(sourceFiles)
+    new Tree(units, context)
+  }
+
+  def apply(sourceFileCodes/* name -> code*/: Map[String, String]): Tree = {
+    Tree(Java.makeTemporarySourceFiles(sourceFileCodes))
+  }
+}

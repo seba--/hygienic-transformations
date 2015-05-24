@@ -1,12 +1,13 @@
 package lang.java
 
 import com.sun.source.tree.IdentifierTree
-import com.sun.tools.javac.tree.JCTree
+import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
 import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.util
 import name.Name
 
-class RenameVisitor(renaming: Name => Name, nodeMap: Map[JCTree, Name]) extends NameVisitor[Void,Void] {
+class RenameVisitor(renaming: Name => Name, nodeMap: Map[JCTree, Name], tm: TreeMaker)
+  extends TreeCopier[Void](tm) with NameVisitor[JCTree,Void] {
   
   case class NameObject(get: () => util.Name, set: util.Name => Unit)
   
