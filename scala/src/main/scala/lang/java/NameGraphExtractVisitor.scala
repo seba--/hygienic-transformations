@@ -18,26 +18,34 @@ object JName {
   def unapply(n: JName): Option[(String, JCTree)] = Some((n.name, n.node))
 }
 
-class NameGraphExtractor extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
+class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
   var names = Set[Name.ID]()
   var edges = Map[Name.ID, Name.ID]()
   var symMap = Map[Symbol, Name]()
   var nodeMap = Map[JCTree, Name]()
 
-  private def addDec(node: JCTree, sym: Symbol): Unit = {
-    val dec = symMap.get(sym) match {
-      case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
-      case Some(name@Name(_)) =>
-        val n = new JName(name.name, node, name.id)
-        symMap += sym -> n
-        nodeMap += node -> n
-      case None =>
-        val n = JName(sym.name.toString, node)
+  private def addDec(node: JCTree, sym: Symbol): Unit =
+    originTrackedNames.get(node) match {
+      case Some(jn@JName(name, _)) =>
+        val n = new JName(name, node, jn.id)
         symMap += sym -> n
         nodeMap += node -> n
         names += n.id
+      case None =>
+        symMap.get(sym) match {
+          case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
+          case Some(name@Name(_)) =>
+            val n = new JName(name.name, node, name.id)
+            symMap += sym -> n
+            nodeMap += node -> n
+          case None =>
+            val n = JName(sym.name.toString, node)
+            symMap += sym -> n
+            nodeMap += node -> n
+            names += n.id
+        }
     }
-  }
+
 
   private def addRef(refnode: JCTree, sym: Symbol): Unit = {
     val dec = symMap.get(sym) match {
@@ -48,7 +56,15 @@ class NameGraphExtractor extends TreeScanner[Void,Void] with NameVisitor[Void, V
         names += n.id
         n
     }
-    val ref = JName(sym.name.toString, refnode)
+    val ref = originTrackedNames.get(refnode) match {
+      case Some(jn@JName(name, _)) =>
+        val n = new JName(name, refnode, jn.id)
+        nodeMap += refnode -> n
+        names += n.id
+        n
+      case None =>
+        JName(sym.name.toString, refnode)
+    }
     names += ref.id
     nodeMap += refnode -> ref
     edges += ref.id -> dec.id

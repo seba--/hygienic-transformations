@@ -110,7 +110,7 @@ class PointRefactorTest extends FunSuite {
     assertEdge(refactoredTree, MirroredPoint_getY_ret_Point_getY_ref -> MirroredPoint_getY, MirroredPoint_getY.sym)
     // this is a captured edge, `MirroredPoint_mirror_getRef` should refer to Point.getY()
     assertEdge(tree, MirroredPoint_mirror_getRef -> MirroredPoint_getY, MirroredPoint_getY.sym)
-    
+
     assertEdge(tree, MirroredPoint_mirror_setRef -> Point_setY, Point_setY.sym)
   }
 

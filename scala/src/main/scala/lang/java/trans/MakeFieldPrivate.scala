@@ -1,13 +1,11 @@
 package lang.java.trans
 
-import javax.lang.model.`type`.TypeKind
-
 import com.sun.source.tree._
 import com.sun.tools.javac.code._
 import com.sun.tools.javac.tree.JCTree._
-import com.sun.tools.javac.tree.{JCTree, TreeMaker, TreeCopier}
+import com.sun.tools.javac.tree.{JCTree, TreeMaker}
 import com.sun.tools.javac.util.{Name, ListBuffer, List}
-import lang.java.Tree
+import lang.java.{TrackingTreeCopier, Tree}
 
 object MakeFieldPrivate {
   def apply(sym: Symbol, tree: Tree): Tree = {
@@ -16,7 +14,7 @@ object MakeFieldPrivate {
   }
 }
 
-class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TreeCopier[P](tm) {
+class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier[P](tm) {
 
   val getName = sym.name.table.fromString("get" + sym.name.toString.capitalize)
   val setName = sym.name.table.fromString("set" + sym.name.toString.capitalize)
@@ -67,7 +65,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TreeCopier[P](tm) 
       vartype = this.copy(n.vartype, p)
       varname = n.name
       val init = this.copy(n.init, p)
-      tm.at(n.pos).VarDef(mods, varname, vartype, init)
+      setOrigin(tm.at(n.pos).VarDef(mods, varname, vartype, init), n)
     case _ =>
       super.visitVariable(node, p)
   }
@@ -90,7 +88,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TreeCopier[P](tm) 
         if (!isFinal)
           defs.add(makeSetter(n.`type`, p))
       }
-      tm.at(n.pos).ClassDef(mods, n.name, typarams, extending, implementing, defs.toList)
+      setOrigin(tm.at(n.pos).ClassDef(mods, n.name, typarams, extending, implementing, defs.toList), n)
   }
 
   override def visitIdentifier(node: IdentifierTree, p: P): JCTree = node match {
