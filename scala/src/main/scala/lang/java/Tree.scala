@@ -9,7 +9,7 @@ import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
 import com.sun.tools.javac.util.{Context, Log}
 import name.{NameGraph, Name, Nominal}
 
-class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal {
+class Tree(val units: List[JCCompilationUnit], val context: Context) extends Nominal {
 
   lazy val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Name], Map[JCTree, Name]) = {
     val visitor = new NameGraphExtractor
@@ -22,10 +22,14 @@ class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal
   def allNames: Set[Name.ID] = resolveNames.V
 
   def rename(renaming: Renaming): Nominal = {
-    val visitor = new RenameVisitor(renaming, nodeMap, TreeMaker.instance(context)).asInstanceOf[TreeVisitor[Void,Void]]
+    val visitor = new RenameVisitor[Void](renaming, nodeMap, TreeMaker.instance(context))
+    transform(visitor, null)
+  }
+
+  def transform[P](visitor: TreeCopier[P], p: P) = {
     var newUnits = List[JCCompilationUnit]()
     for (unit <- units) {
-      val newUnit = unit.accept(visitor, null).asInstanceOf[JCCompilationUnit]
+      val newUnit = unit.accept(visitor, p).asInstanceOf[JCCompilationUnit]
       newUnit.sourcefile = unit.sourcefile
       newUnits = newUnits :+ newUnit
     }
@@ -45,6 +49,8 @@ class Tree(val units: List[JCCompilationUnit], context: Context) extends Nominal
       log.nwarnings = nwarnings
     }
   }
+
+  override def toString = units.mkString("\n")
 }
 
 

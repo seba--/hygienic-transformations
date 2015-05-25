@@ -5,6 +5,7 @@ import java.io.{OutputStream, PrintWriter}
 import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
+import lang.java.trans.MakeFieldPrivate
 import org.scalatest._
 
 class PointRefactorTest extends FunSuite {
@@ -36,6 +37,7 @@ class PointRefactorTest extends FunSuite {
     """
       |public class MirroredPoint extends Point {
       |  public int getY() { return -y; }
+      |  public void mirror() { this.y = -y; }
       |}
     """.stripMargin
 
@@ -60,6 +62,11 @@ class PointRefactorTest extends FunSuite {
     assertEdge(tree, field_y_getterReference -> field_y, field_y.sym)
   }
 
+  test("refactored non-fixed bindings") {
+    val points = PointStuff(originalTree)
+    val refactoredTree = MakeFieldPrivate(points.field_y.sym, originalTree)
+    print(refactoredTree)
 
+  }
 
 }
