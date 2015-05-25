@@ -184,6 +184,9 @@ class JavacBindingTests extends FunSuite {
     assertNotEdge(tree, field_birthDate_getterReference -> field_birthDate)
     assertNotEdge(tree, field_birthDate_getterReference -> field_name)
     assertNotEdge(tree, field_name_getterReference -> field_birthDate)
+
+    // renaming retains IDs
+    assert(personTree.nodeMap(person.field_birthDate).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate).id)
   }
 
   test("consistent renaming field birthDate->birthDate2 in Person") {
@@ -209,6 +212,12 @@ class JavacBindingTests extends FunSuite {
     assertEdge(tree, field_birthDate_getterReference -> field_birthDate, field_birthDate.sym)
     assertNotEdge(tree, field_birthDate_getterReference -> field_name)
     assertNotEdge(tree, field_name_getterReference -> field_birthDate)
+
+    // renaming retains IDs
+    val renamedConstructorRef = renamedPerson.constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
+    assert(personTree.nodeMap(person.field_birthDate).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate).id)
+    assert(personTree.nodeMap(constructorRef).id == renamedPersonTree.nodeMap(renamedConstructorRef).id)
+    assert(personTree.nodeMap(person.field_birthDate_getterReference).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate_getterReference).id)
   }
 
 }
