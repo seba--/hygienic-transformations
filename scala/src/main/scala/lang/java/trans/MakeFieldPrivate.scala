@@ -38,7 +38,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TreeCopier[P](tm) 
     val defaultValue: JCTree.JCExpression = null
     tm.MethodDef(mods, name, restype, typarams, params, thrown, body, defaultValue)
   }
-  
+
   def makeSetter(thisType: Type, p: P): JCMethodDecl = {
     val mods: JCModifiers = tm.Modifiers(oldVisibility)
     val name = setName
