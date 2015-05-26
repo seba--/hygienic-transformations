@@ -3,8 +3,10 @@ package lang.java
 import com.sun.source.tree._
 import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.tree.{JCTree, TreeCopier, TreeMaker}
+import com.sun.tools.javac.util
+import com.sun.tools.javac.util.ListBuffer
 
-class TrackingTreeCopier[P](M: TreeMaker) extends TreeCopier[P](M) {
+class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
   private var originTracking = Map[JCTree, JCTree]()
 
   def originMap = originTracking
@@ -12,6 +14,36 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeCopier[P](M) {
   def setOrigin[T <: JCTree](t: T, origin: JCTree): T = {
     originTracking += t -> origin
     t
+  }
+
+
+
+  
+
+  def copy[T <: JCTree](node: T): T = {
+    this.copy(node.asInstanceOf[T], null.asInstanceOf[P])
+  }
+
+  def copy[T <: JCTree](node: T, p: P): T = {
+    if (node == null) null.asInstanceOf[T] else node.accept(this, p).asInstanceOf[T]
+  }
+
+  def copy[T <: JCTree](node: util.List[T]): util.List[T] = {
+    this.copy(node, null.asInstanceOf[P])
+  }
+
+  def copy[T <: JCTree](nodes: util.List[T], p: P): util.List[T] = {
+    if (nodes == null) {
+      null
+    } else {
+      val buf = new ListBuffer[T]()
+      val it = nodes.iterator
+      while (it.hasNext) {
+        val var5 = it.next()
+        buf.append(this.copy(var5, p))
+      }
+      buf.toList()
+    }
   }
 
   override def visitAnnotation(node: AnnotationTree, p: P): JCTree = {
