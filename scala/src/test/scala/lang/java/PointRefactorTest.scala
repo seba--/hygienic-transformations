@@ -118,7 +118,6 @@ class PointRefactorTest extends FunSuite {
   test("refactored fixed bindings") {
     val points = PointStuff(originalTree)
     val refactoredTree = MakeFieldPrivate(points.field_y.sym, originalTree)
-    println(refactoredTree)
 
     val rpoints = RefactoredPointStuff(refactoredTree)
     import rpoints._

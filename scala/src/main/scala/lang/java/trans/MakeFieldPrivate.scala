@@ -25,7 +25,7 @@ object MakeFieldPrivate {
         case _ => None
       }
     }
-    NameFix.nameFix(tree.resolveNames, unsafeApply(sym, tree), permittedCapture)
+    NameFix.nameFix(tree.resolveNames, transformed, permittedCapture)
   }
 }
 
