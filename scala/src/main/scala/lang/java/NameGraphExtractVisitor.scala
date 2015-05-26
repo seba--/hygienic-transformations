@@ -1,7 +1,9 @@
 package lang.java
 
 import com.sun.source.util.TreeScanner
-import com.sun.tools.javac.code.Symbol
+import com.sun.tools.javac.code.{Scope, Symbol}
+import com.sun.tools.javac.code.Symbol.ClassSymbol
+import com.sun.tools.javac.code.Type.ClassType
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
 import name.Name
@@ -85,8 +87,29 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
   }
 
   override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)
-  override def visitMethodDecl(node: JCMethodDecl, p: Void) = addDec(node, node.sym)
+  override def visitMethodDecl(node: JCMethodDecl, p: Void) = {
+    addDec(node, node.sym)
+  // TODO method overriding
+//    tryAddOverridingRef(node, node.sym)
+  }
   override def visitVariableDecl(node: JCVariableDecl, p: Void) = addDec(node, node.sym)
   override def visitFieldAccess(node: JCFieldAccess, p: Void) = addRef(node, node.sym)
   override def visitIdentifierAccess(node: JCIdent, p: Void) = addRef(node, node.sym)
+
+  def tryAddOverridingRef(node: JCTree, nodeSym: Symbol): Unit = {
+    nodeSym.owner.`type` match {
+      case sub: ClassType =>
+        sub.supertype_field match {
+          case sup: ClassType =>
+            val it = sup.tsym.asInstanceOf[ClassSymbol].members_field.getElements.iterator()
+            while (it.hasNext) {
+              val nextSym = it.next()
+              if (nextSym.name == nodeSym.name)
+                addRef(node, nextSym)
+            }
+          case _ =>
+        }
+      case _ =>
+    }
+  }
 }

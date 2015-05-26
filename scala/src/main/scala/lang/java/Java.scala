@@ -66,7 +66,6 @@ object Java {
 
     Check.instance(oldContext).compiled.clear()
     val compiler = JavaCompiler.instance(oldContext)
-    compiler.log
     compiler.enterTrees(treeList)
     compiler.flow(compiler.attribute(compiler.todo))
   }
