@@ -7,18 +7,29 @@ import com.sun.tools.javac.util
 import com.sun.tools.javac.util.ListBuffer
 
 class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
-  private var originTracking = Map[JCTree, JCTree]()
+  private var _originTracking = Map[JCTree, JCTree]()
+  private var _permittedCapture = Map[JCTree, JCTree]()
 
-  def originMap = originTracking
+  def originMap = _originTracking
+  def permittedCapture = _permittedCapture
 
   def setOrigin[T <: JCTree](t: T, origin: JCTree): T = {
-    originTracking += t -> origin
+    _originTracking += t -> origin
     t
   }
 
+  def captured[T <: JCTree](t: T, capturingDecs: JCTree*) = {
+    for (capturingDec <- capturingDecs)
+      _permittedCapture += t -> capturingDec
+    t
+  }
 
+  def capturing[T <: JCTree](t: T, capturedRefs: JCTree*) = {
+    for (capturedRef <- capturedRefs)
+      _permittedCapture += t -> capturedRef
+    t
+  }
 
-  
 
   def copy[T <: JCTree](node: T): T = {
     this.copy(node.asInstanceOf[T], null.asInstanceOf[P])

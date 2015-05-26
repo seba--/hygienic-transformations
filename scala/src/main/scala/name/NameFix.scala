@@ -9,7 +9,7 @@ import Gensym._
  */
 object NameFix {
   val fixer = new NameFix
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = fixer.nameFix(gs, t)
+  def nameFix[T <: Nominal](gs: NameGraph, t: T, permittedCapture: Edges = Map()): T = fixer.nameFix(gs, t, permittedCapture)
 }
 
 class NameFix {
@@ -49,15 +49,16 @@ class NameFix {
     renaming
   }
 
-  def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
+  def nameFix[T <: Nominal](gs: NameGraph, t: T, permittedCapture: Edges = Map()): T = {
     val gt = t.resolveNames
-    val capture = findCapture(gs, gt.E)
+    val allcapture = findCapture(gs, gt.E)
+    val capture = allcapture filter (kv => permittedCapture.getOrElse(kv._1, null) != kv._2)
     if (capture.isEmpty)
       t
     else {
       val renaming = compRenamings(gs, t, capture)
       val tnew = t.rename(renaming).asInstanceOf[T]
-      nameFix(gs, tnew)
+      nameFix(gs, tnew, permittedCapture)
     }
   }
 }

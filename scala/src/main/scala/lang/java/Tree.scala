@@ -25,7 +25,7 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
     transform(visitor, null)
   }
 
-  def transform[P](visitor: TrackingTreeCopier[P], p: P) = {
+  def transform[P](visitor: TrackingTreeCopier[P], p: P): Tree = {
     var newUnits = List[JCCompilationUnit]()
     for (unit <- units) {
       val newUnit = unit.accept(visitor, p).asInstanceOf[JCCompilationUnit]

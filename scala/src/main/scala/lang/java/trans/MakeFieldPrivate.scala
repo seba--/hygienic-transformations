@@ -14,7 +14,19 @@ object MakeFieldPrivate {
     tree.transform(trans, null)
   }
 
-  def apply(sym: Symbol, tree: Tree): Tree = NameFix.nameFix(tree.resolveNames, unsafeApply(sym, tree))
+  def apply(sym: Symbol, tree: Tree): Tree = {
+    val trans = new MakeFieldPrivate[Void](TreeMaker.instance(tree.context), sym)
+    val transformed = tree.transform(trans, null)
+    val permittedCapture = trans.permittedCapture flatMap {kv =>
+      val ref = transformed.nodeMap.get(kv._1)
+      val dec = transformed.nodeMap.get(kv._2)
+      (ref, dec) match {
+        case (Some(ref), Some(dec)) => Some(ref.id -> dec.id)
+        case _ => None
+      }
+    }
+    NameFix.nameFix(tree.resolveNames, unsafeApply(sym, tree), permittedCapture)
+  }
 }
 
 class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier[P](tm) {
@@ -27,6 +39,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
   var oldVisibility: Long = _
   var vartype: JCExpression = _
   var varname: Name = _
+  var varnode: JCTree = _
 
   def makeGetter(p: P): JCMethodDecl = {
     val mods: JCModifiers = tm.Modifiers(oldVisibility)
@@ -35,7 +48,8 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
     val typarams: List[JCTree.JCTypeParameter] = List.nil()
     val params: List[JCTree.JCVariableDecl] = List.nil()
     val thrown: List[JCTree.JCExpression] = List.nil()
-    val body: JCTree.JCBlock = tm.Block(0l, List.of(tm.Return(tm.Ident(varname))))
+    val varRead = captured(tm.Ident(varname), varnode)
+    val body: JCTree.JCBlock = tm.Block(0l, List.of(tm.Return(varRead)))
     val defaultValue: JCTree.JCExpression = null
     tm.MethodDef(mods, name, restype, typarams, params, thrown, body, defaultValue)
   }
@@ -47,7 +61,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
     val typarams: List[JCTree.JCTypeParameter] = List.nil()
     val params: List[JCTree.JCVariableDecl] = List.of(tm.VarDef(tm.Modifiers(0l), varname, this.copy(vartype, p), null))
     val thrown: List[JCTree.JCExpression] = List.nil()
-    val thisName = tm.Select(tm.This(thisType), varname)
+    val thisName = captured(tm.Select(tm.This(thisType), varname), varnode)
     val body: JCTree.JCBlock = tm.Block(0l, List.of(tm.Exec(tm.Assign(thisName, tm.Ident(varname)))))
     val defaultValue: JCTree.JCExpression = null
     tm.MethodDef(mods, name, restype, typarams, params, thrown, body, defaultValue)
@@ -68,7 +82,8 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
       vartype = this.copy(n.vartype, p)
       varname = n.name
       val init = this.copy(n.init, p)
-      setOrigin(tm.at(n.pos).VarDef(mods, varname, vartype, init), n)
+      varnode = tm.at(n.pos).VarDef(mods, varname, vartype, init)
+      setOrigin(varnode, n)
     case _ =>
       super.visitVariable(node, p)
   }
