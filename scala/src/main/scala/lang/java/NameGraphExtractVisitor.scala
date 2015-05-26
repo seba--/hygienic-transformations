@@ -18,32 +18,43 @@ object JName {
   def unapply(n: JName): Option[(String, JCTree)] = Some((n.name, n.node))
 }
 
+object NameGraphExtractor {
+  var globalNames = Map[Symbol, Name]()
+}
+
 class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
+  import NameGraphExtractor.globalNames
+
   private var _names = Set[Name.ID]()
   private var _edges = Map[Name.ID, Name.ID]()
-  var symMap = Map[Symbol, Name]()
+  private var _symMap = globalNames
   var nodeMap = Map[JCTree, Name]()
 
   def names = _names
   def edges = _edges
+  def symMap = {
+    val (local, global) = _symMap.partition(kv => kv._2.isInstanceOf[JName])
+    globalNames ++= global
+    local
+  }
   
   private def addDec(node: JCTree, sym: Symbol): Unit =
     originTrackedNames.get(node) match {
       case Some(jn@JName(name, _)) =>
         val n = new JName(name, node, jn.id)
-        symMap += sym -> n
+        _symMap += sym -> n
         nodeMap += node -> n
         _names += n.id
       case None =>
-        symMap.get(sym) match {
+        _symMap.get(sym) match {
           case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
           case Some(name@Name(_)) =>
             val n = new JName(name.name, node, name.id)
-            symMap += sym -> n
+            _symMap += sym -> n
             nodeMap += node -> n
           case None =>
             val n = JName(sym.name.toString, node)
-            symMap += sym -> n
+            _symMap += sym -> n
             nodeMap += node -> n
             _names += n.id
         }
@@ -51,11 +62,11 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
 
 
   private def addRef(refnode: JCTree, sym: Symbol): Unit = {
-    val dec = symMap.get(sym) match {
+    val dec = _symMap.get(sym) match {
       case Some(n) => n
       case None => // external name or name that comes later in the tree
         val n = Name(sym.name.toString)
-        symMap += sym -> n
+        _symMap += sym -> n
         _names += n.id
         n
     }
