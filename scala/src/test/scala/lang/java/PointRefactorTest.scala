@@ -97,7 +97,7 @@ class PointRefactorTest extends FunSuite {
 
   test("refactored non-fixed bindings") {
     val points = PointStuff(originalTree)
-    val refactoredTree = MakeFieldPrivate(points.field_y.sym, originalTree)
+    val refactoredTree = MakeFieldPrivate.unsafeApply(points.field_y.sym, originalTree)
 
     val rpoints = RefactoredPointStuff(refactoredTree)
     import rpoints._
@@ -108,10 +108,26 @@ class PointRefactorTest extends FunSuite {
 
     // this is a captured edge, `MirroredPoint_getY_ret_Point_getY_ref` should refer to Point.getY()
     assertEdge(refactoredTree, MirroredPoint_getY_ret_Point_getY_ref -> MirroredPoint_getY, MirroredPoint_getY.sym)
+
     // this is a captured edge, `MirroredPoint_mirror_getRef` should refer to Point.getY()
     assertEdge(tree, MirroredPoint_mirror_getRef -> MirroredPoint_getY, MirroredPoint_getY.sym)
 
     assertEdge(tree, MirroredPoint_mirror_setRef -> Point_setY, Point_setY.sym)
   }
 
+  test("refactored fixed bindings") {
+    val points = PointStuff(originalTree)
+    val refactoredTree = MakeFieldPrivate(points.field_y.sym, originalTree)
+
+    val rpoints = RefactoredPointStuff(refactoredTree)
+    import rpoints._
+
+    assertEdge(refactoredTree, field_y_PointGetterReference -> field_y, field_y.sym)
+    assertEdge(refactoredTree, field_y_PointSetterReference -> field_y, field_y.sym)
+    assertNotEdge(refactoredTree, var_y_PointSetterReference -> field_y)
+
+    assertEdge(refactoredTree, MirroredPoint_getY_ret_Point_getY_ref -> Point_getY, Point_getY.sym)
+    assertEdge(tree, MirroredPoint_mirror_getRef -> Point_getY, Point_getY.sym)
+    assertEdge(tree, MirroredPoint_mirror_setRef -> Point_setY, Point_setY.sym)
+  }
 }

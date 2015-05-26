@@ -19,18 +19,21 @@ object JName {
 }
 
 class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
-  var names = Set[Name.ID]()
-  var edges = Map[Name.ID, Name.ID]()
+  private var _names = Set[Name.ID]()
+  private var _edges = Map[Name.ID, Name.ID]()
   var symMap = Map[Symbol, Name]()
   var nodeMap = Map[JCTree, Name]()
 
+  def names = _names
+  def edges = _edges
+  
   private def addDec(node: JCTree, sym: Symbol): Unit =
     originTrackedNames.get(node) match {
       case Some(jn@JName(name, _)) =>
         val n = new JName(name, node, jn.id)
         symMap += sym -> n
         nodeMap += node -> n
-        names += n.id
+        _names += n.id
       case None =>
         symMap.get(sym) match {
           case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
@@ -42,7 +45,7 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
             val n = JName(sym.name.toString, node)
             symMap += sym -> n
             nodeMap += node -> n
-            names += n.id
+            _names += n.id
         }
     }
 
@@ -53,21 +56,21 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
       case None => // external name or name that comes later in the tree
         val n = Name(sym.name.toString)
         symMap += sym -> n
-        names += n.id
+        _names += n.id
         n
     }
     val ref = originTrackedNames.get(refnode) match {
       case Some(jn@JName(name, _)) =>
         val n = new JName(name, refnode, jn.id)
         nodeMap += refnode -> n
-        names += n.id
+        _names += n.id
         n
       case None =>
         JName(sym.name.toString, refnode)
     }
-    names += ref.id
+    _names += ref.id
     nodeMap += refnode -> ref
-    edges += ref.id -> dec.id
+    _edges += ref.id -> dec.id
   }
 
   override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)

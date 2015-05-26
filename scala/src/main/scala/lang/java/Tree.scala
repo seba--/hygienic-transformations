@@ -32,7 +32,15 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
       newUnit.sourcefile = unit.sourcefile
       newUnits = newUnits :+ newUnit
     }
-    val originTrackedNames = visitor.originMap.flatMap(kv => nodeMap.get(kv._2) map (kv._1 -> _))
+    val originTrackedNames = visitor.originMap.flatMap{kv =>
+      val oldName = nodeMap.get(kv._2)
+      if (!oldName.isDefined)
+        None
+      else oldName match {
+        case Some(jn@JName(_, _)) => Some(kv._1 -> new JName(jn.name, kv._1, jn.id))
+        case Some(n) => Some(kv._1 -> n)
+      }
+    }
     Tree.fromTrees(newUnits, context, originTrackedNames)
   }
 

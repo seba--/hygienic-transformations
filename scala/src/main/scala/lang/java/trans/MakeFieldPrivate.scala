@@ -6,12 +6,15 @@ import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.tree.{JCTree, TreeMaker}
 import com.sun.tools.javac.util.{Name, ListBuffer, List}
 import lang.java.{TrackingTreeCopier, Tree}
+import name.NameFix
 
 object MakeFieldPrivate {
-  def apply(sym: Symbol, tree: Tree): Tree = {
+  def unsafeApply(sym: Symbol, tree: Tree): Tree = {
     val trans = new MakeFieldPrivate[Void](TreeMaker.instance(tree.context), sym)
     tree.transform(trans, null)
   }
+
+  def apply(sym: Symbol, tree: Tree): Tree = NameFix.nameFix(tree.resolveNames, unsafeApply(sym, tree))
 }
 
 class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier[P](tm) {
