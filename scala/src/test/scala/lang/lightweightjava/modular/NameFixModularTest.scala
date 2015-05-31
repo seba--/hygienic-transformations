@@ -6,6 +6,7 @@ import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
 import lang.lightweightjava.{ClassInterface, Interpreter, Parser}
 import name.Identifier
 import name.namefix.NameFix
+import name.namegraph.NameGraphModular
 import org.scalatest.{FlatSpec, Matchers}
 
 class NameFixModularTest extends FlatSpec with Matchers {
@@ -55,56 +56,57 @@ class NameFixModularTest extends FlatSpec with Matchers {
     case (Parser.Success(originalA, _), Parser.Success(originalB, _)) =>
       val p = Parser.parseAll(Parser.configuration, st).get
 
-      val (originalGraphA, originalMetaA) = originalA.resolveNamesModular()
-      val (originalGraphB, _) = originalB.resolveNamesModular(Set(originalMetaA))
+      val originalGraphA = originalA.resolveNamesModular()
+      val originalGraphB = originalB.resolveNamesModular(Set(originalGraphA.I))
 
       val transformedA = LocalDeclarationTransformation.transformClass(originalA)
       val transformedB = LocalDeclarationTransformation.transformClass(originalB)
-      val (transformedGraphA, transformedMetaA) = transformedA.resolveNamesModular()
-      val (transformedGraphB, _) = transformedB.resolveNamesModular(Set(transformedMetaA))
+      val transformedGraphA = transformedA.resolveNamesModular()
+      val transformedGraphB = transformedB.resolveNamesModular(Set(transformedGraphA.I))
 
-      val fixedModules = NameFix.nameFix(Set(originalA, originalB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
-      val (fixedGraphA, fixedMetaA) = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
-      val (fixedGraphB, _) = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedMetaA))
+      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
+      val fixedGraphA = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
+      val fixedGraphB = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedGraphA.I))
+
+      info("Name graph stats for M1A before transformation: " + originalGraphA.V.size + " nodes, " + intEdges(originalGraphA) + " internal edges, " + extEdges(originalGraphA) + " external edges")
+      info("Name graph stats for M1A after transformation: " + transformedGraphA.V.size + " nodes, " + intEdges(transformedGraphA) + " internal edges, " + extEdges(transformedGraphA) + " external edges")
+      info("Name graph stats for M1A after fixing: " + fixedGraphA.V.size + " nodes, " + intEdges(fixedGraphA) + " internal edges, " + extEdges(fixedGraphA) + " external edges")
+      info("Name graph stats for M1B before transformation: " + originalGraphB.V.size + " nodes, " + intEdges(originalGraphB) + " internal edges, " + extEdges(originalGraphB) + " external edges")
+      info("Name graph stats for M1B after transformation: " + transformedGraphB.V.size + " nodes, " + intEdges(transformedGraphB) + " internal edges, " + extEdges(transformedGraphB) + " external edges")
+      info("Name graph stats for M1B after fixing: " + fixedGraphB.V.size + " nodes, " + intEdges(fixedGraphB) + " internal edges, " + extEdges(fixedGraphB) + " external edges")
 
       // If NameFix did not fix the program, type checking or interpretation will fail
       val result = Interpreter.interpret(NormalConfiguration(Program(fixedModules.toSeq:_*), p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       result.state("x") should be (result.state("y"))
 
-      info("Name graph stats for M1A before transformation: " + originalGraphA.V.size + " nodes, " + originalGraphA.E.values.flatten.size + " internal edges, " + originalGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1A after transformation: " + transformedGraphA.V.size + " nodes, " + transformedGraphA.E.values.flatten.size + " internal edges, " + transformedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1A after fixing: " + fixedGraphA.V.size + " nodes, " + fixedGraphA.E.values.flatten.size + " internal edges, " + fixedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B before transformation: " + originalGraphB.V.size + " nodes, " + originalGraphB.E.values.flatten.size + " internal edges, " + originalGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B after transformation: " + transformedGraphB.V.size + " nodes, " + transformedGraphB.E.values.flatten.size + " internal edges, " + transformedGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M1B after fixing: " + fixedGraphB.V.size + " nodes, " + fixedGraphB.E.values.flatten.size + " internal edges, " + fixedGraphB.EOut.values.flatten.size + " external edges")
     case _ => fail("Parsing error!")
   })
   it should "propagate and fix the modular LDT test program with a cross-module capture" in ((Parser.parseAll(Parser.classDef, m2a), Parser.parseAll(Parser.classDef, m2b)) match {
     case (Parser.Success(originalA, _), Parser.Success(originalB, _)) =>
       val p = Parser.parseAll(Parser.configuration, st).get
 
-      val (originalGraphA, originalMetaA) = originalA.resolveNamesModular()
-      val (originalGraphB, _) = originalB.resolveNamesModular(Set(originalMetaA))
+      val originalGraphA = originalA.resolveNamesModular()
+      val originalGraphB = originalB.resolveNamesModular(Set(originalGraphA.I))
 
       val transformedA = LocalDeclarationTransformation.transformClass(originalA, useAccessModifiers = false)
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
-      val (transformedGraphA, transformedMetaA) = transformedA.resolveNamesModular()
-      val (transformedGraphB, _) = transformedB.resolveNamesModular(Set(transformedMetaA))
+      val transformedGraphA = transformedA.resolveNamesModular()
+      val transformedGraphB = transformedB.resolveNamesModular(Set(transformedGraphA.I))
 
-      val fixedModules = NameFix.nameFix(Set(originalA, originalB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
-      val (fixedGraphA, fixedMetaA) = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
-      val (fixedGraphB, _) = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedMetaA))
+      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
+      val fixedGraphA = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
+      val fixedGraphB = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedGraphA.I))
 
       // If NameFix did not fix the program, type checking or interpretation will fail
       val result = Interpreter.interpret(NormalConfiguration(Program(fixedModules.toSeq:_*), p.state, p.heap, p.asInstanceOf[NormalConfiguration].programFlow:_*))
       result.state("x") should be (result.state("y"))
 
-      info("Name graph stats for M2A before transformation: " + originalGraphA.V.size + " nodes, " + originalGraphA.E.values.flatten.size + " internal edges, " + originalGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M2A after transformation: " + transformedGraphA.V.size + " nodes, " + transformedGraphA.E.values.flatten.size + " internal edges, " + transformedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M2A after fixing: " + fixedGraphA.V.size + " nodes, " + fixedGraphA.E.values.flatten.size + " internal edges, " + fixedGraphA.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M2B before transformation: " + originalGraphB.V.size + " nodes, " + originalGraphB.E.values.flatten.size + " internal edges, " + originalGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M2B after transformation: " + transformedGraphB.V.size + " nodes, " + transformedGraphB.E.values.flatten.size + " internal edges, " + transformedGraphB.EOut.values.flatten.size + " external edges")
-      info("Name graph stats for M2B after fixing: " + fixedGraphB.V.size + " nodes, " + fixedGraphB.E.values.flatten.size + " internal edges, " + fixedGraphB.EOut.values.flatten.size + " external edges")
+      info("Name graph stats for M2A before transformation: " + originalGraphA.V.size + " nodes, " + intEdges(originalGraphA) + " internal edges, " + extEdges(originalGraphA) + " external edges")
+      info("Name graph stats for M2A after transformation: " + transformedGraphA.V.size + " nodes, " + intEdges(transformedGraphA) + " internal edges, " + extEdges(transformedGraphA) + " external edges")
+      info("Name graph stats for M2A after fixing: " + fixedGraphA.V.size + " nodes, " + intEdges(fixedGraphA) + " internal edges, " + extEdges(fixedGraphA) + " external edges")
+      info("Name graph stats for M2B before transformation: " + originalGraphB.V.size + " nodes, " + intEdges(originalGraphB) + " internal edges, " + extEdges(originalGraphB) + " external edges")
+      info("Name graph stats for M2B after transformation: " + transformedGraphB.V.size + " nodes, " + intEdges(transformedGraphB) + " internal edges, " + extEdges(transformedGraphB) + " external edges")
+      info("Name graph stats for M2B after fixing: " + fixedGraphB.V.size + " nodes, " + intEdges(fixedGraphB) + " internal edges, " + extEdges(fixedGraphB) + " external edges")
     case _ => fail("Parsing error!")
   })
   
@@ -133,7 +135,9 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigRenamedID))
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
 
-      NameFix.nameFix(Set(originalB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
+      val originalGraphB = originalB.resolveNamesModular(Set(metaOriginalA))
+
+      NameFix.nameFix(Set(originalGraphB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
     case _ => fail("Parsing error!")
   })
   it should "fail to fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
@@ -148,9 +152,20 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynRenamedID))
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
 
+      val originalGraphB = originalB.resolveNamesModular(Set(metaOriginalA))
+
+
       info("Name fix error: " + intercept[IllegalArgumentException] {
-        NameFix.nameFix(Set(originalB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
+        NameFix.nameFix(Set(originalGraphB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
       }.getMessage)
     case _ => fail("Parsing error!")
   })
+
+  protected def intEdges(g: NameGraphModular[ClassInterface]): Set[Identifier] = {
+    g.E.values.flatten.toSet.intersect(g.V)
+  }
+
+  protected def extEdges(g: NameGraphModular[ClassInterface]): Set[Identifier] = {
+    g.E.values.flatten.toSet.diff(g.V)
+  }
 }

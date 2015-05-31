@@ -6,15 +6,21 @@ import scala.language.implicitConversions
 
 object Identifier {
   class ID(var nameO: Identifier) {
+    val c = next
+
     def name = nameO.name
   }
 
   implicit def apply(name: Name): Identifier = {
     new Identifier(name)
   }
+
+  var c = 0;
+  def next = { c += 1; c }
 }
 
 class Identifier(val name: Name) {
+
   override def equals(obj: scala.Any) = obj.isInstanceOf[Identifier] && obj.asInstanceOf[Identifier].id == id
   override def hashCode(): Int = id.hashCode()
 
@@ -22,7 +28,7 @@ class Identifier(val name: Name) {
   protected var oName: Name = name
 
   def originalName = oName
-  override def toString = name
+  override def toString = name + "!" + id.c
 
   def rename(newName : Name) = {
     val renamed = new Identifier(newName)

@@ -1,29 +1,14 @@
 package name.namegraph
 
-import name.Identifier
-import name.namegraph.NameGraphModular.Nodes
+import name.namegraph.NameGraphModular.{Edges, Nodes}
+import name.{Identifier, NameInterface}
 
 import scala.language.implicitConversions
 
 object NameGraphModular {
   type Nodes = Set[Identifier]
-
-  def apply(E: Map[Identifier, Set[Identifier]]): NameGraphModular = {
-    var V: Nodes = Set()
-    E foreach { kv =>
-      V += kv._1
-      V ++= kv._2
-    }
-    NameGraphModular(V, E, Map())
-  }
-
-  implicit def apply(g: NameGraphExtended): NameGraphModular = {
-    new NameGraphModular(g.V, g.E, Map())
-  }
+  type Edges = Map[Identifier, Set[Identifier]]
 }
 
-case class NameGraphModular(V: Nodes, E: Map[Identifier, Set[Identifier]], EOut: Map[Identifier, Set[Identifier]]) {
-  def +(g: NameGraphModular) = NameGraphModular(V ++ g.V,
-    E ++ g.E.map(e => (e._1, E.getOrElse(e._1, Set()) ++ e._2)),
-    EOut ++ g.EOut.map(e => (e._1, EOut.getOrElse(e._1, Set()) ++ e._2)))
+case class NameGraphModular[+I <: NameInterface](V: Nodes, IUsed: Set[_ <: I], E: Edges, I: I) {
 }

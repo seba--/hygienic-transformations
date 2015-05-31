@@ -11,12 +11,11 @@ import name.namegraph.{NameGraphModular, NameGraphExtended, NameGraph}
 object NameFix {
   val fixer = new NameFix
   val fixerExtended = new NameFixExtended
-  val fixerModular = new NameFixModular
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T) = fixerExtended.nameFix(gs, t)
   def nameFix[T <: Nominal](gs: NameGraphExtended, t: T) = fixerExtended.nameFix(gs, t)
-  def nameFix[S <: MetaInterface, T <: NominalModular[S]](gs: NameGraphModular, t: T, metaDep: Set[S]) = fixerModular.nameFixModule(gs, t, metaDep)._1
-  def nameFix[S <: MetaInterface, T <: NominalModular[S]](mS: Set[T], metaS: Set[S], mT: Set[T], metaT: Set[S]) = fixerModular.nameFixModules(mS, metaS, mT, metaT)
+  def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: NameGraphModular[I], t: T, depT: Set[I]) = new NameFixModular[I].nameFixModule(gs, t, depT)
+  def nameFix[I <: NameInterface, T <: NominalModular[I]](gS: Set[NameGraphModular[I]], depS: Set[I], mT: Set[T], depT: Set[I]) = new NameFixModular[I].nameFixModules(gS, depS, mT, depT)
 }
 
 class NameFix {
