@@ -12,10 +12,17 @@ object NameFix {
   val fixer = new NameFix
   val fixerExtended = new NameFixExtended
 
-  def nameFix[T <: Nominal](gs: NameGraph, t: T) = fixerExtended.nameFix(gs, t)
+  // Global NameFix (as presented in ecoop14-paper)
+  def nameFix[T <: Nominal](gs: NameGraph, t: T) = fixer.nameFix(gs, t)
+
+  // Extended Global NameFix, using relations instead of references and as a result supports transitivity and multiple outgoing edges per ID
   def nameFix[T <: Nominal](gs: NameGraphExtended, t: T) = fixerExtended.nameFix(gs, t)
+
+  // Modular NameFix applied on a single module + dependencies
   def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: NameGraphModular[I], t: T, depT: Set[I]) = new NameFixModular[I].nameFixModule(gs, t, depT)
-  def nameFix[I <: NameInterface, T <: NominalModular[I]](gS: Set[NameGraphModular[I]], depS: Set[I], mT: Set[T], depT: Set[I]) = new NameFixModular[I].nameFixModules(gS, depS, mT, depT)
+
+  // Modular NameFix applied on a set of modules + dependencies
+  def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: Set[NameGraphModular[I]], mT: Set[T], depT: Set[I]) = new NameFixModular[I].nameFixModules(gs, mT, depT)
 }
 
 class NameFix {

@@ -64,7 +64,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val transformedGraphA = transformedA.resolveNamesModular()
       val transformedGraphB = transformedB.resolveNamesModular(Set(transformedGraphA.I))
 
-      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
+      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set(transformedA, transformedB), Set[ClassInterface]())
       val fixedGraphA = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
       val fixedGraphB = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedGraphA.I))
 
@@ -93,7 +93,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val transformedGraphA = transformedA.resolveNamesModular()
       val transformedGraphB = transformedB.resolveNamesModular(Set(transformedGraphA.I))
 
-      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set[ClassInterface](), Set(transformedA, transformedB), Set[ClassInterface]())
+      val fixedModules = NameFix.nameFix(Set(originalGraphA, originalGraphB), Set(transformedA, transformedB), Set[ClassInterface]())
       val fixedGraphA = fixedModules.find(_.moduleID.name == "A").get.resolveNamesModular()
       val fixedGraphB = fixedModules.find(_.moduleID.name == "B").get.resolveNamesModular(Set(fixedGraphA.I))
 
@@ -137,7 +137,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
 
       val originalGraphB = originalB.resolveNamesModular(Set(metaOriginalA))
 
-      NameFix.nameFix(Set(originalGraphB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
+      NameFix.nameFix(Set(originalGraphB), Set(transformedB), Set(metaTransformedA))
     case _ => fail("Parsing error!")
   })
   it should "fail to fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
@@ -156,7 +156,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
 
 
       info("Name fix error: " + intercept[IllegalArgumentException] {
-        NameFix.nameFix(Set(originalGraphB), Set(metaOriginalA), Set(transformedB), Set(metaTransformedA))
+        NameFix.nameFix(Set(originalGraphB), Set(transformedB), Set(metaTransformedA))
       }.getMessage)
     case _ => fail("Parsing error!")
   })

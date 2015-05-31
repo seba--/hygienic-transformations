@@ -5,6 +5,7 @@ import name.namegraph.NameGraphExtended.Nodes
 
 import scala.language.implicitConversions
 
+// Name graph that allows multiple outgoing edges per identifier
 object NameGraphExtended {
   type Nodes = Set[Identifier]
 

@@ -126,7 +126,7 @@ class NameFixModular[I <: NameInterface] {
     applyVirtualGraph(mT, depT, gVirtual)
   }
 
-  def nameFixModules[T <: NominalModular[I]](gS: Set[NameGraphModular[I]], depS: Set[I],  mT: Set[T], depT: Set[I]): Set[T] = {
+  def nameFixModules[T <: NominalModular[I]](gS: Set[NameGraphModular[I]],  mT: Set[T], depT: Set[I]): Set[T] = {
     if (mT.isEmpty)
       Set()
     else {
@@ -139,9 +139,9 @@ class NameFixModular[I <: NameInterface] {
       }
 
       val currentModuleFixed = nameFixModule(currentGS, currentModuleT, depT)
-      val currentNameGraphFixed = currentModuleFixed.resolveNamesModular(depS)
+      val currentNameGraphFixed = currentModuleFixed.resolveNamesModular(depT)
 
-      nameFixModules(gS, depS, mT - currentModuleT, depT + currentNameGraphFixed.I) + currentModuleFixed
+      nameFixModules(gS, mT - currentModuleT, depT + currentNameGraphFixed.I) + currentModuleFixed
     }
   }
  }
