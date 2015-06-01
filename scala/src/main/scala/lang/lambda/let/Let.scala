@@ -1,19 +1,26 @@
 package lang.lambda.let
 
 import lang.lambda.Exp
-import name.Name
-import name.NameGraph
+import name.namegraph.NameGraph
+import name.{Identifier, Renaming}
 
 /**
 * Created by seba on 01/08/14.
 */
-case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
-  def allNames = bound.allNames ++ body.allNames + x.id
+case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
+  override def equals(a: Any) = a match {
+    case Let(x2, bound2, body2) => x.name == x2.name && bound == bound2 && body == body2
+    case _ => false
+  }
+
+  override def hashCode = 17 * x.name.hashCode + 31 * bound.hashCode() + 47 * body.hashCode()
+
+  def allNames = bound.allNames ++ body.allNames + x.name
   def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
-    val gbody = body.resolveNames(scope + (x.name -> x.id))
-    NameGraph(gbound.V ++ gbody.V + x.id, gbound.E ++ gbody.E)
+    val gbody = body.resolveNames(scope + (x.name -> x))
+    NameGraph(gbound.V ++ gbody.V + x, gbound.E ++ gbody.E)
   }
 
   def unsafeSubst(w: String, e: Exp) = {
@@ -28,7 +35,7 @@ case class Let(x: Name, bound: Exp, body: Exp) extends Exp {
       if (!bound.alphaEqual(bound2, g))
         false
       else {
-        val E2 = g.E.flatMap(p => if (p._2 == x2.id) Some(p._1 -> x.id) else None)
+        val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
         body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
       }
     case _ => false

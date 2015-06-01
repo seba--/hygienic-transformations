@@ -15,6 +15,6 @@ class NormalizeTest extends FunSuite {
 
   val p3 = App(Lam("x", Lam("y", App(Var("x"), Var("y")))), Var("y"))
   test ("p3_capture") { assertResult(Lam("y", App(Var("y"), Var("y"))))(p3.unsafeNormalize) }
-  test ("p3_safe") { assertResult(Lam("y_0", App(Var("y"), Var("y_0"))))(p3.normalize) }
+  test ("p3_safe") { assertResult(Lam("y", App(Var("y_0"), Var("y"))))(p3.normalize) }
 
 }

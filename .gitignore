@@ -3,4 +3,4 @@
 !/rascal/input/*.ctl
 /rascal/output/
 projects/Rascal-Hygiene/output
-
+.idea/*

@@ -1,9 +1,9 @@
 package lang.lambda
 
-import lang.lambda._
 import lang.lambda.let._
 import lang.lambda.num._
-import name.{NameFix, NameGraph}
+import name.namefix.NameFix
+import name.namegraph.NameGraph
 import org.scalatest._
 
 /**
@@ -30,113 +30,113 @@ class NamefixTestNested extends FunSuite {
   def x3use(p: Exp) = p match {case Let(_,_,Add(_,Let(_,_,Add(_,Let(_,_,Var(x)))))) => x}
 
   test ("fix nested 1") {
-    val gs = NameGraph(Set(x3def(p).id, x3use(p).id), Map(x3use(p).id -> x3def(p).id))
+    val gs = NameGraph(Set(x3def(p), x3use(p)), Map(x3use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x2use(fixed).id) == x2def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x3def(fixed).id)
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (g.E(x2use(fixed)) == x2def(fixed))
+    assert (g.E(x3use(fixed)) == x3def(fixed))
   }
 
   test ("fix nested 2") {
-    val gs = NameGraph(Set(x2def(p).id, x3use(p).id), Map(x3use(p).id -> x2def(p).id))
+    val gs = NameGraph(Set(x2def(p), x3use(p)), Map(x3use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x2use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x2def(fixed).id)
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (g.E(x2use(fixed)) == x1def(fixed))
+    assert (g.E(x3use(fixed)) == x2def(fixed))
   }
 
   test ("fix nested 3") {
-    val gs = NameGraph(Set(x1def(p).id, x3use(p).id), Map(x3use(p).id -> x1def(p).id))
+    val gs = NameGraph(Set(x1def(p), x3use(p)), Map(x3use(p) -> x1def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
     
-    assert (!g.E.isDefinedAt(x1use(fixed).id))
-    assert (g.E(x2use(fixed).id) == x2def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x1def(fixed).id)
+    assert (!g.E.isDefinedAt(x1use(fixed)))
+    assert (g.E(x2use(fixed)) == x2def(fixed))
+    assert (g.E(x3use(fixed)) == x1def(fixed))
   }
 
   test ("fix nested 4") {
-    val gs = NameGraph(Set(x1def(p).id, x2use(p).id), Map(x2use(p).id -> x1def(p).id))
+    val gs = NameGraph(Set(x1def(p), x2use(p)), Map(x2use(p) -> x1def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (!g.E.isDefinedAt(x1use(fixed).id))
-    assert (g.E(x2use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x3def(fixed).id)
+    assert (!g.E.isDefinedAt(x1use(fixed)))
+    assert (g.E(x2use(fixed)) == x1def(fixed))
+    assert (g.E(x3use(fixed)) == x3def(fixed))
   }
 
   test ("fix nested 5") {
-    val gs = NameGraph(Set(x2def(p).id), Map())
+    val gs = NameGraph(Set(x2def(p)), Map())
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x2use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x3def(fixed).id)
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (g.E(x2use(fixed)) == x1def(fixed))
+    assert (g.E(x3use(fixed)) == x3def(fixed))
   }
 
   test ("fix nested 6") {
-    val gs = NameGraph(Set(x2def(p).id, x2use(p).id, x3def(p).id, x3use(p).id), Map(x3use(p).id -> x2def(p).id))
+    val gs = NameGraph(Set(x2def(p), x2use(p), x3def(p), x3use(p)), Map(x3use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (!g.E.isDefinedAt(x2use(fixed).id))
-    assert (g.E(x3use(fixed).id) == x2def(fixed).id)
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (!g.E.isDefinedAt(x2use(fixed)))
+    assert (g.E(x3use(fixed)) == x2def(fixed))
   }
 
   test ("fix nested 7") {
-    val gs = NameGraph(Set(x2use(p).id, x3def(p).id), Map(x2use(p).id -> x3def(p).id))
+    val gs = NameGraph(Set(x2use(p), x3def(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (!g.E.isDefinedAt(x2use(fixed).id))
-    assert (g.E(x3use(fixed).id) == x2def(fixed).id)
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (!g.E.isDefinedAt(x2use(fixed)))
+    assert (g.E(x3use(fixed)) == x2def(fixed))
   }
 
   test ("fix nested 8") {
-    val gs = NameGraph(Set(x2use(p).id, x3def(p).id, x1def(p).id), Map(x2use(p).id -> x3def(p).id))
+    val gs = NameGraph(Set(x2use(p), x3def(p), x1def(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (!g.E.isDefinedAt(x1use(fixed).id))
-    assert (!g.E.isDefinedAt(x2use(fixed).id))
-    assert (g.E(x3use(fixed).id) == x2def(fixed).id)
+    assert (!g.E.isDefinedAt(x1use(fixed)))
+    assert (!g.E.isDefinedAt(x2use(fixed)))
+    assert (g.E(x3use(fixed)) == x2def(fixed))
   }
 
   test ("fix nested 9") {
-    val gs = NameGraph(Set(x2use(p).id, x3def(p).id, x1def(p).id, x3use(p).id), Map(x2use(p).id -> x3def(p).id))
+    val gs = NameGraph(Set(x2use(p), x3def(p), x1def(p), x3use(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (!g.E.isDefinedAt(x1use(fixed).id))
-    assert (!g.E.isDefinedAt(x2use(fixed).id))
-    assert (!g.E.isDefinedAt(x3use(fixed).id))
+    assert (!g.E.isDefinedAt(x1use(fixed)))
+    assert (!g.E.isDefinedAt(x2use(fixed)))
+    assert (!g.E.isDefinedAt(x3use(fixed)))
   }
 
   test ("fix nested 10") {
-    val gs = NameGraph(Set(x1use(p).id, x3def(p).id), Map(x1use(p).id -> x3def(p).id))
+    val gs = NameGraph(Set(x1use(p), x3def(p)), Map(x1use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (!g.E.isDefinedAt(x1use(fixed).id))
-    assert (g.E(x2use(fixed).id) == x2def(fixed).id)
-    assert (g.E(x3use(fixed).id) == x2def(fixed).id)
+    assert (!g.E.isDefinedAt(x1use(fixed)))
+    assert (g.E(x2use(fixed)) == x2def(fixed))
+    assert (g.E(x3use(fixed)) == x2def(fixed))
   }
 
   // requires three consecutive renamings (recursive calls of fix)
   test ("fix nested 11") {
-    val gs = NameGraph(Set(x2def(p).id, x2use(p).id, x3def(p).id, x3use(p).id), Map(x2use(p).id -> x2def(p).id))
+    val gs = NameGraph(Set(x2def(p), x2use(p), x3def(p), x3use(p)), Map(x2use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
     val g: NameGraph = fixed.resolveNames
 
-    assert (g.E(x1use(fixed).id) == x1def(fixed).id)
-    assert (g.E(x2use(fixed).id) == x2def(fixed).id)
-    assert (!g.E.isDefinedAt(x3use(fixed).id))
+    assert (g.E(x1use(fixed)) == x1def(fixed))
+    assert (g.E(x2use(fixed)) == x2def(fixed))
+    assert (!g.E.isDefinedAt(x3use(fixed)))
   }
 }

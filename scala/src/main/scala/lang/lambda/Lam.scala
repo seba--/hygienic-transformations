@@ -1,17 +1,23 @@
 package lang.lambda
 
-import name.Name
-import name.NameGraph
+import name.namegraph.NameGraph
+import name.{Identifier, Renaming}
 
 /**
  * Created by seba on 01/08/14.
  */
-case class Lam(x: Name, body: Exp) extends Exp {
-  def allNames = body.allNames + x.id
+case class Lam(x: Identifier, body: Exp) extends Exp {
+  override def equals(a: Any) = a match {
+    case Lam(x2, body2) => x.name == x2.name && body == body2
+    case _ => false
+  }
+  override def hashCode = 17 * x.name.hashCode + 31 * body.hashCode()
+
+  def allNames = body.allNames + x.name
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
-    val gbody = body.resolveNames(scope + (x.name -> x.id))
-    NameGraph(gbody.V + x.id, gbody.E)
+    val gbody = body.resolveNames(scope + (x.name -> x))
+    NameGraph(gbody.V + x, gbody.E)
   }
 
   def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))
@@ -20,7 +26,7 @@ case class Lam(x: Name, body: Exp) extends Exp {
 
   def alphaEqual(e: Exp, g: NameGraph) = e match {
     case Lam(x2, body2) =>
-      val E2 = g.E.flatMap(p => if (p._2 == x2.id) Some(p._1 -> x.id) else None)
+      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
       body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
     case _ => false
   }

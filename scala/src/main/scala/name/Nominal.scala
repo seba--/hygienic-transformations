@@ -1,20 +1,19 @@
 package name
 
-import NameGraph._
+import name.namegraph.NameGraphExtended
 
 /**
  * Created by seba on 01/08/14.
  */
 trait Nominal {
-  type Renaming = Name => Name
 
-  def allNames: Set[Name.ID]
+  def allNames: Set[Name]
   def rename(renaming: Renaming): Nominal
-  def resolveNames: NameGraph
+  def resolveNames: NameGraphExtended
 
-  def rename(renaming: Map[Name.ID, String]): Nominal =
-    rename(name => renaming.get(name.id) match {
+  def rename(renaming: Map[Identifier, Name]): Nominal =
+    rename(name => renaming.get(name) match {
       case None => name
-      case Some(name2) => new Name(name2, name.id)
+      case Some(name2) => Identifier(name2)
     })
 }

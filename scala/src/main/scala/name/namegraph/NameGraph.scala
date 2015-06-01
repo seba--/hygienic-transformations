@@ -1,12 +1,14 @@
-package name
+package name.namegraph
+
+import name.Identifier
 
 /**
  * Created by seba on 01/08/14.
  */
 
 object NameGraph {
-  type Nodes = Set[Name.ID]
-  type Edges = Map[Name.ID, Name.ID]
+  type Nodes = Set[Identifier]
+  type Edges = Map[Identifier, Identifier]
 
   def apply(E: Edges): NameGraph = {
     var V: Nodes = Set()
@@ -18,7 +20,8 @@ object NameGraph {
   }
 }
 
-import NameGraph._
+import name.namegraph.NameGraph._
+
 case class NameGraph(V: Nodes, E: Edges) {
   def +(g: NameGraph) = NameGraph(V ++ g.V, E ++ g.E)
 

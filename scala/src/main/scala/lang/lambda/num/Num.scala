@@ -1,7 +1,8 @@
 package lang.lambda.num
 
 import lang.lambda.Exp
-import name.NameGraph
+import name.namegraph.NameGraph
+import name.Renaming
 
 /**
  * Created by seba on 01/08/14.

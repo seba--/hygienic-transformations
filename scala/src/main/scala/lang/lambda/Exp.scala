@@ -1,16 +1,17 @@
 package lang.lambda
 
-import name.NameFix._
-import name.NameGraph
-import name.{Name, Nominal}
+import name.namefix.NameFix
+import NameFix._
+import name._
+import name.namegraph.NameGraph
 
 /**
  * Created by seba on 01/08/14.
  */
 abstract class Exp extends Nominal {
-  type Scope = Map[String,Name.ID]
+  type Scope = Map[String,Identifier]
 
-  def resolveNames: NameGraph = resolveNames(Map())
+  def resolveNames = resolveNames(Map())
   def resolveNames(scope: Scope): NameGraph
   def rename(renaming: Renaming): Exp
 

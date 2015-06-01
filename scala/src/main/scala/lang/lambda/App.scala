@@ -1,6 +1,7 @@
 package lang.lambda
 
-import name.NameGraph
+import name.Renaming
+import name.namegraph._
 
 /**
  * Created by seba on 01/08/14.
