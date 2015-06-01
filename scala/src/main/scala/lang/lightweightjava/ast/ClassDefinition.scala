@@ -5,7 +5,13 @@ import name.namegraph.{NameGraphExtended, NameGraphModular}
 import name._
 
 case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends NominalModular[ClassInterface] {
-  type I = ClassInterface
+
+  private var dependencies = Set[ClassInterface]()
+  override def link(dependencies: Set[ClassInterface]) = {
+    this.dependencies = dependencies
+    _resolved = null
+    this
+  }
 
   require(AST.isLegalName(className.name), "Class name '" + className.name + "' is no legal Java class name")
 
@@ -16,11 +22,10 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
 
   private val exportedFields = fields.filter(_.accessModifier == AccessModifier.PUBLIC).map(_.fieldName)
   private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
-  override val moduleID: Identifier = className
+  val moduleID: Identifier = className
+  val interface = ClassInterface(className, exportedFields, exportedMethods)
 
-  override def dependencies: Set[Identifier] = resolveNamesModular(Set()).V.collect[Identifier, Set[Identifier]]({ case className:ClassName => className }) - className
-
-  override def rename(renaming: Renaming) =
+  def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
 
   def typeCheckForProgram(program : Program) = {
@@ -96,8 +101,11 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
       elements.foldLeft(NameGraphExtended(Set(), conflictReferences))(_ + _.resolveNames(nameEnvironment, this))
   }
 
-  override def resolveNamesModular(dependencies: Set[ClassInterface] = Set()): NameGraphModular[ClassInterface] = {
-    val classInterface = ClassInterface(className, exportedFields, exportedMethods)
+  private var _resolved: NameGraphModular[ClassInterface] = _
+  def resolveNamesModular: NameGraphModular[ClassInterface] = {
+    if (_resolved != null)
+      return _resolved
+
     var environment: ClassNameEnvironment = Map()
 
     // Collect all exported super-class fields/methods (if there is a super-class)
@@ -129,7 +137,8 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     val nameGraph = resolveNames(environment)
 
     // Create the final modular name graph (and filter remaining, empty edge sets)
-    NameGraphModular(nameGraph.V, dependencies, nameGraph.E, classInterface)
+    _resolved = NameGraphModular(nameGraph.V, dependencies, nameGraph.E, interface)
+    _resolved
   }
 
   override def toString = "class " + className.toString +

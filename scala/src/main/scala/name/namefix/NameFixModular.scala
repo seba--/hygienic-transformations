@@ -37,7 +37,7 @@ class NameFixModular[I <: NameInterface] {
   }
 
   protected def nameFixVirtual(gS: NameGraphModular[I], mT: NominalModular[I], depT: Set[I]): NameGraphModular[I] = {
-    val gT = mT.resolveNamesModular(depT)
+    val gT = mT.link(depT).resolveNamesModular
     val capture = findCaptureNodes(gS, gT)
 
     if (capture.isEmpty)
@@ -69,8 +69,7 @@ class NameFixModular[I <: NameInterface] {
     }
   }
 
-  protected def removeUnintendedRelations[T <: NominalModular[I]](mT: T, depT: Set[I], gVirtual: NameGraphModular[I]): T = {
-    val gT = mT.resolveNamesModular(depT)
+  protected def removeUnintendedRelations[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- gT.V) {
@@ -88,13 +87,11 @@ class NameFixModular[I <: NameInterface] {
       mT
     else {
       val mNew = mT.rename(renaming).asInstanceOf[T]
-
-      removeUnintendedRelations(mNew, depT, gVirtual)
+      removeUnintendedRelations(mNew, mT.resolveNamesModular, gVirtual)
     }
   }
 
-  protected def addIntendedRelations[T <: NominalModular[I]](mT: T, depT: Set[I], gVirtual: NameGraphModular[I]): T = {
-    val gT = mT.resolveNamesModular(depT)
+  protected def addIntendedRelations[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- gT.V) {
@@ -116,32 +113,33 @@ class NameFixModular[I <: NameInterface] {
     mT.rename(renaming).asInstanceOf[T]
   }
 
-  protected def applyVirtualGraph[T <: NominalModular[I]](mT: T, depT: Set[I], gVirtual: NameGraphModular[I]): T = {
-    val mTNew = addIntendedRelations(mT, depT, gVirtual)
-    removeUnintendedRelations(mTNew, depT, gVirtual)
+  protected def applyVirtualGraph[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
+    val mTNew = addIntendedRelations(mT, gT, gVirtual)
+    removeUnintendedRelations(mTNew, gT, gVirtual)
   }
 
   def nameFixModule[T <: NominalModular[I]](gS: NameGraphModular[I], mT: T, depT: Set[I]): T = {
     val gVirtual = nameFixVirtual(gS, mT, depT.map(_.original.asInstanceOf[I]))
-    applyVirtualGraph(mT, depT, gVirtual)
+    val actual = mT.link(depT).resolveNamesModular
+    applyVirtualGraph(mT, actual, gVirtual)
   }
 
-  def nameFixModules[T <: NominalModular[I]](gS: Set[NameGraphModular[I]],  mT: Set[T], depT: Set[I]): Set[T] = {
-    if (mT.isEmpty)
-      Set()
-    else {
-      val currentModuleT = mT.find(m => m.dependencies.forall(i => depT.exists(_.moduleID == i))) match {
-        case Some(module) => module
-        case None => throw new IllegalArgumentException("Unable to resolve these modules based on their dependencies: " + mT.map(_.moduleID).mkString(", "))
-      }
-      val currentGS = gS.find(_.I.moduleID == currentModuleT.moduleID).getOrElse {
-        throw new IllegalArgumentException("No source name graph found for module " + currentModuleT.moduleID)
-      }
-
-      val currentModuleFixed = nameFixModule(currentGS, currentModuleT, depT)
-      val currentNameGraphFixed = currentModuleFixed.resolveNamesModular(depT)
-
-      nameFixModules(gS, mT - currentModuleT, depT + currentNameGraphFixed.I) + currentModuleFixed
-    }
-  }
- }
+//  def nameFixModules[T <: NominalModular[I]](gS: Set[NameGraphModular[I]],  mT: Set[T], depT: Set[I]): Set[T] = {
+//    if (mT.isEmpty)
+//      Set()
+//    else {
+//      val currentModuleT = mT.find(m => m.dependencies.forall(i => depT.exists(_.moduleID == i))) match {
+//        case Some(module) => module
+//        case None => throw new IllegalArgumentException("Unable to resolve these modules based on their dependencies: " + mT.map(_.moduleID).mkString(", "))
+//      }
+//      val currentGS = gS.find(_.I.moduleID == currentModuleT.moduleID).getOrElse {
+//        throw new IllegalArgumentException("No source name graph found for module " + currentModuleT.moduleID)
+//      }
+//
+//      val currentModuleFixed = nameFixModule(currentGS, currentModuleT, depT)
+//      val currentNameGraphFixed = currentModuleFixed.resolveNamesModular
+//
+//      nameFixModules(gS, mT - currentModuleT, depT + currentNameGraphFixed.I) + currentModuleFixed
+//    }
+//  }
+}

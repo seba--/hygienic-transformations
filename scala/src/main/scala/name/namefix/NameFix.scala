@@ -16,10 +16,13 @@ object NameFix {
   def nameFixExtended[T <: Nominal](gs: NameGraphExtended, t: T, permittedCapture: NameGraphExtended.Edges = Map()) = new NameFixExtended(permittedCapture).nameFix(gs, t)
 
   // Modular NameFix applied on a single module + dependencies
-  def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: NameGraphModular[I], t: T, depT: Set[I]) = new NameFixModular[I].nameFixModule(gs, t, depT)
+  def nameFixModular[I <: NameInterface, T <: NominalModular[I]](gs: NameGraphModular[I], t: T, depT: Set[I]) = new NameFixModular[I].nameFixModule(gs, t, depT)
 
   // Modular NameFix applied on a set of modules + dependencies
-  def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: Set[NameGraphModular[I]], mT: Set[T], depT: Set[I]) = new NameFixModular[I].nameFixModules(gs, mT, depT)
+//  def nameFix[I <: NameInterface, T <: NominalModular[I]](gs: Set[NameGraphModular[I]], mT: Set[T], depT: Set[I]) = {
+//    gs.toList.sortWith((g1, g2) => ...)
+//    new NameFixModular[I].nameFixModules(gs, mT, depT)
+//  }
 }
 
 class NameFix(permittedCapture: Edges = Map()) {

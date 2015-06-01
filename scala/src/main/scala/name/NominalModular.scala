@@ -6,9 +6,6 @@ trait NominalModular[I <: NameInterface] {
   // Own module ID
   val moduleID: Identifier
 
-  // Module IDs that need to be present for name resolution
-  def dependencies: Set[Identifier]
-
   def allNames: Set[Name]
 
   def rename(renaming: Renaming): NominalModular[I]
@@ -20,5 +17,10 @@ trait NominalModular[I <: NameInterface] {
     })
 
   // Modular name resolution for the given set of interfaces to link against
-  def resolveNamesModular(dependencies: Set[I] = Set()): NameGraphModular[I]
+  def link(dependencies: Set[I]): NominalModular[I]
+  def link(dependency: I): NominalModular[I] = link(Set(dependency))
+
+  def resolveNamesModular: NameGraphModular[I]
+
+  def interface: I
 }

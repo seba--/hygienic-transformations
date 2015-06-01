@@ -15,31 +15,36 @@ case class TreeUnitInterface(moduleID: Identifier, export: Set[Identifier]) exte
 
 class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends NominalModular[TreeUnitInterface] {
 
-  private var _resolveNames: NameGraphModular[TreeUnitInterface] = _
+  private var _resolved: NameGraphModular[TreeUnitInterface] = _
   var symMap: Map[Symbol, Identifier] = _
   var nodeMap: Map[JCTree, Identifier] = _
 
-  def resolveNamesModular(deps: Set[TreeUnitInterface]) = {
+  private var deps = Set[TreeUnitInterface]()
+  override def link(deps: Set[TreeUnitInterface]) = {
+    this.deps = deps
+    _resolved = null
+    this
+  }
+
+  private var _interface: TreeUnitInterface = _
+  def interface = _interface
+
+  def resolveNamesModular = {
     val visitor = new NameGraphModularExtractor(deps, originTrackedNames)
     unit.accept(visitor, null)
     symMap = visitor.symMap
     nodeMap = visitor.nodeMap
 
-    val ifc = new TreeUnitInterface(moduleID, visitor.exported)
-    _resolveNames = NameGraphModular(visitor.names, visitor.depsUsed, visitor.edges, ifc)
-    _resolveNames
+    _interface = TreeUnitInterface(moduleID, visitor.exported)
+    _resolved = NameGraphModular(visitor.names, visitor.depsUsed, visitor.edges, interface)
+    _resolved
   }
 
   val moduleID: Identifier = unit.getTypeDecls.get(0) match {
     case cl: JCClassDecl => symMap(cl.sym)
   }
 
-  def dependencies = {
-    resolveNamesModular(Set())
-    Set() // TODO external deps
-  }
-
-  def allNames: Set[Name] = _resolveNames.V map (_.name)
+  def allNames: Set[Name] = _resolved.V map (_.name)
 
   def rename(renaming: Renaming) = {
     val visitor = new RenameVisitor[Void](renaming, nodeMap, TreeMaker.instance(context))

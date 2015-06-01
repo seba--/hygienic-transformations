@@ -31,7 +31,7 @@ class NameGraphModularTest extends FlatSpec with Matchers {
 
    "Modular Name Graph" should "contain 16 nodes, 11 internal edges, and 0 external edges for the class with no dependencies" in (Parser.parseAll(Parser.classDef, p1) match {
      case Parser.Success(p, _) =>
-       val nameGraph = p.resolveNamesModular()
+       val nameGraph = p.resolveNamesModular
        nameGraph.V.size should be (16)
        intEdges(nameGraph) should be (11)
        extEdges(nameGraph) should be (0)
@@ -42,7 +42,7 @@ class NameGraphModularTest extends FlatSpec with Matchers {
    })
   it should "contain 15 nodes, 6 internal edges and 0 external edges for the class with unresolved dependencies" in (Parser.parseAll(Parser.classDef, p2) match {
     case Parser.Success(p, _) =>
-      val nameGraph = p.resolveNamesModular()
+      val nameGraph = p.resolveNamesModular
       nameGraph.V.size should be (15)
       intEdges(nameGraph) should be (6)
       extEdges(nameGraph) should be (0)
@@ -52,8 +52,8 @@ class NameGraphModularTest extends FlatSpec with Matchers {
   })
   it should "contain 15 nodes, 7 internal edges and 7 external edges for the class with resolved dependencies" in ((Parser.parseAll(Parser.classDef, p1), Parser.parseAll(Parser.classDef, p2)) match {
     case (Parser.Success(x, _), Parser.Success(y, _)) =>
-      val nameGraphX = x.resolveNamesModular()
-      val nameGraphY = y.resolveNamesModular(Set(nameGraphX.I))
+      val nameGraphX = x.resolveNamesModular
+      val nameGraphY = y.link(nameGraphX.I).resolveNamesModular
       nameGraphY.V.size should be (15)
       intEdges(nameGraphY) should be (7)
       extEdges(nameGraphY) should be (7)
