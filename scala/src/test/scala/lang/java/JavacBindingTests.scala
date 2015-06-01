@@ -17,14 +17,14 @@ class JavacBindingTests extends FunSuite {
     if (sym != null)
       assert(tree.symMap(sym) == tree.nodeMap(dec))
     assert(tree.nodeMap(dec) != tree.nodeMap(ref))
-    assert(tree.nodeMap(dec) == tree.resolveNames.E(tree.nodeMap(ref)))
+    assert(Set(tree.nodeMap(dec)) == tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   def assertNotEdge(tree: Tree, refDec: (JCTree, JCTree)): Unit = {
     val ref = refDec._1
     val dec = refDec._2
     assert(tree.nodeMap(dec) != tree.nodeMap(ref))
-    assert(tree.nodeMap(dec) != tree.resolveNames.E(tree.nodeMap(ref)))
+    assert(Set(tree.nodeMap(dec)) != tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   val personCode =

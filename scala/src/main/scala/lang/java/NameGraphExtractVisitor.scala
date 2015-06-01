@@ -25,7 +25,7 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Identifier]) extends Tr
   import NameGraphExtractor.globalNames
 
   private var _names = Set[Identifier]()
-  private var _edges = Map[Identifier, Identifier]()
+  private var _edges = Map[Identifier, Set[Identifier]]()
   private var _symMap = globalNames
   var nodeMap = Map[JCTree, Identifier]()
 
@@ -80,7 +80,7 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Identifier]) extends Tr
     }
     _names += ref
     nodeMap += refnode -> ref
-    _edges += ref -> dec
+    _edges += ref -> (_edges.getOrElse(ref, Set[Identifier]()) + dec)
   }
 
   override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)

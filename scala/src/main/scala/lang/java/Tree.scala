@@ -6,16 +6,16 @@ import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit
 import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
 import com.sun.tools.javac.util.{Context, Log}
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Renaming, Identifier, Name, Nominal}
 
 class Tree(val units: List[JCCompilationUnit], val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends Nominal {
 
-  lazy val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Identifier], Map[JCTree, Identifier]) = {
+  lazy val (_resolveNames, symMap, nodeMap): (NameGraphExtended, Map[Symbol, Identifier], Map[JCTree, Identifier]) = {
     val visitor = new NameGraphExtractor(originTrackedNames)
     for (unit <- units)
       unit.accept(visitor, null)
-    (NameGraph(visitor.names, visitor.edges), visitor.symMap, visitor.nodeMap)
+    (NameGraphExtended(visitor.names, visitor.edges), visitor.symMap, visitor.nodeMap)
   }
 
   def resolveNames = _resolveNames

@@ -21,11 +21,11 @@ object MakeFieldPrivate {
       val ref = transformed.nodeMap.get(kv._1)
       val dec = transformed.nodeMap.get(kv._2)
       (ref, dec) match {
-        case (Some(ref), Some(dec)) => Some(ref -> dec)
+        case (Some(ref), Some(dec)) => Some(ref -> Set(dec))
         case _ => None
       }
     }
-    NameFix.nameFixExtended(tree.resolveNames, transformed, permittedCapture mapValues (Set(_)))
+    NameFix.nameFixExtended(tree.resolveNames, transformed, permittedCapture)
   }
 }
 
@@ -59,7 +59,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
     val name = setName
     val restype: JCExpression = tm.TypeIdent(TypeTag.VOID)
     val typarams: List[JCTree.JCTypeParameter] = List.nil()
-    val params: List[JCTree.JCVariableDecl] = List.of(tm.VarDef(tm.Modifiers(0l), varname, this.copy(vartype, p), null))
+    val params: List[JCTree.JCVariableDecl] = List.of(tm.VarDef(tm.Modifiers(Flags.PARAMETER), varname, this.copy(vartype, p), null))
     val thrown: List[JCTree.JCExpression] = List.nil()
     val thisName = captured(tm.Select(tm.This(thisType), varname), varnode)
     val body: JCTree.JCBlock = tm.Block(0l, List.of(tm.Exec(tm.Assign(thisName, tm.Ident(varname)))))

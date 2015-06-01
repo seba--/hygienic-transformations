@@ -2,10 +2,15 @@ name := "hygienic-transformations"
 
 version := "1.0"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 scalacOptions += "-deprecation"
+
 scalacOptions += "-feature"
+
+scalacOptions += "-target:jvm-1.8"
+
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
 //libraryDependencies += "org.eclipse.jdt" % "core" % "3.3.0-v_771"
 
@@ -34,5 +39,7 @@ val JavaTools = List[Option[String]] (
   )
 )
 
-val a = {println(JavaTools)}
 unmanagedJars in Compile += JavaTools
+
+// necessary due to tools.jar dependency
+fork := true
