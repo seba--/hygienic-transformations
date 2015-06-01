@@ -3,5 +3,6 @@
 !/rascal/input/*.ctl
 /rascal/output/
 projects/Rascal-Hygiene/output
-.idea
+.idea/tasks.xml
+.idea/workspace.xml
 projectFilesBackup
