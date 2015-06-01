@@ -19,7 +19,7 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
   var symMap: Map[Symbol, Identifier] = _
   var nodeMap: Map[JCTree, Identifier] = _
 
-  private var deps = Set[TreeUnitInterface]()
+  var deps = Set[TreeUnitInterface]()
   override def link(deps: Set[TreeUnitInterface]) = {
     this.deps = deps
     _resolved = null
@@ -30,6 +30,7 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
   def interface = _interface
 
   def resolveNamesModular = {
+    Java.analyzeTrees(List(unit), context)
     val visitor = new NameGraphModularExtractor(deps, originTrackedNames)
     unit.accept(visitor, null)
     symMap = visitor.symMap
@@ -88,7 +89,7 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
 
 object TreeUnit {
   def fromSourceFiles(sourceFile: File): TreeUnit = {
-    val (units, context) = Java.analyzeSourceFiles(Seq(sourceFile))
+    val (units, context) = Java.parseSourceFiles(Seq(sourceFile))
     new TreeUnit(units.head, context)
   }
 
@@ -97,7 +98,6 @@ object TreeUnit {
   }
 
   def fromTrees(newUnit: JCCompilationUnit, context: Context, originTrackedNames: Map[JCTree, Identifier]): TreeUnit = {
-    Java.reanalyzeTrees(List(newUnit), context)
     new TreeUnit(newUnit, context, originTrackedNames)
   }
 }

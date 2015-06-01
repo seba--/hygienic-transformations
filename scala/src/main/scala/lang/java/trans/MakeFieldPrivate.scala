@@ -5,7 +5,7 @@ import com.sun.tools.javac.code._
 import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.tree.{JCTree, TreeMaker}
 import com.sun.tools.javac.util.{Name, ListBuffer, List}
-import lang.java.{TrackingTreeCopier, Tree}
+import lang.java.{TreeUnit, TrackingTreeCopier, Tree}
 import name.namefix.NameFix
 
 object MakeFieldPrivate {
@@ -26,6 +26,26 @@ object MakeFieldPrivate {
       }
     }
     NameFix.nameFixExtended(tree.resolveNames, transformed, permittedCapture)
+  }
+
+  def unsafeApplyModular(sym: Symbol, tree: TreeUnit): TreeUnit = {
+    val trans = new MakeFieldPrivate[Void](TreeMaker.instance(tree.context), sym)
+    tree.transform(trans, null)
+  }
+
+  def applyModular(sym: Symbol, tree: TreeUnit): TreeUnit = {
+    val deps = tree.deps
+    val trans = new MakeFieldPrivate[Void](TreeMaker.instance(tree.context), sym)
+    val transformed = tree.transform(trans, null)
+    val permittedCapture = trans.permittedCapture flatMap {kv =>
+      val ref = transformed.nodeMap.get(kv._1)
+      val dec = transformed.nodeMap.get(kv._2)
+      (ref, dec) match {
+        case (Some(ref), Some(dec)) => Some(ref -> Set(dec))
+        case _ => None
+      }
+    }
+    NameFix.nameFixModular(tree.resolveNamesModular, transformed, deps)
   }
 }
 

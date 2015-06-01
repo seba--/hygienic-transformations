@@ -42,7 +42,7 @@ object Java {
     sourceFiles
   }
 
-  def analyzeSourceFiles(sourceFiles: Seq[File]): (List[JCCompilationUnit], Context) = {
+  def parseSourceFiles(sourceFiles: Seq[File]): (List[JCCompilationUnit], Context) = {
     val compiler = ToolProvider.getSystemJavaCompiler();
     val fileManager = compiler.getStandardFileManager(null, null, null);
     val compilationUnits = fileManager.getJavaFileObjects(sourceFiles: _*)
@@ -52,7 +52,6 @@ object Java {
     val compilationTask = compiler.getTask(null, fileManager, null, options, classes, compilationUnits).asInstanceOf[JavacTaskImpl]
 
     val trees = compilationTask.parse()
-    compilationTask.analyze()
 
     var result = List[JCCompilationUnit]()
     val it = trees.iterator
@@ -61,7 +60,7 @@ object Java {
     (result, compilationTask.getContext)
   }
 
-  def reanalyzeTrees(trees: List[JCCompilationUnit], oldContext: Context): Unit = {
+  def analyzeTrees(trees: List[JCCompilationUnit], oldContext: Context): Unit = {
     val treeList = javac.util.List.from(trees.toArray)
 
     Check.instance(oldContext).compiled.clear()

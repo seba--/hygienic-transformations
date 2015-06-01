@@ -65,7 +65,8 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
 
 object Tree {
   def fromSourceFiles(sourceFiles: Seq[File]): Tree = {
-    val (units, context) = Java.analyzeSourceFiles(sourceFiles)
+    val (units, context) = Java.parseSourceFiles(sourceFiles)
+    Java.analyzeTrees(units, context)
     new Tree(units, context)
   }
 
@@ -74,7 +75,7 @@ object Tree {
   }
 
   def fromTrees(newUnits: List[JCCompilationUnit], context: Context, originTrackedNames: Map[JCTree, Identifier]): Tree = {
-    Java.reanalyzeTrees(newUnits, context)
+    Java.analyzeTrees(newUnits, context)
     new Tree(newUnits, context, originTrackedNames)
   }
 }
