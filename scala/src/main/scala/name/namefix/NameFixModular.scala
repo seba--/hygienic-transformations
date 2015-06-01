@@ -69,8 +69,9 @@ class NameFixModular[I <: NameInterface] {
     }
   }
 
-  protected def removeUnintendedRelations[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
+  protected def removeUnintendedRelations[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
+    val gT = mT.resolveNamesModular
 
     for (v <- gT.V) {
       val fresh = gensym(v.name, mT.allNames ++ gT.IUsed.flatMap(_.export.map(_.name)) ++ renaming.values)
@@ -87,12 +88,13 @@ class NameFixModular[I <: NameInterface] {
       mT
     else {
       val mNew = mT.rename(renaming).asInstanceOf[T]
-      removeUnintendedRelations(mNew, mT.resolveNamesModular, gVirtual)
+      removeUnintendedRelations(mNew, gVirtual)
     }
   }
 
-  protected def addIntendedRelations[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
+  protected def addIntendedRelations[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
+    val gT = mT.resolveNamesModular
 
     for (v <- gT.V) {
       val relT = findRelations(v, gT)
@@ -113,15 +115,15 @@ class NameFixModular[I <: NameInterface] {
     mT.rename(renaming).asInstanceOf[T]
   }
 
-  protected def applyVirtualGraph[T <: NominalModular[I]](mT: T, gT: NameGraphModular[I], gVirtual: NameGraphModular[I]): T = {
-    val mTNew = addIntendedRelations(mT, gT, gVirtual)
-    removeUnintendedRelations(mTNew, gT, gVirtual)
+  protected def applyVirtualGraph[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
+    val mTNew = addIntendedRelations(mT, gVirtual)
+    removeUnintendedRelations(mTNew, gVirtual)
   }
 
   def nameFixModule[T <: NominalModular[I]](gS: NameGraphModular[I], mT: T, depT: Set[I]): T = {
     val gVirtual = nameFixVirtual(gS, mT, depT.map(_.original.asInstanceOf[I]))
-    val actual = mT.link(depT).resolveNamesModular
-    applyVirtualGraph(mT, actual, gVirtual)
+    val linked = mT.link(depT).asInstanceOf[T]
+    applyVirtualGraph(linked, gVirtual)
   }
 
 //  def nameFixModules[T <: NominalModular[I]](gS: Set[NameGraphModular[I]],  mT: Set[T], depT: Set[I]): Set[T] = {

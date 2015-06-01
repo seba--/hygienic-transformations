@@ -25,8 +25,11 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   val moduleID: Identifier = className
   val interface = ClassInterface(className, exportedFields, exportedMethods)
 
-  def rename(renaming: Renaming) =
-    ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
+  def rename(renaming: Renaming) = {
+    val cl = ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
+    cl.link(dependencies)
+    cl
+  }
 
   def typeCheckForProgram(program : Program) = {
     val classFields = program.findAllFields(this)
