@@ -60,7 +60,7 @@ class NameFix(permittedCapture: Edges = Map()) {
   }
 
   def nameFix[T <: Nominal](gs: NameGraph, t: T): T = {
-    val gt = t.resolveNames
+    val gt = t.resolveNames.toSimple
     val capture = findCapturedNodes(gs, gt)
     if (capture.isEmpty)
       t

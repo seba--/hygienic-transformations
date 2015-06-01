@@ -1,7 +1,7 @@
 package lang.lambda.let
 
 import lang.lambda.Exp
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 /**
@@ -20,7 +20,7 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
     val gbody = body.resolveNames(scope + (x.name -> x))
-    NameGraph(gbound.V ++ gbody.V + x, gbound.E ++ gbody.E)
+    gbound + gbody
   }
 
   def unsafeSubst(w: String, e: Exp) = {
@@ -30,13 +30,13 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
 
   def unsafeNormalize = body.unsafeSubst(x.name, bound).unsafeNormalize
 
-  def alphaEqual(e: Exp, g: NameGraph) = e match {
+  def alphaEqual(e: Exp, g: NameGraphExtended) = e match {
     case Let(x2, bound2, body2) =>
       if (!bound.alphaEqual(bound2, g))
         false
       else {
-        val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
-        body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
+        val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> Set(x)) else None)
+        body.alphaEqual(body2, g + NameGraphExtended(Set(), E2))
       }
     case _ => false
   }

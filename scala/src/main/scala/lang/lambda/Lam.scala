@@ -1,6 +1,6 @@
 package lang.lambda
 
-import name.namegraph.NameGraph
+import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
 
 /**
@@ -17,17 +17,17 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbody = body.resolveNames(scope + (x.name -> x))
-    NameGraph(gbody.V + x, gbody.E)
+    NameGraphExtended(gbody.V + x, gbody.E)
   }
 
   def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))
 
   def unsafeNormalize = Lam(x, body.unsafeNormalize)
 
-  def alphaEqual(e: Exp, g: NameGraph) = e match {
+  def alphaEqual(e: Exp, g: NameGraphExtended) = e match {
     case Lam(x2, body2) =>
-      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> x) else None)
-      body.alphaEqual(body2, NameGraph(g.V, g.E ++ E2))
+      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> Set(x)) else None)
+      body.alphaEqual(body2, g + NameGraphExtended(Set(), E2))
     case _ => false
   }
 }

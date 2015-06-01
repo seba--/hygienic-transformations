@@ -2,8 +2,8 @@ package lang.lambda
 
 import lang.lambda.let._
 import lang.lambda.num._
-import name.namefix.NameFix
-import name.namegraph.NameGraph
+import name.namefix.NameFixExtended
+import name.namegraph.{NameGraphExtended, NameGraph}
 import org.scalatest._
 
 /**
@@ -11,7 +11,7 @@ import org.scalatest._
 */
 class NamefixTestNested extends FunSuite {
 
-  val fixer = new NameFix
+  val fixer = new NameFixExtended
 
   val p =
     Let("x", Num(1),
@@ -32,7 +32,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 1") {
     val gs = NameGraph(Set(x3def(p), x3use(p)), Map(x3use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (g.E(x2use(fixed)) == x2def(fixed))
@@ -42,7 +43,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 2") {
     val gs = NameGraph(Set(x2def(p), x3use(p)), Map(x3use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (g.E(x2use(fixed)) == x1def(fixed))
@@ -52,7 +54,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 3") {
     val gs = NameGraph(Set(x1def(p), x3use(p)), Map(x3use(p) -> x1def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
     
     assert (!g.E.isDefinedAt(x1use(fixed)))
     assert (g.E(x2use(fixed)) == x2def(fixed))
@@ -62,7 +65,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 4") {
     val gs = NameGraph(Set(x1def(p), x2use(p)), Map(x2use(p) -> x1def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (!g.E.isDefinedAt(x1use(fixed)))
     assert (g.E(x2use(fixed)) == x1def(fixed))
@@ -72,7 +76,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 5") {
     val gs = NameGraph(Set(x2def(p)), Map())
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (g.E(x2use(fixed)) == x1def(fixed))
@@ -82,7 +87,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 6") {
     val gs = NameGraph(Set(x2def(p), x2use(p), x3def(p), x3use(p)), Map(x3use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (!g.E.isDefinedAt(x2use(fixed)))
@@ -92,7 +98,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 7") {
     val gs = NameGraph(Set(x2use(p), x3def(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (!g.E.isDefinedAt(x2use(fixed)))
@@ -102,7 +109,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 8") {
     val gs = NameGraph(Set(x2use(p), x3def(p), x1def(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (!g.E.isDefinedAt(x1use(fixed)))
     assert (!g.E.isDefinedAt(x2use(fixed)))
@@ -112,7 +120,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 9") {
     val gs = NameGraph(Set(x2use(p), x3def(p), x1def(p), x3use(p)), Map(x2use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (!g.E.isDefinedAt(x1use(fixed)))
     assert (!g.E.isDefinedAt(x2use(fixed)))
@@ -122,7 +131,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 10") {
     val gs = NameGraph(Set(x1use(p), x3def(p)), Map(x1use(p) -> x3def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (!g.E.isDefinedAt(x1use(fixed)))
     assert (g.E(x2use(fixed)) == x2def(fixed))
@@ -133,7 +143,8 @@ class NamefixTestNested extends FunSuite {
   test ("fix nested 11") {
     val gs = NameGraph(Set(x2def(p), x2use(p), x3def(p), x3use(p)), Map(x2use(p) -> x2def(p)))
     val fixed = fixer.nameFix(gs, p)
-    val g: NameGraph = fixed.resolveNames
+    val ge: NameGraphExtended = fixed.resolveNames
+    val g = ge.toSimple
 
     assert (g.E(x1use(fixed)) == x1def(fixed))
     assert (g.E(x2use(fixed)) == x2def(fixed))

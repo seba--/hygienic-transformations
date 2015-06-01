@@ -37,7 +37,7 @@ class NameFixTest extends FlatSpec with Matchers {
       val pNameGraph = p.program.asInstanceOf[Nominal].resolveNames
       val pTransformed = LocalDeclarationTransformation.transform(p.program)
       val pTransformedNameGraph = pTransformed.asInstanceOf[Nominal].resolveNames
-      val pFixed = NameFix.nameFix(pNameGraph, pTransformed)
+      val pFixed = NameFix.nameFixExtended(pNameGraph, pTransformed)
       val pFixedNameGraph = pFixed.asInstanceOf[Nominal].resolveNames
 
       // If NameFix did not fix the program, type checking or interpretation will fail
@@ -55,7 +55,7 @@ class NameFixTest extends FlatSpec with Matchers {
       val pNameGraph = p.program.asInstanceOf[Nominal].resolveNames
       val pTransformed = LocalDeclarationTransformation.transform(p.program)
       val pTransformedNameGraph = pTransformed.asInstanceOf[Nominal].resolveNames
-      val pFixed = NameFix.nameFix(pNameGraph, pTransformed)
+      val pFixed = NameFix.nameFixExtended(pNameGraph, pTransformed)
       val pFixedNameGraph = pFixed.asInstanceOf[Nominal].resolveNames
 
       // If NameFix did not fix the program, type checking or interpretation will fail
