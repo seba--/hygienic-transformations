@@ -12,7 +12,9 @@ class AlphaEqualTest extends FunSuite {
   val p3 = Lam("x", Var("y"))
   val p4 = Lam("y", Var("x"))
 
-  test ("p1=p2") {assert(p1.alphaEqual(p2))}
+  test ("p1=p2") {
+    assert(p1.alphaEqual(p2))
+  }
   test ("p1!=p3") {assert(!p1.alphaEqual(p3))}
   test ("p1!=p4") {assert(!p1.alphaEqual(p4))}
   test ("p2!=p3") {assert(!p2.alphaEqual(p3))}

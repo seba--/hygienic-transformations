@@ -20,7 +20,7 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
     val gbody = body.resolveNames(scope + (x.name -> x))
-    gbound + gbody
+    gbound + gbody + NameGraphExtended(Set(x), Map())
   }
 
   def unsafeSubst(w: String, e: Exp) = {
@@ -35,7 +35,11 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
       if (!bound.alphaEqual(bound2, g))
         false
       else {
-        val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> Set(x)) else None)
+        val E2 = g.E.flatMap(p =>
+          if (p._2.contains(x2)) Some(p._1 -> Set(x))
+          else if (p._2.contains(x)) Some(p._1 -> Set(x2))
+          else None
+        )
         body.alphaEqual(body2, g + NameGraphExtended(Set(), E2))
       }
     case _ => false

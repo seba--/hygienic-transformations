@@ -26,7 +26,11 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
 
   def alphaEqual(e: Exp, g: NameGraphExtended) = e match {
     case Lam(x2, body2) =>
-      val E2 = g.E.flatMap(p => if (p._2 == x2) Some(p._1 -> Set(x)) else None)
+      val E2 = g.E.flatMap(p =>
+        if (p._2.contains(x2)) Some(p._1 -> Set(x))
+        else if (p._2.contains(x)) Some(p._1 -> Set(x2))
+        else None
+      )
       body.alphaEqual(body2, g + NameGraphExtended(Set(), E2))
     case _ => false
   }
