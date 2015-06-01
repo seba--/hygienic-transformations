@@ -4,7 +4,9 @@ import lang.lightweightjava.ClassInterface
 import name.namegraph.{NameGraphExtended, NameGraphModular}
 import name._
 
-case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends AST with NominalModular[ClassInterface] {
+case class ClassDefinition(className: ClassName, superClass: ClassRef, elements: ClassElement*) extends NominalModular[ClassInterface] {
+  type I = ClassInterface
+
   require(AST.isLegalName(className.name), "Class name '" + className.name + "' is no legal Java class name")
 
   override def allNames = elements.flatMap(_.allNames).toSet ++ superClass.allNames ++ className.allNames
@@ -16,7 +18,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
   override val moduleID: Identifier = className
 
-  override def dependencies: Set[Name] = resolveNamesModular(Set()).V.collect({ case className:ClassName => className.name }) - className.name
+  override def dependencies: Set[Identifier] = resolveNamesModular(Set()).V.collect[Identifier, Set[Identifier]]({ case className:ClassName => className }) - className
 
   override def rename(renaming: Renaming) =
     ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
@@ -63,7 +65,7 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
     program.findAllMethods(this).foreach(_.typeCheckForClassDefinition(program, this))
   }
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
+  def resolveNames(nameEnvironment: ClassNameEnvironment) = {
     var conflictReferences: Map[Identifier, Set[Identifier]] = Map()
 
     // All classes in the environment that share the same name as this class

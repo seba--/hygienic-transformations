@@ -1,17 +1,19 @@
 package name
 
-import name.namegraph.NameGraphModular
+import name.namegraph.{NameGraphExtended, NameGraphModular}
 
-trait NominalModular[I <: NameInterface] extends Nominal {
+trait NominalModular[I <: NameInterface] {
   // Own module ID
   val moduleID: Identifier
 
   // Module IDs that need to be present for name resolution
-  def dependencies: Set[Name]
+  def dependencies: Set[Identifier]
 
-  override def rename(renaming: Renaming): NominalModular[I]
+  def allNames: Set[Name]
 
-  override def rename(renaming: Map[Identifier, Name]): NominalModular[I] =
+  def rename(renaming: Renaming): NominalModular[I]
+
+  def rename(renaming: Map[Identifier, Name]): NominalModular[I] =
     rename(name => renaming.get(name) match {
       case None => name
       case Some(name2) => name.rename(name2)

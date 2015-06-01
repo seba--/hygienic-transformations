@@ -10,5 +10,4 @@ object NameGraphModular {
   type Edges = Map[Identifier, Set[Identifier]]
 }
 
-case class NameGraphModular[I <: NameInterface](V: Nodes, IUsed: Set[I], E: Edges, I: I) {
-}
+case class NameGraphModular[I <: NameInterface](V: Nodes, IUsed: Set[I], E: Edges, I: I)

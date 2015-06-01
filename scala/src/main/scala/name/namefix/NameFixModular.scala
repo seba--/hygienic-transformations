@@ -24,7 +24,7 @@ class NameFixModular[I <: NameInterface] {
     gsNames.intersect(gtNames).filter(v => (findRelations(v, gt) -- findRelations(v, gs)).nonEmpty)
   }
 
-  protected def compRenamings(gs: NameGraphModular[I], gt: NameGraphModular[I], t: Nominal, captureNodes: Nodes) = {
+  protected def compRenamings(gs: NameGraphModular[I], gt: NameGraphModular[I], t: NominalModular[I], captureNodes: Nodes) = {
     var renaming: Map[Identifier, Name] = Map()
 
     for (v <- captureNodes if findRelations(v, gt).intersect(renaming.keySet).isEmpty) {
@@ -130,7 +130,7 @@ class NameFixModular[I <: NameInterface] {
     if (mT.isEmpty)
       Set()
     else {
-      val currentModuleT = mT.find(m => m.dependencies.forall(i => depT.exists(_.moduleID.name == i))) match {
+      val currentModuleT = mT.find(m => m.dependencies.forall(i => depT.exists(_.moduleID == i))) match {
         case Some(module) => module
         case None => throw new IllegalArgumentException("Unable to resolve these modules based on their dependencies: " + mT.map(_.moduleID).mkString(", "))
       }
