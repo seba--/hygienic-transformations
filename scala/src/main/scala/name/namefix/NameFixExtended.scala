@@ -3,9 +3,9 @@ package name.namefix
 import name.Gensym._
 import name._
 import name.namegraph.NameGraphExtended
-import name.namegraph.NameGraphExtended.Nodes
+import name.namegraph.NameGraphExtended.{Nodes,Edges}
 
-class NameFixExtended {
+class NameFixExtended(permittedCapture: Edges = Map()) {
   protected def findRelations(n: Identifier,g: NameGraphExtended, result: Nodes = Set()): Nodes = {
     var newResult = result + n
 

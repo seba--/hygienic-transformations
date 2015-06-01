@@ -6,11 +6,12 @@ import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit
 import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
 import com.sun.tools.javac.util.{Context, Log}
-import name.{NameGraph, Name, Nominal}
+import name.namegraph.NameGraph
+import name.{Renaming, Identifier, Name, Nominal}
 
-class Tree(val units: List[JCCompilationUnit], val context: Context, originTrackedNames: Map[JCTree, Name] = Map()) extends Nominal {
+class Tree(val units: List[JCCompilationUnit], val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends Nominal {
 
-  lazy val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Name], Map[JCTree, Name]) = {
+  lazy val (_resolveNames, symMap, nodeMap): (NameGraph, Map[Symbol, Identifier], Map[JCTree, Identifier]) = {
     val visitor = new NameGraphExtractor(originTrackedNames)
     for (unit <- units)
       unit.accept(visitor, null)
@@ -18,7 +19,7 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
   }
 
   def resolveNames = _resolveNames
-  def allNames: Set[Name.ID] = resolveNames.V
+  def allNames: Set[Name] = resolveNames.V map (_.name)
 
   def rename(renaming: Renaming): Nominal = {
     val visitor = new RenameVisitor[Void](renaming, nodeMap, TreeMaker.instance(context))
@@ -37,7 +38,7 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
       if (!oldName.isDefined)
         None
       else oldName match {
-        case Some(jn@JName(_, _)) => Some(kv._1 -> new JName(jn.name, kv._1, jn.id))
+        case Some(jn@JName(_, _)) => Some(kv._1 -> new JName(jn.name, kv._1, jn))
         case Some(n) => Some(kv._1 -> n)
       }
     }
@@ -48,8 +49,8 @@ class Tree(val units: List[JCCompilationUnit], val context: Context, originTrack
     val log = Log.instance(context)
     val nerrors = log.nerrors
     val nwarnings = log.nwarnings
-    log.nerrors = log.MaxErrors
-    log.nwarnings = log.MaxWarnings
+    log.nerrors = Int.MaxValue
+    log.nwarnings = Int.MaxValue
     try {
       f
     } finally {
@@ -72,7 +73,7 @@ object Tree {
     Tree.fromSourceFiles(Java.makeTemporarySourceFiles(sourceFileCodes))
   }
 
-  def fromTrees(newUnits: List[JCCompilationUnit], context: Context, originTrackedNames: Map[JCTree, Name]): Tree = {
+  def fromTrees(newUnits: List[JCCompilationUnit], context: Context, originTrackedNames: Map[JCTree, Identifier]): Tree = {
     Java.reanalyzeTrees(newUnits, context)
     new Tree(newUnits, context, originTrackedNames)
   }

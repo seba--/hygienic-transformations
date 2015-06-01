@@ -5,13 +5,13 @@ import name.Identifier._
 import scala.language.implicitConversions
 
 object Identifier {
-  class ID(var nameO: Identifier) {
-    def name = nameO.name
-  }
+  class ID(/*var nameO: Identifier*/)
 
   implicit def apply(name: Name): Identifier = {
     new Identifier(name)
   }
+
+  def unapply(ident: Identifier) = Some(ident.name)
 }
 
 // Replacement of previously used "Name" class
@@ -19,8 +19,14 @@ object Identifier {
 // Since identifiers are used and stored more often (e. g. as part of an AST) and getting the name of an identifier is a lot more
 // common than finding the identifiers for a name, this variant is more intuitive to use in most cases.
 class Identifier(val name: Name) {
-  protected var id: Identifier.ID = new ID(this)
+  protected var id: Identifier.ID = new ID()
   protected var oName: Name = name
+
+  def this(name: Name, ident: Identifier) {
+    this(name)
+    if (ident != null)
+      this.id = ident.id
+  }
 
   override def toString = name
   override def equals(obj: scala.Any) = obj.isInstanceOf[Identifier] && obj.asInstanceOf[Identifier].id == id
@@ -31,8 +37,7 @@ class Identifier(val name: Name) {
 
   // Renames the identifier, resulting in an identifier that equals this one but has a different name
   def rename(newName : Name) = {
-    val renamed = new Identifier(newName)
-    renamed.id = id
+    val renamed = new Identifier(newName, this)
     renamed.oName = oName
     renamed
   }

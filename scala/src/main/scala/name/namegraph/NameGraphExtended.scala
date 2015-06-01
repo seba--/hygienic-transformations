@@ -8,6 +8,7 @@ import scala.language.implicitConversions
 // Name graph that allows multiple outgoing edges per identifier
 object NameGraphExtended {
   type Nodes = Set[Identifier]
+  type Edges = Map[Identifier, Set[Identifier]]
 
   def apply(E: Map[Identifier, Set[Identifier]]): NameGraphExtended = {
     var V: Nodes = Set()

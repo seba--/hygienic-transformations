@@ -57,6 +57,13 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
     }
   }
 
+  override def visitAnnotatedType(node: AnnotatedTypeTree, p: P): JCTree = {
+    val t = node.asInstanceOf[JCAnnotatedType]
+    val annotations = this.copy(t.annotations, p)
+    val typ = this.copy(t.underlyingType, p)
+    setOrigin(this.M.at(t.pos).AnnotatedType(annotations, typ), t)
+  }
+
   override def visitAnnotation(node: AnnotationTree, p: P): JCTree = {
     val t = node.asInstanceOf[JCAnnotation]
     val annotationType = copy(t.annotationType, p)
@@ -257,6 +264,13 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
     setOrigin(M.at(t.pos).NewClass(encl, typeargs, clazz, args, `def`), t)
   }
 
+  override def visitLambdaExpression(node: LambdaExpressionTree, p: P): JCTree = {
+    val t = node.asInstanceOf[JCLambda]
+    val params = this.copy(t.params, p)
+    val body = this.copy(t.body, p)
+    setOrigin(this.M.at(t.pos).Lambda(params, body),t )
+  }
+
   override def visitParenthesized(node: ParenthesizedTree, p: P): JCTree = {
     val t = node.asInstanceOf[JCParens]
     val expr = copy(t.expr, p)
@@ -273,6 +287,13 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
     val t = node.asInstanceOf[JCFieldAccess]
     val selected = copy(t.selected, p)
     setOrigin(M.at(t.pos).Select(selected, t.name), t)
+  }
+
+  override def visitMemberReference(node: MemberReferenceTree, p: P): JCTree = {
+    val t = node.asInstanceOf[JCMemberReference]
+    val expr = this.copy(t.expr, p)
+    val typeargs = this.copy(t.typeargs, p)
+    setOrigin(this.M.at(t.pos).Reference(t.mode, t.name, expr, typeargs), t)
   }
 
   override def visitEmptyStatement(node: EmptyStatementTree, p: P): JCTree = {
@@ -328,6 +349,12 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
     val t = node.asInstanceOf[JCTypeUnion]
     val components = copy(t.alternatives, p)
     setOrigin(M.at(t.pos).TypeUnion(components), t)
+  }
+
+  override def visitIntersectionType(node: IntersectionTypeTree, p: P): JCTree = {
+    val t = node.asInstanceOf[JCTypeIntersection]
+    val bounds = this.copy(t.bounds, p)
+    setOrigin(this.M.at(t.pos).TypeIntersection(bounds), t)
   }
 
   override def visitArrayType(node: ArrayTypeTree, p: P): JCTree = {
@@ -391,8 +418,8 @@ class TrackingTreeCopier[P](M: TreeMaker) extends TreeVisitor[JCTree, P] {
 
   override def visitOther(node: com.sun.source.tree.Tree, p: P): JCTree = {
     val tree = node.asInstanceOf[JCTree]
-    tree.getTag match {
-      case JCTree.LETEXPR => {
+    tree.getTag.ordinal() match {
+      case 1 => {
         val t = node.asInstanceOf[LetExpr]
         val defs = copy(t.defs, p)
         val expr = copy(t.expr, p)

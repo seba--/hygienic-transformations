@@ -6,31 +6,28 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol
 import com.sun.tools.javac.code.Type.ClassType
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
-import name.Name
+import name.{Identifier, Name}
 
-class JName(name: String, val node: JCTree, id: Name.ID) extends Name(name, id)
+class JName(name: String, val node: JCTree, ident: Identifier = null) extends Identifier(name, ident)
+
 object JName {
-  def apply(name: String, node: JCTree) = {
-    val n = Name(name)
-    val jn = new JName(name, node, n.id)
-    n.id.nameO = jn
-    jn
-  }
+  def apply(name: String, node: JCTree): JName = new JName(name, node)
+  def apply(name: String, node: JCTree, ident: Identifier): JName = new JName(name, node, ident)
 
   def unapply(n: JName): Option[(String, JCTree)] = Some((n.name, n.node))
 }
 
 object NameGraphExtractor {
-  var globalNames = Map[Symbol, Name]()
+  var globalNames = Map[Symbol, Identifier]()
 }
 
-class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
+class NameGraphExtractor(originTrackedNames: Map[JCTree, Identifier]) extends TreeScanner[Void,Void] with NameVisitor[Void, Void] {
   import NameGraphExtractor.globalNames
 
-  private var _names = Set[Name.ID]()
-  private var _edges = Map[Name.ID, Name.ID]()
+  private var _names = Set[Identifier]()
+  private var _edges = Map[Identifier, Identifier]()
   private var _symMap = globalNames
-  var nodeMap = Map[JCTree, Name]()
+  var nodeMap = Map[JCTree, Identifier]()
 
   def names = _names
   def edges = _edges
@@ -43,22 +40,22 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
   private def addDec(node: JCTree, sym: Symbol): Unit =
     originTrackedNames.get(node) match {
       case Some(jn@JName(name, _)) =>
-        val n = new JName(name, node, jn.id)
+        val n = JName(name, node, jn)
         _symMap += sym -> n
         nodeMap += node -> n
-        _names += n.id
+        _names += n
       case None =>
         _symMap.get(sym) match {
           case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
-          case Some(name@Name(_)) =>
-            val n = new JName(name.name, node, name.id)
+          case Some(ident@Identifier(_)) =>
+            val n = new JName(ident.name, node, ident)
             _symMap += sym -> n
             nodeMap += node -> n
           case None =>
             val n = JName(sym.name.toString, node)
             _symMap += sym -> n
             nodeMap += node -> n
-            _names += n.id
+            _names += n
         }
     }
 
@@ -67,23 +64,23 @@ class NameGraphExtractor(originTrackedNames: Map[JCTree, Name]) extends TreeScan
     val dec = _symMap.get(sym) match {
       case Some(n) => n
       case None => // external name or name that comes later in the tree
-        val n = Name(sym.name.toString)
+        val n = Identifier(sym.name.toString)
         _symMap += sym -> n
-        _names += n.id
+        _names += n
         n
     }
     val ref = originTrackedNames.get(refnode) match {
       case Some(jn@JName(name, _)) =>
-        val n = new JName(name, refnode, jn.id)
+        val n = JName(name, refnode, jn)
         nodeMap += refnode -> n
-        _names += n.id
+        _names += n
         n
       case None =>
         JName(sym.name.toString, refnode)
     }
-    _names += ref.id
+    _names += ref
     nodeMap += refnode -> ref
-    _edges += ref.id -> dec.id
+    _edges += ref -> dec
   }
 
   override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)

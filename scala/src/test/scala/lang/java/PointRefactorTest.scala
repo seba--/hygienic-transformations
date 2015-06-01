@@ -14,16 +14,16 @@ class PointRefactorTest extends FunSuite {
     val ref = refDec._1
     val dec = refDec._2
     if (sym != null)
-      assert(tree.symMap(sym).id == tree.nodeMap(dec).id)
-    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
-    assert(tree.nodeMap(dec).id == tree.resolveNames.E(tree.nodeMap(ref).id))
+      assert(tree.symMap(sym) == tree.nodeMap(dec))
+    assert(tree.nodeMap(dec) != tree.nodeMap(ref))
+    assert(tree.nodeMap(dec) == tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   def assertNotEdge(tree: Tree, refDec: (JCTree, JCTree)): Unit = {
     val ref = refDec._1
     val dec = refDec._2
-    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
-    assert(tree.nodeMap(dec).id != tree.resolveNames.E(tree.nodeMap(ref).id))
+    assert(tree.nodeMap(dec) != tree.nodeMap(ref))
+    assert(tree.nodeMap(dec) != tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   val pointCode =

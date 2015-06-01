@@ -5,6 +5,7 @@ version := "1.0"
 scalaVersion := "2.11.4"
 
 scalacOptions += "-deprecation"
+scalacOptions += "-feature"
 
 //libraryDependencies += "org.eclipse.jdt" % "core" % "3.3.0-v_771"
 
@@ -33,4 +34,5 @@ val JavaTools = List[Option[String]] (
   )
 )
 
+val a = {println(JavaTools)}
 unmanagedJars in Compile += JavaTools

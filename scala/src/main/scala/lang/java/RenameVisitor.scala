@@ -4,9 +4,9 @@ import com.sun.source.tree._
 import com.sun.tools.javac.tree.{TreeMaker, JCTree}
 import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.util
-import name.Name
+import name.{Identifier, Name}
 
-class RenameVisitor[P](renaming: Name => Name, nodeMap: Map[JCTree, Name], tm: TreeMaker) extends TrackingTreeCopier[P](tm) {
+class RenameVisitor[P](renaming: Identifier => Identifier, nodeMap: Map[JCTree, Identifier], tm: TreeMaker) extends TrackingTreeCopier[P](tm) {
   
   def rename(node: JCTree, nodeName: util.Name) = nodeMap.get(node) match {
     case None => nodeName

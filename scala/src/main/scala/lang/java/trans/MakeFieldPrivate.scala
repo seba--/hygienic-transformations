@@ -6,7 +6,7 @@ import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.tree.{JCTree, TreeMaker}
 import com.sun.tools.javac.util.{Name, ListBuffer, List}
 import lang.java.{TrackingTreeCopier, Tree}
-import name.NameFix
+import name.namefix.NameFix
 
 object MakeFieldPrivate {
   def unsafeApply(sym: Symbol, tree: Tree): Tree = {
@@ -21,7 +21,7 @@ object MakeFieldPrivate {
       val ref = transformed.nodeMap.get(kv._1)
       val dec = transformed.nodeMap.get(kv._2)
       (ref, dec) match {
-        case (Some(ref), Some(dec)) => Some(ref.id -> dec.id)
+        case (Some(ref), Some(dec)) => Some(ref -> dec)
         case _ => None
       }
     }
@@ -57,7 +57,7 @@ class MakeFieldPrivate[P](tm: TreeMaker, sym: Symbol) extends TrackingTreeCopier
   def makeSetter(thisType: Type, p: P): JCMethodDecl = {
     val mods: JCModifiers = tm.Modifiers(oldVisibility)
     val name = setName
-    val restype: JCExpression = tm.TypeIdent(TypeTags.VOID)
+    val restype: JCExpression = tm.TypeIdent(TypeTag.VOID)
     val typarams: List[JCTree.JCTypeParameter] = List.nil()
     val params: List[JCTree.JCVariableDecl] = List.of(tm.VarDef(tm.Modifiers(0l), varname, this.copy(vartype, p), null))
     val thrown: List[JCTree.JCExpression] = List.nil()

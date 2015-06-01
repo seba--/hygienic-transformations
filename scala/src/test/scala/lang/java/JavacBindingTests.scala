@@ -7,8 +7,6 @@ import com.sun.tools.javac.main.JavaCompiler
 import com.sun.tools.javac.tree.JCTree
 import com.sun.tools.javac.tree.JCTree._
 import com.sun.tools.javac.util.Log
-import name.NameGraph
-import org.eclipse.jdt.core.dom.{ExpressionStatement, SimpleName, ReturnStatement, TypeDeclaration}
 import org.scalatest._
 
 class JavacBindingTests extends FunSuite {
@@ -17,16 +15,16 @@ class JavacBindingTests extends FunSuite {
     val ref = refDec._1
     val dec = refDec._2
     if (sym != null)
-      assert(tree.symMap(sym).id == tree.nodeMap(dec).id)
-    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
-    assert(tree.nodeMap(dec).id == tree.resolveNames.E(tree.nodeMap(ref).id))
+      assert(tree.symMap(sym) == tree.nodeMap(dec))
+    assert(tree.nodeMap(dec) != tree.nodeMap(ref))
+    assert(tree.nodeMap(dec) == tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   def assertNotEdge(tree: Tree, refDec: (JCTree, JCTree)): Unit = {
     val ref = refDec._1
     val dec = refDec._2
-    assert(tree.nodeMap(dec).id != tree.nodeMap(ref).id)
-    assert(tree.nodeMap(dec).id != tree.resolveNames.E(tree.nodeMap(ref).id))
+    assert(tree.nodeMap(dec) != tree.nodeMap(ref))
+    assert(tree.nodeMap(dec) != tree.resolveNames.E(tree.nodeMap(ref)))
   }
 
   val personCode =
@@ -168,7 +166,7 @@ class JavacBindingTests extends FunSuite {
   test("inconsistent renaming field birthDate->birthDate2 in Person") {
     import personTree.nodeMap
     val person = personStuff(personTree)
-    val renaming = Map(nodeMap(person.field_birthDate).id -> "birthDate2")
+    val renaming = Map(nodeMap(person.field_birthDate) -> "birthDate2")
 
     val renamedPersonTree = personTree.silent { // silence "cannot find symbol 'birthDate'"
       personTree.rename(renaming).asInstanceOf[Tree]
@@ -186,7 +184,7 @@ class JavacBindingTests extends FunSuite {
     assertNotEdge(tree, field_name_getterReference -> field_birthDate)
 
     // renaming retains IDs
-    assert(personTree.nodeMap(person.field_birthDate).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate).id)
+    assert(personTree.nodeMap(person.field_birthDate) == renamedPersonTree.nodeMap(renamedPerson.field_birthDate))
   }
 
   test("consistent renaming field birthDate->birthDate2 in Person") {
@@ -194,9 +192,9 @@ class JavacBindingTests extends FunSuite {
     val person = personStuff(personTree)
     val constructorRef = person.constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
     val renaming = Map(
-      nodeMap(person.field_birthDate).id -> "birthDate2",
-      nodeMap(constructorRef).id -> "birthDate2",
-      nodeMap(person.field_birthDate_getterReference).id -> "birthDate2"
+      nodeMap(person.field_birthDate) -> "birthDate2",
+      nodeMap(constructorRef) -> "birthDate2",
+      nodeMap(person.field_birthDate_getterReference) -> "birthDate2"
     )
 
     val renamedPersonTree = personTree.rename(renaming).asInstanceOf[Tree]
@@ -215,9 +213,9 @@ class JavacBindingTests extends FunSuite {
 
     // renaming retains IDs
     val renamedConstructorRef = renamedPerson.constructor.getBody.stats.get(2).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign].lhs
-    assert(personTree.nodeMap(person.field_birthDate).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate).id)
-    assert(personTree.nodeMap(constructorRef).id == renamedPersonTree.nodeMap(renamedConstructorRef).id)
-    assert(personTree.nodeMap(person.field_birthDate_getterReference).id == renamedPersonTree.nodeMap(renamedPerson.field_birthDate_getterReference).id)
+    assert(personTree.nodeMap(person.field_birthDate) == renamedPersonTree.nodeMap(renamedPerson.field_birthDate))
+    assert(personTree.nodeMap(constructorRef) == renamedPersonTree.nodeMap(renamedConstructorRef))
+    assert(personTree.nodeMap(person.field_birthDate_getterReference) == renamedPersonTree.nodeMap(renamedPerson.field_birthDate_getterReference))
   }
 
 }
