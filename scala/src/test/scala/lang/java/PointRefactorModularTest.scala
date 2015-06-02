@@ -43,8 +43,9 @@ class PointRefactorModularTest extends FunSuite {
   case class PointStuff(tree: TreeUnit) {
     val PointUnit = tree.unit
     val clazz_Point = PointUnit.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
-    val field_x = clazz_Point.getMembers.get(1).asInstanceOf[JCVariableDecl]
-    val field_y = clazz_Point.getMembers.get(2).asInstanceOf[JCVariableDecl]
+    val consOffset = if (clazz_Point.getMembers.size() > 2) 1 else 0
+    val field_x = clazz_Point.getMembers.get(0 + consOffset).asInstanceOf[JCVariableDecl]
+    val field_y = clazz_Point.getMembers.get(1 + consOffset).asInstanceOf[JCVariableDecl]
   }
 
   val mirroredPointUnit = TreeUnit.fromSourceCode("MirroredPoint" -> mirroredPointCode)
@@ -53,11 +54,12 @@ class PointRefactorModularTest extends FunSuite {
 
     val clazz_MirroredPoint = MirroredPointUnit.getTypeDecls.get(0).asInstanceOf[JCClassDecl]
     val extending_Point = clazz_MirroredPoint.extending.asInstanceOf[JCIdent]
-    val MirroredPoint_getY = clazz_MirroredPoint.getMembers.get(1).asInstanceOf[JCMethodDecl]
+    val consOffset = if (clazz_MirroredPoint.getMembers.size() > 2) 1 else 0
+    val MirroredPoint_getY = clazz_MirroredPoint.getMembers.get(0 + consOffset).asInstanceOf[JCMethodDecl]
     private val MirroredPoint_getY_ret = MirroredPoint_getY.getBody.getStatements.get(0).asInstanceOf[JCReturn]
     val field_y_getterReference = MirroredPoint_getY_ret.getExpression.asInstanceOf[JCUnary].arg.asInstanceOf[JCIdent]
 
-    val MirroredPoint_mirror = clazz_MirroredPoint.getMembers.get(2).asInstanceOf[JCMethodDecl]
+    val MirroredPoint_mirror = clazz_MirroredPoint.getMembers.get(1 + consOffset).asInstanceOf[JCMethodDecl]
     val MirroredPoint_mirror_ass = MirroredPoint_mirror.body.stats.get(0).asInstanceOf[JCExpressionStatement].expr.asInstanceOf[JCAssign]
     val MirroredPoint_mirror_getRef = MirroredPoint_mirror_ass.rhs.asInstanceOf[JCUnary].arg.asInstanceOf[JCIdent]
     val MirroredPoint_mirror_setRef = MirroredPoint_mirror_ass.lhs.asInstanceOf[JCFieldAccess]
@@ -93,12 +95,14 @@ class PointRefactorModularTest extends FunSuite {
   }
 
   test("original bindings") {
-    mirroredPointUnit.link(pointUnit.interface)
-
     val point = PointStuff(pointUnit)
     val mirroredPoint = MirroredPointStuff(mirroredPointUnit)
     import point._
     import mirroredPoint._
+
+    pointUnit.resolveNamesModular
+    mirroredPointUnit.link(pointUnit.interface).resolveNamesModular
+
     assertEdge(pointUnit, field_y_getterReference -> field_y, field_y.sym)
     assertEdge(pointUnit, MirroredPoint_mirror_getRef -> field_y, field_y.sym)
     assertEdge(pointUnit, MirroredPoint_mirror_setRef -> field_y, field_y.sym)

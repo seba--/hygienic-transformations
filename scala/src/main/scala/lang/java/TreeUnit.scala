@@ -41,7 +41,7 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
     _resolved
   }
 
-  val moduleID: Identifier = unit.getTypeDecls.get(0) match {
+  private def moduleID = unit.getTypeDecls.get(0) match {
     case cl: JCClassDecl => symMap(cl.sym)
   }
 

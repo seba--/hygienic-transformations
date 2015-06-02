@@ -4,7 +4,6 @@ import name.namegraph.{NameGraphExtended, NameGraphModular}
 
 trait NominalModular[I <: NameInterface] {
   // Own module ID
-  val moduleID: Identifier
 
   def allNames: Set[Name]
 

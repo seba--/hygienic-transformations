@@ -1,7 +1,7 @@
 package lang.java
 
 import com.sun.source.util.TreeScanner
-import com.sun.tools.javac.code.Symbol
+import com.sun.tools.javac.code.{Flags, Symbol}
 import com.sun.tools.javac.code.Symbol.ClassSymbol
 import com.sun.tools.javac.code.Type.ClassType
 import com.sun.tools.javac.tree.JCTree
@@ -18,6 +18,8 @@ class NameGraphModularExtractor(deps: Set[TreeUnitInterface], originTrackedNames
   private var _nodeMap = Map[JCTree, Identifier]()
   private var _depsUsed = Set[TreeUnitInterface]()
   private var _exported = Set[Identifier]()
+  private var _topsym: Symbol = _
+
 
   def names = _names
   def edges = _edges
@@ -30,7 +32,7 @@ class NameGraphModularExtractor(deps: Set[TreeUnitInterface], originTrackedNames
   def depsUsed = _depsUsed
   def exported = _exported
   
-  private def addDec(node: JCTree, sym: Symbol): Unit =
+  private def addDec(node: JCTree, sym: Symbol): Unit = {
     originTrackedNames.get(node) match {
       case Some(jn@JName(name, _)) =>
         val n = JName(name, node, jn)
@@ -39,7 +41,7 @@ class NameGraphModularExtractor(deps: Set[TreeUnitInterface], originTrackedNames
         _names += n
       case None =>
         _symMap.get(sym) match {
-          case Some(JName(_,wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
+          case Some(JName(_, wasnode)) => if (node != wasnode) throw new IllegalStateException(s"Symbol $sym defined in multiple nodes:\n$node\n$wasnode")
           case Some(ident@Identifier(_)) =>
             val n = new JName(ident.name, node, ident)
             _symMap += sym -> n
@@ -51,7 +53,7 @@ class NameGraphModularExtractor(deps: Set[TreeUnitInterface], originTrackedNames
             _names += n
         }
     }
-
+  }
 
   private def addRef(refnode: JCTree, sym: Symbol): Unit = {
     val dec = _symMap.get(sym) match {
@@ -76,15 +78,42 @@ class NameGraphModularExtractor(deps: Set[TreeUnitInterface], originTrackedNames
     _edges += ref -> (_edges.getOrElse(ref, Set[Identifier]()) + dec)
   }
 
-  override def visitClassDecl(node : JCClassDecl, p : Void) = addDec(node, node.sym)
+  private def addExported(node: JCTree): Unit = {
+    _exported += _nodeMap(node)
+  }
+
+  def not(flags: Long, f: Long) = (flags & f) == 0
+  def is(flags: Long, f: Long) = (flags & f) != 0
+
+  override def visitClassDecl(node : JCClassDecl, p : Void) = {
+    addDec(node, node.sym)
+    if (_topsym == null)
+      _topsym = node.sym
+  }
+
   override def visitMethodDecl(node: JCMethodDecl, p: Void) = {
     addDec(node, node.sym)
+    if (node.sym.owner == _topsym && not(node.mods.flags, Flags.PRIVATE))
+      addExported(node)
   // TODO method overriding
 //    tryAddOverridingRef(node, node.sym)
   }
-  override def visitVariableDecl(node: JCVariableDecl, p: Void) = addDec(node, node.sym)
-  override def visitFieldAccess(node: JCFieldAccess, p: Void) = addRef(node, node.sym)
-  override def visitIdentifierAccess(node: JCIdent, p: Void) = addRef(node, node.sym)
+
+
+  override def visitVariableDecl(node: JCVariableDecl, p: Void) = {
+    addDec(node, node.sym)
+    if (node.sym.owner == _topsym && not(node.mods.flags, Flags.PARAMETER) && not(node.mods.flags, Flags.PRIVATE))
+      addExported(node)
+  }
+
+  override def visitFieldAccess(node: JCFieldAccess, p: Void) = {
+    if (node.sym != null)
+      addRef(node, node.sym)
+  }
+  override def visitIdentifierAccess(node: JCIdent, p: Void) = {
+    if (node.sym != null)
+      addRef(node, node.sym)
+  }
 
   def tryAddOverridingRef(node: JCTree, nodeSym: Symbol): Unit = {
     nodeSym.owner.`type` match {
