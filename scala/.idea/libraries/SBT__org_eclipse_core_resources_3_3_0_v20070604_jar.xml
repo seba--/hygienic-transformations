@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="SBT: org.eclipse.core:resources:3.3.0-v20070604:jar">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/org.eclipse.core/resources/jars/resources-3.3.0-v20070604.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

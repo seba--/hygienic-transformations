@@ -39,6 +39,8 @@ val JavaTools = List[Option[String]] (
   )
 )
 
+val a = println(JavaTools)
+
 unmanagedJars in Compile += JavaTools
 
 // necessary due to tools.jar dependency

@@ -9,10 +9,13 @@ import com.sun.source.tree.CompilationUnitTree
 import com.sun.source.util.{JavacTask, Trees}
 import com.sun.tools.javac
 import com.sun.tools.javac.api.JavacTaskImpl
+import com.sun.tools.javac.code.Symbol.{TypeSymbol, ClassSymbol}
+import com.sun.tools.javac.code.Symtab
 import com.sun.tools.javac.comp.Check
+import com.sun.tools.javac.jvm.ClassReader
 import com.sun.tools.javac.main.JavaCompiler
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit
-import com.sun.tools.javac.util.Context
+import com.sun.tools.javac.util.{Name, Context}
 
 import scala.collection.JavaConversions
 
@@ -23,6 +26,15 @@ object Java {
     f.mkdir()
     f
   }
+
+  def binDir() = {
+    val f = File.createTempFile("JavaBin", null)
+    f.delete()
+    f.mkdir()
+    f
+  }
+
+  def binDir(hash: Long) = new File(tmpDir.getParentFile, "JavaBin_" + hash)
 
   def writeTemporarySourceFile(unitName: String, sourceCode: String) = {
     val sourceFile = new File(tmpDir, s"$unitName.java")
@@ -43,8 +55,8 @@ object Java {
   }
 
   def parseSourceFiles(sourceFiles: Seq[File]): (List[JCCompilationUnit], Context) = {
-    val compiler = ToolProvider.getSystemJavaCompiler();
-    val fileManager = compiler.getStandardFileManager(null, null, null);
+    val compiler = ToolProvider.getSystemJavaCompiler()
+    val fileManager = compiler.getStandardFileManager(null, null, null)
     val compilationUnits = fileManager.getJavaFileObjects(sourceFiles: _*)
 
     val options = util.Arrays.asList[String]()
@@ -60,8 +72,12 @@ object Java {
     (result, compilationTask.getContext)
   }
 
-  def analyzeTrees(trees: List[JCCompilationUnit], oldContext: Context): Unit = {
+  def analyzeTrees(trees: List[JCCompilationUnit], oldContext: Context, classes: Map[Name, ClassSymbol] = Map()): Unit = {
     val treeList = javac.util.List.from(trees.toArray)
+
+    val symTab = Symtab.instance(oldContext)
+    for ((name,sym) <- classes)
+      symTab.classes.put(TypeSymbol.formFlatName(name, sym.owner), sym)
 
     Check.instance(oldContext).compiled.clear()
     val compiler = JavaCompiler.instance(oldContext)

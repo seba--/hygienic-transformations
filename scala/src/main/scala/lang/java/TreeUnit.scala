@@ -3,14 +3,16 @@ package lang.java
 import java.io.File
 
 import com.sun.tools.javac.code.Symbol
+import com.sun.tools.javac.code.Symbol.ClassSymbol
 import com.sun.tools.javac.tree.JCTree.{JCClassDecl, JCCompilationUnit}
 import com.sun.tools.javac.tree.{JCTree, TreeMaker}
+import com.sun.tools.javac
 import com.sun.tools.javac.util.{Context, Log}
 import name.namegraph.NameGraphModular
 import name._
 
-case class TreeUnitInterface(moduleID: Identifier, export: Set[Identifier]) extends NameInterface {
-  def rename(renaming: Renaming) = TreeUnitInterface(moduleID, export map(renaming(_)))
+case class TreeUnitInterface(moduleID: Identifier, export: Set[Identifier], name: javac.util.Name, sym: ClassSymbol) extends NameInterface {
+  def rename(renaming: Renaming) = TreeUnitInterface(moduleID, export map(renaming(_)), name, sym)
 }
 
 class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends NominalModular[TreeUnitInterface] {
@@ -29,20 +31,24 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
   private var _interface: TreeUnitInterface = _
   def interface = _interface
 
-  def resolveNamesModular = {
-    Java.analyzeTrees(List(unit), context)
+  def resolveNamesModular: NameGraphModular[TreeUnitInterface] = {
+    if (_resolved != null)
+      return _resolved
+
+    val classes = (deps map (i => i.name -> i.sym)).toMap
+    Java.analyzeTrees(List(unit), context, classes)
     val visitor = new NameGraphModularExtractor(deps, originTrackedNames)
     unit.accept(visitor, null)
     symMap = visitor.symMap
     nodeMap = visitor.nodeMap
 
-    _interface = TreeUnitInterface(moduleID, visitor.exported)
+    _interface = TreeUnitInterface(symMap(moduleSym), visitor.exported, moduleSym.name, moduleSym)
     _resolved = NameGraphModular(visitor.names, visitor.depsUsed, visitor.edges, interface)
     _resolved
   }
 
-  private def moduleID = unit.getTypeDecls.get(0) match {
-    case cl: JCClassDecl => symMap(cl.sym)
+  private def moduleSym = unit.getTypeDecls.get(0) match {
+    case cl: JCClassDecl => cl.sym
   }
 
   def allNames: Set[Name] = _resolved.V map (_.name)
