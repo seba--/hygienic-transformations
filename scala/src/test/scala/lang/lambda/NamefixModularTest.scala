@@ -7,9 +7,10 @@ import name.namefix.NameFix
 import org.scalatest._
 
 class NamefixModularTest extends FunSuite {
-  val moduleBaseOrig = Module("base", Set(), Map(
+  val moduleBase = Module("base", Set(), Map(
     ("times2", (Lam("x", Add(Var("x"), Var("x"))), false)),
     ("times3", (Lam("x", Add(App(Var("times2"), Var("x")), Var("x"))), true))))
+  val moduleBaseEmpty = Module(moduleBase.name, Set(), Map())
   val moduleBase2Orig = Module("base2", Set(), Map())
   val moduleBase2Synth = Module(moduleBase2Orig.name, Set(), Map(
     ("times3", (Lam("x", Add(Var("x"), Var("x"))), true))))
@@ -18,8 +19,8 @@ class NamefixModularTest extends FunSuite {
   val moduleClient = Module("client", Set("times3"), Map(calcOriginal))
   val moduleClientTransformed = Module(moduleClient.name, moduleClient.imports, Map(calcOriginal, times3Synth))
 
-  val times2Def = moduleBaseOrig.defs.keys.find(_.name == "times2").get
-  val times2Ref = moduleBaseOrig.defs.find(_._1.name == "times3").get._2._1 match {
+  val times2Def = moduleBase.defs.keys.find(_.name == "times2").get
+  val times2Ref = moduleBase.defs.find(_._1.name == "times3").get._2._1 match {
     case Lam(_, Add(App(Var(x), _), _)) => x
   }
   val times3DefSynth = times3Synth._1
@@ -29,7 +30,8 @@ class NamefixModularTest extends FunSuite {
   }
   val calcDef = calcOriginal._1
 
-  val moduleBaseInterface = moduleBaseOrig.interface
+  val moduleBaseInterface = moduleBase.interface
+  val moduleBaseEmptyInterface = moduleBaseEmpty.interface
   val moduleBase2OrigInterface = moduleBase2Orig.interface
   val moduleBase2SynthInterface = moduleBase2Synth.interface
   val moduleClientInterface = moduleClient.interface
@@ -51,6 +53,18 @@ class NamefixModularTest extends FunSuite {
     val fixedModule = NameFix.nameFixModular(originalGraph, moduleClientTransformed, Set(moduleBaseInterface))
     val fixedGraph = fixedModule.resolveNamesModular
     assert(fixedGraph.E(times3Ref).contains(times3Import))
+  }
+
+  test ("name-fix of external capture") {
+    moduleClient.link(Set(moduleBaseEmptyInterface, moduleBase2OrigInterface))
+    val originalGraph = moduleClient.resolveNamesModular
+    moduleClient.link(Set(moduleBaseEmptyInterface, moduleBase2SynthInterface))
+    val transformedGraph = moduleClient.resolveNamesModular
+
+    val fixedModule = NameFix.nameFixModular(originalGraph, moduleClient, Set(moduleBaseEmptyInterface, moduleBase2SynthInterface))
+    val fixedGraph = fixedModule.resolveNamesModular
+
+    assert(!fixedGraph.E.contains(times3Import))
   }
 
   test ("name-fix of unsolvable capture") {
