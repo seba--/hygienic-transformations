@@ -33,7 +33,7 @@ case class NameGraphExtended(V: Nodes, E: Map[Identifier, Set[Identifier]]) {
         (e._1, e._2)))
 
   def toSimple: NameGraph = {
-    new NameGraph(V, E.filter(_._2.size > 0).map(e => (e._1,
+    new NameGraph(V, E.filter(_._2.nonEmpty).map(e => (e._1,
       if (e._2.size == 1)
         e._2.head
       else

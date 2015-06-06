@@ -1,6 +1,6 @@
 package name
 
-import name.namegraph.{NameGraphExtended, NameGraphModular}
+import name.namegraph.NameGraphModular
 
 trait NominalModular[I <: NameInterface] {
   // Own module ID
