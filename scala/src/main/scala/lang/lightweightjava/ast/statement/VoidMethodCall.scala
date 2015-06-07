@@ -21,7 +21,7 @@ case class VoidMethodCall(sourceObject: TermVariable, methodName: Identifier, me
               "Method '" + methodName.name + "' is called with an invalid number of parameters in class '" +
                 typeEnvironment(This.name).asInstanceOf[ClassName].name + "'")
 
-            methodParameters.zip(method.signature.parameters).map(param =>
+            methodParameters.zip(method.signature.parameters).foreach(param =>
               require(param._1 == Null || program.checkSubclass(typeEnvironment(param._1.name), param._2.variableType),
                 "Method '" + methodName.name + "' is called with an incompatible value for parameter '" +
                   param._2.variableName + "' in class '" + typeEnvironment(This.name).asInstanceOf[ClassName].name + "'"))

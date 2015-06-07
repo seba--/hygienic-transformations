@@ -46,14 +46,18 @@ case class Program(classes: ClassDefinition*) extends AST {
 
   def findField(classDefinition: ClassDefinition, fieldName: Name) = findAllFields(classDefinition).find(_.fieldName.name == fieldName)
 
-  override def resolveNames(nameEnvironment: ClassNameEnvironment) = {
-    // Generate the class name environment for the whole program, where each class name is mapped to a set of corresponding classes,
-    // each with a map for field names and one for method names
-    val programEnvironment: ClassNameEnvironment = nameEnvironment ++ classes.toSet[ClassDefinition].map(
+  // Generate the class name environment for the whole program, where each class name is mapped to a set of corresponding classes,
+  // each with a map for field names and one for method names
+  def nameEnvironment: ClassNameEnvironment = {
+    classes.toSet[ClassDefinition].map(
       c => (c.className,
         findAllFields(c).map(_.fieldName).groupBy(_.name),
         findAllMethods(c).toSet[MethodDefinition].map(_.signature.methodName).groupBy(_.name)
         )).groupBy(_._1.name)
+  }
+
+  override def resolveNames(additionalNameEnvironment: ClassNameEnvironment) = {
+    val programEnvironment: ClassNameEnvironment = additionalNameEnvironment ++ nameEnvironment
 
     classes.foldLeft(NameGraphExtended(Set(), Map()))(_ + _.resolveNames(programEnvironment)) + NameGraphExtended(Set(), Map())
   }
