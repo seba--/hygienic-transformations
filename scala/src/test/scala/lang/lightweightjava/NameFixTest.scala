@@ -1,7 +1,7 @@
 package lang.lightweightjava
 
 import lang.lightweightjava.configuration.NormalConfiguration
-import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
+import lang.lightweightjava.trans.localdeclaration.LocalDeclarationTransformation
 import name.Nominal
 import name.namefix.NameFix
 import org.scalatest.{FlatSpec, Matchers}

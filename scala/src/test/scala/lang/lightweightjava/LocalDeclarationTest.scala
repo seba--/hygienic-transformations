@@ -1,7 +1,7 @@
 package lang.lightweightjava
 
 import lang.lightweightjava.configuration.NormalConfiguration
-import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
+import lang.lightweightjava.trans.localdeclaration.LocalDeclarationTransformation
 import org.scalatest.{FlatSpec, Matchers}
 
 class LocalDeclarationTest extends FlatSpec with Matchers {

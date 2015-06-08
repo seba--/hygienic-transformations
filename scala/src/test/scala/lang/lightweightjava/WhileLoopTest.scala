@@ -1,7 +1,7 @@
 package lang.lightweightjava
 
 import lang.lightweightjava.configuration.{NormalConfiguration, NullValue}
-import lang.lightweightjava.whileloops.WhileLoopTransformation
+import lang.lightweightjava.trans.whileloops.WhileLoopTransformation
 import org.scalatest.{FlatSpec, Matchers}
 
 class WhileLoopTest extends FlatSpec with Matchers {

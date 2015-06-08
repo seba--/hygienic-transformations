@@ -3,7 +3,7 @@ package lang.lightweightjava
 import lang.lightweightjava.ast.AccessModifier
 import lang.lightweightjava.ast.returnvalue.{ReturnField, ReturnMethodCall}
 import lang.lightweightjava.ast.statement.{MethodCall, VoidMethodCall}
-import lang.lightweightjava.privatefield.MakeFieldPrivateTransformation
+import lang.lightweightjava.trans.privatefield.MakeFieldPrivateTransformation
 import org.scalatest.{FlatSpec, Matchers}
 
 class MakeFieldPrivateTest extends FlatSpec with Matchers {

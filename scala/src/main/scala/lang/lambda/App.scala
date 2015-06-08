@@ -1,6 +1,6 @@
 package lang.lambda
 
-import name.Renaming
+import name._
 import name.namegraph._
 
 /**

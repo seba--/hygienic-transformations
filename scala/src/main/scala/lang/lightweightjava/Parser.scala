@@ -5,8 +5,8 @@ import lang.lightweightjava.ast._
 import lang.lightweightjava.ast.returnvalue._
 import lang.lightweightjava.ast.statement._
 import lang.lightweightjava.configuration._
-import lang.lightweightjava.localdeclaration.ast.LocalVariableDeclaration
-import lang.lightweightjava.whileloops.ast.WhileLoop
+import lang.lightweightjava.trans.localdeclaration.ast.LocalVariableDeclaration
+import lang.lightweightjava.trans.whileloops.ast.WhileLoop
 import name.Identifier
 
 import scala.util.parsing.combinator.JavaTokenParsers

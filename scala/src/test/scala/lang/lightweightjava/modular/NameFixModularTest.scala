@@ -2,7 +2,7 @@ package lang.lightweightjava.modular
 
 import lang.lightweightjava.ast.{ClassName, Program}
 import lang.lightweightjava.configuration.NormalConfiguration
-import lang.lightweightjava.localdeclaration.LocalDeclarationTransformation
+import lang.lightweightjava.trans.localdeclaration.LocalDeclarationTransformation
 import lang.lightweightjava.{ClassInterface, Interpreter, Parser}
 import name.Identifier
 import name.namefix.NameFix
