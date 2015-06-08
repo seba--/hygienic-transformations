@@ -9,6 +9,10 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   private var dependencies = Set[ClassInterface]()
   override def link(dependencies: Set[ClassInterface]) = {
     this.dependencies = dependencies
+    val newInterface = ClassInterface(className, exportedFields, exportedMethods)
+    if (_interface != null)
+      newInterface.original = _interface
+    _interface = newInterface
     _resolved = null
     this
   }
@@ -20,14 +24,38 @@ case class ClassDefinition(className: ClassName, superClass: ClassRef, elements:
   val fields = elements.collect({ case f: FieldDeclaration => f }).toSet
   val methods = elements.collect({ case m: MethodDefinition => m }).toSet
 
-  private val exportedFields = fields.filter(_.accessModifier == AccessModifier.PUBLIC).map(_.fieldName)
-  private val exportedMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
+  private def exportedFields = {
+    val ownFields = fields.filter(_.accessModifier == AccessModifier.PUBLIC).map(_.fieldName)
+    val superFields = dependencies.find(_.className.name == superClass.name) match {
+      case Some(i) => i.exportedFields
+      case None => Set()
+    }
+    superFields ++ ownFields
+  }
+  private def exportedMethods = {
+    val ownMethods = methods.filter(_.signature.accessModifier == AccessModifier.PUBLIC).map(_.signature.methodName)
+    val superMethods = dependencies.find(_.className.name == superClass.name) match {
+      case Some(i) => i.exportedMethods
+      case None => Set()
+    }
+    superMethods.filter(m => !ownMethods.exists(_.name == m.name)) ++ ownMethods
+  }
+
   val moduleID: Identifier = className
-  val interface = ClassInterface(className, exportedFields, exportedMethods)
+
+
+  protected var _interface: ClassInterface = null
+  def interface = {
+    if (_interface == null)
+      _interface = ClassInterface(className, exportedFields, exportedMethods)
+
+    _interface
+  }
 
   def rename(renaming: Renaming) = {
     val cl = ClassDefinition(className.rename(renaming).asInstanceOf[ClassName], superClass.rename(renaming), elements.map(_.rename(renaming)): _*)
     cl.link(dependencies)
+    cl.interface.original = interface.original
     cl
   }
 

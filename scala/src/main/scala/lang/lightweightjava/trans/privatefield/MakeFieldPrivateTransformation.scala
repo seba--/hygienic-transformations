@@ -56,15 +56,15 @@ object MakeFieldPrivateTransformation {
     }
   }
 
-  def generateGetterName(fieldName: Identifier): Identifier = {
+  protected def generateGetterName(fieldName: Identifier): Identifier = {
     Identifier("get" + fieldName.name.capitalize)
   }
 
-  def generateSetterName(fieldName: Identifier): Identifier = {
+  protected def generateSetterName(fieldName: Identifier): Identifier = {
     Identifier("set" + fieldName.name.capitalize)
   }
 
-  def generateSetterParameter(fieldName: Identifier): VariableName = {
+  protected def generateSetterParameter(fieldName: Identifier): VariableName = {
     VariableName(fieldName.name)
   }
 }

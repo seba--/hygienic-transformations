@@ -69,7 +69,7 @@ class NameFixModular[I <: NameInterface] {
     }
   }
 
-  protected def removeUnintendedRelations[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
+  protected def removeUnintendedBindings[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
     val gT = mT.resolveNamesModular
 
@@ -88,11 +88,11 @@ class NameFixModular[I <: NameInterface] {
       mT
     else {
       val mNew = mT.rename(renaming).asInstanceOf[T]
-      removeUnintendedRelations(mNew, gVirtual)
+      removeUnintendedBindings(mNew, gVirtual)
     }
   }
 
-  protected def addIntendedRelations[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
+  protected def restoreInterfaceBindings[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
     var renaming: Map[Identifier, Name] = Map()
     val gT = mT.resolveNamesModular
 
@@ -100,12 +100,13 @@ class NameFixModular[I <: NameInterface] {
       val relT = findRelations(v, gT)
       val relV = findRelations(v, gVirtual)
 
-      val lostBindings = relV -- relT
+      val lostBindings = (relV -- relT).intersect(gVirtual.IUsed.flatMap(_.export))
 
       if (lostBindings.nonEmpty && relV.intersect(renaming.keySet).isEmpty) {
-        val intendedBindings = relV.intersect(gVirtual.IUsed.flatMap(_.export)).map(_.name)
-        if (intendedBindings.size == 1) {
-          renaming ++= relV.intersect(gT.V).map(r => r -> intendedBindings.head)
+        val interfaceIdentifiers = relV.intersect(gVirtual.IUsed.flatMap(_.export))
+        val interfaceNames = gT.IUsed.flatMap(_.export).intersect(interfaceIdentifiers).map(_.name)
+        if (interfaceNames.size == 1) {
+          renaming ++= relV.intersect(gT.V).map(r => r -> interfaceNames.head)
         }
         else
           throw new IllegalArgumentException("Unable to retain relations to external identifiers with different names!")
@@ -116,8 +117,8 @@ class NameFixModular[I <: NameInterface] {
   }
 
   protected def applyVirtualGraph[T <: NominalModular[I]](mT: T, gVirtual: NameGraphModular[I]): T = {
-    val mTNew = addIntendedRelations(mT, gVirtual)
-    removeUnintendedRelations(mTNew, gVirtual)
+    val mTNew = restoreInterfaceBindings(mT, gVirtual)
+    removeUnintendedBindings(mTNew, gVirtual)
   }
 
   def nameFixModule[T <: NominalModular[I]](gS: NameGraphModular[I], mT: T, depT: Set[I]): T = {

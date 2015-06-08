@@ -8,5 +8,9 @@ case class ClassInterface(className: ClassName, exportedFields: Set[Identifier],
 
   override def export: Set[Identifier] = exportedFields ++ exportedMethods
 
-  override def rename(renaming: Renaming) = ClassInterface(className, exportedFields.map(renaming(_)), exportedMethods.map(renaming(_)))
+  override def rename(renaming: Renaming) = {
+    val newInterface = ClassInterface(className, exportedFields.map(renaming(_)), exportedMethods.map(renaming(_)))
+    newInterface.original = this.original
+    newInterface
+  }
 }

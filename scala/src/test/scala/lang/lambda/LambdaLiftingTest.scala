@@ -55,7 +55,31 @@ class LambdaLiftingTest extends FunSuite {
     // Capture solved
     assert(!fixedGraph.E.exists(_._2.contains(f_0Orig._1)))
 
-    // NameFix avoided renaming identifiers that are in the module interface
+    // NameFix avoided renaming exported identifiers
+    assert(fixedGraph.I == liftedGraph.I)
+    info(fixedModule.toString)
+  }
+
+  val moduleBase = Module("base", Set(), Map(("f_0", (Num(1), true))))
+  val module3 = Module("module", Set("f_0"), Map(
+    ("test", (Let("y", Var("f_0"), App(Lam("x", Add(Var("y"), Var("x"))), Var("y"))), true))))
+  val f_0Import = module3.imports.find(_.name == "f_0").get
+
+  test ("name-fix for lambda lifting with imported captures") {
+    module3.link(moduleBase.interface)
+    val liftedModule = LambdaLiftingTransformation.transform(module3, exportLiftedLams = true)
+    val liftedGraph = liftedModule.resolveNamesModular
+
+    // Capture -> imported f_0 is no longer referenced by local variable!
+    assert(!liftedGraph.E.exists(_._2.contains(f_0Import)))
+
+    val fixedModule = NameFix.nameFixModular(module3.resolveNamesModular, liftedModule, Set(moduleBase.interface))
+    val fixedGraph = fixedModule.resolveNamesModular
+
+    // Capture solved
+    assert(fixedGraph.E.exists(_._2.contains(f_0Import)))
+
+    // NameFix could not avoid renaming exported identifiers but avoided renaming imported names
     assert(fixedGraph.I == liftedGraph.I)
     info(fixedModule.toString)
   }

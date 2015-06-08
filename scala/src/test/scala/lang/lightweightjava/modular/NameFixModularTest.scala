@@ -131,33 +131,32 @@ class NameFixModularTest extends FlatSpec with Matchers {
       val methodID = Identifier("method")
       val methodLdtSynID = Identifier("method_ldt")
       val methodLdtOrigID = Identifier("method_ldt")
-      val methodLdtOrigRenamedID = methodLdtOrigID.rename("method_ldt_0")
 
       val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
-      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigRenamedID))
+      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigID))
+      val metaRenamedA = metaTransformedA.rename(Map(methodLdtOrigID -> "method_ldt_0")).asInstanceOf[ClassInterface]
 
       val originalGraphB = originalB.link(metaOriginalA).resolveNamesModular
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
-      NameFix.nameFixModular(originalGraphB, transformedB, Set(metaTransformedA))
+      transformedB.link(metaRenamedA)
+      NameFix.nameFixModular(originalGraphB, transformedB, Set(metaRenamedA))
     case _ => fail("Parsing error!")
   })
-  it should "fail to fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
+  it should "fix the scenario (see comment in code) if the synthesized method was renamed" in (Parser.parseAll(Parser.classDef, m3b) match {
     case Parser.Success(originalB, _) =>
       val classID = ClassName("A")
       val methodID = Identifier("method")
       val methodLdtSynID = Identifier("method_ldt")
       val methodLdtOrigID = Identifier("method_ldt")
-      val methodLdtSynRenamedID = methodLdtSynID.rename("method_ldt_0")
 
       val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
-      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynRenamedID))
+      val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynID))
+      val metaRenamedA = metaTransformedA.rename(Map(methodLdtSynID -> "method_ldt_0")).asInstanceOf[ClassInterface]
 
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
       val originalGraphB = originalB.link(metaOriginalA).resolveNamesModular
-
-      info("Name fix error: " + intercept[IllegalArgumentException] {
-        NameFix.nameFixModular(originalGraphB, transformedB, Set(metaTransformedA))
-      }.getMessage)
+      transformedB.link(metaRenamedA)
+      NameFix.nameFixModular(originalGraphB, transformedB, Set(metaRenamedA))
     case _ => fail("Parsing error!")
   })
 

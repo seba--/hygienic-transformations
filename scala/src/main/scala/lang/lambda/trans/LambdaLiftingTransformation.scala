@@ -8,13 +8,13 @@ import lang.lambda.module.Module.Def
 import name.{Name, Gensym, Identifier}
 
 object LambdaLiftingTransformation {
-  def transform(module: Module): Module = {
+  def transform(module: Module, exportLiftedLams : Boolean = false): Module = {
     var newDefs = Map[Identifier, Def]()
     for ((defName, (defBody, defExport)) <- module.defs) {
 
       val (newDef, liftedLams) = skipNestedLambdas(defBody)
       newDefs += defName -> (newDef, defExport)
-      newDefs ++= liftedLams.map(l => (l._1, (l._2, false)))
+      newDefs ++= liftedLams.map(l => (l._1, (l._2, exportLiftedLams)))
     }
     Module(module.name, module.imports, newDefs)
   }

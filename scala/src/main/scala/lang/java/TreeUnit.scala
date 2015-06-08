@@ -12,7 +12,11 @@ import name.namegraph.NameGraphModular
 import name._
 
 case class TreeUnitInterface(moduleID: Identifier, export: Set[Identifier], name: javac.util.Name, sym: ClassSymbol) extends NameInterface {
-  def rename(renaming: Renaming) = TreeUnitInterface(moduleID, export map(renaming(_)), name, sym)
+  def rename(renaming: Renaming) = {
+    val newInterface = TreeUnitInterface(moduleID, export map(renaming(_)), name, sym)
+    newInterface.original = this.original
+    newInterface
+  }
 }
 
 class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends NominalModular[TreeUnitInterface] {
@@ -42,7 +46,9 @@ class TreeUnit(val unit: JCCompilationUnit, val context: Context, originTrackedN
     symMap = visitor.symMap
     nodeMap = visitor.nodeMap
 
-    _interface = TreeUnitInterface(symMap(moduleSym), visitor.exported, moduleSym.name, moduleSym)
+    val newInterface = TreeUnitInterface(symMap(moduleSym), visitor.exported, moduleSym.name, moduleSym)
+    newInterface.original = _interface
+    _interface = newInterface
     _resolved = NameGraphModular(visitor.names, visitor.depsUsed, visitor.edges, interface)
     _resolved
   }
