@@ -11,17 +11,28 @@ object LambdaLiftingTransformation {
   def transform(module: Module): Module = {
     var newDefs = Map[Identifier, Def]()
     for ((defName, (defBody, defExport)) <- module.defs) {
-      val (newDef, liftedLams) = lambdaLift(defBody)
+
+      val (newDef, liftedLams) = skipNestedLambdas(defBody)
       newDefs += defName -> (newDef, defExport)
       newDefs ++= liftedLams.map(l => (l._1, (l._2, false)))
     }
     Module(module.name, module.imports, newDefs)
   }
 
+  protected def skipNestedLambdas(expr: Exp, usedFunNames: Set[Name] = Set()): (Exp, Set[(Identifier, Exp)]) = {
+    expr match {
+      case Lam(x, body) => {
+        val (liftedBody, liftedLam) = skipNestedLambdas(body, usedFunNames)
+        (Lam(x, liftedBody), liftedLam)
+      }
+      case _ => lambdaLift(expr, usedFunNames)
+    }
+  }
+
   protected def lambdaLift(expr: Exp, usedFunNames: Set[Name] = Set()): (Exp, Set[(Identifier, Exp)]) = {
     expr match {
       case Lam(x, body) => {
-        val (liftedBody, liftedLams) = lambdaLift(body, usedFunNames)
+        val (liftedBody, liftedLams) = skipNestedLambdas(body, usedFunNames)
         val exprGraph = expr.resolveNames
         val freeNames = exprGraph.V.filter(v => !exprGraph.E.contains(v) && !exprGraph.E.values.exists(_.contains(v))).toSeq
         val freeNamesUnique = freeNames.groupBy(_.name).map(_._2.head).toSeq
@@ -45,8 +56,8 @@ object LambdaLiftingTransformation {
         val (liftedM, liftedMLams) = lambdaLift(m, usedFunNames ++ liftedNLams.map(_._1.name))
         (Add(liftedN, liftedM), liftedNLams ++ liftedMLams)
       }
-      case e@Num(n) => (e, Set())
-      case e@Var(x) => (e, Set())
+      case Num(n) => (expr, Set())
+      case Var(x) => (expr, Set())
     }
   }
 }

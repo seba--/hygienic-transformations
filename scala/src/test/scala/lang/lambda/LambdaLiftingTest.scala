@@ -32,6 +32,9 @@ class LambdaLiftingTest extends FunSuite {
       case (Lam(y, Lam(x, Add(Var(y1), Var(x1)))), false) => y.name == y1.name && x.name == x1.name
       case _ => fail()
     })
+
+    val liftAgain = LambdaLiftingTransformation.transform(liftedModule)
+    assert(liftAgain == liftedModule)
   }
 
   val module2 = Module("module", Set(), Map(
