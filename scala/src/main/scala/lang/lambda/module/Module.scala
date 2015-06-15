@@ -11,8 +11,7 @@ object Module {
 }
 
 // name = name of the the module (currently not used but may be interesting when considering qualifiers)
-// imports = set of imported, external identifiers; This set is linked to the matching exports of the used modules and
-//           used as a proxy for internal references to the external identifiers
+// imports = set of imported module identifiers; All exported definitions of imported modules are made available in the module
 // defs = local definitions available to each other and can be marked as exported to become part of the module interface
 case class Module(name: Identifier, imports:Set[Identifier], defs: Map[Identifier, Def]) extends NominalModular[ModuleInterface] {
   private var _resolved: NameGraphModular[ModuleInterface] = _
@@ -32,9 +31,10 @@ case class Module(name: Identifier, imports:Set[Identifier], defs: Map[Identifie
 
     // Resolves edges from imports to (string-wise) matching exported identifiers in used interfaces.
     // If multiple names match, references to all of them are added to represent the ambiguity (=> imports have no precedence!)
-    val externalEdges = imports.map(i => (i, dependencies.flatMap(_.exportedDefs).groupBy(_.name).find(_._1 == i.name))).collect {
+    val importEdges = imports.map(i => (i, dependencies.map(_.moduleID).groupBy(_.name).find(_._1 == i.name))).collect {
       case (v, Some(d)) => v -> d._2
     }.toMap
+
 
     // Resolves edges from conflicting definitions
     val defConflicts = defs.keys.groupBy(_.name).filter(_._2.size > 1).map(_._2.toSet)
@@ -46,9 +46,10 @@ case class Module(name: Identifier, imports:Set[Identifier], defs: Map[Identifie
 
     // Generates the "module-global" scope that is used for all defs.
     // As defs are added after imports, internal names have precedence over external ones
-    val moduleScope = imports.map(i => i.name -> i).toMap ++ defs.map(d => d._1.name -> d._1)
+    val importedDefs = dependencies.filter(d => importEdges.values.flatten.toSet.contains(d.moduleID)).flatMap(_.exportedDefs).groupBy(_.name)
+    val moduleScope = importedDefs ++ defs.map(d => d._1.name -> Set(d._1))
 
-    var moduleGraph = NameGraphExtended(imports ++ defs.keys + name, externalEdges)
+    var moduleGraph = NameGraphExtended(imports ++ defs.keys + name, importEdges)
     moduleGraph += NameGraphExtended(conflictEdges)
     for ((defName, (defExpr, exported)) <- defs) {
       moduleGraph += defExpr.resolveNames(moduleScope)
