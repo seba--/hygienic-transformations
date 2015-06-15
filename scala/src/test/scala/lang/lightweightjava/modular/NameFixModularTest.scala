@@ -12,14 +12,14 @@ import org.scalatest.{FlatSpec, Matchers}
 class NameFixModularTest extends FlatSpec with Matchers {
   val m1a =
     "class A {\n" +
-      "  A method_ldt(A test) {\n" +
+      "  A methodHelper(A test) {\n" +
       "   return test;\n" +
       "  }\n" +
       "}\n"
   val m1b = "class B extends A {\n" +
       "   A method() {\n" +
       "     A test;\n" +
-      "     return this.method_ldt(this);\n" +
+      "     return this.methodHelper(this);\n" +
       "   }\n" +
       "}\n" +
       "\n"
@@ -30,13 +30,13 @@ class NameFixModularTest extends FlatSpec with Matchers {
       "   Object x;\n" +
       "   return test;\n" +
       "  }\n" +
-      "  A method_ldt(A test) {\n" +
+      "  A methodHelper(A test) {\n" +
       "   return test;\n" +
       "  }\n" +
       "}\n"
   val m2b = "class B extends A {\n" +
     "   A method(A test) {\n" +
-    "     return this.method_ldt(this);\n" +
+    "     return this.methodHelper(this);\n" +
     "   }\n" +
     "}\n" +
     "\n"
@@ -44,7 +44,7 @@ class NameFixModularTest extends FlatSpec with Matchers {
   val m3b = "class B extends A {\n" +
     "   A method() {\n" +
     "     A test;\n" +
-    "     return this.method_ldt(this);\n" +
+    "     return this.methodHelper(this);\n" +
     "   }\n" +
     "}\n" +
     "\n"
@@ -129,12 +129,12 @@ class NameFixModularTest extends FlatSpec with Matchers {
     case Parser.Success(originalB, _) =>
       val classID = ClassName("A")
       val methodID = Identifier("method")
-      val methodLdtSynID = Identifier("method_ldt")
-      val methodLdtOrigID = Identifier("method_ldt")
+      val methodLdtSynID = Identifier("methodHelper")
+      val methodLdtOrigID = Identifier("methodHelper")
 
       val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
       val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtSynID, methodLdtOrigID))
-      val metaRenamedA = metaTransformedA.rename(Map(methodLdtOrigID -> "method_ldt_0")).asInstanceOf[ClassInterface]
+      val metaRenamedA = metaTransformedA.rename(Map(methodLdtOrigID -> "methodHelper_0")).asInstanceOf[ClassInterface]
 
       val originalGraphB = originalB.link(metaOriginalA).resolveNamesModular
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
@@ -146,12 +146,12 @@ class NameFixModularTest extends FlatSpec with Matchers {
     case Parser.Success(originalB, _) =>
       val classID = ClassName("A")
       val methodID = Identifier("method")
-      val methodLdtSynID = Identifier("method_ldt")
-      val methodLdtOrigID = Identifier("method_ldt")
+      val methodLdtSynID = Identifier("methodHelper")
+      val methodLdtOrigID = Identifier("methodHelper")
 
       val metaOriginalA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID))
       val metaTransformedA = ClassInterface(classID, Set(), Set(methodID, methodLdtOrigID, methodLdtSynID))
-      val metaRenamedA = metaTransformedA.rename(Map(methodLdtSynID -> "method_ldt_0")).asInstanceOf[ClassInterface]
+      val metaRenamedA = metaTransformedA.rename(Map(methodLdtSynID -> "methodHelper_0")).asInstanceOf[ClassInterface]
 
       val transformedB = LocalDeclarationTransformation.transformClass(originalB, useAccessModifiers = false)
       val originalGraphB = originalB.link(metaOriginalA).resolveNamesModular
