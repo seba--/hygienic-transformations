@@ -16,7 +16,7 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
   def allNames = body.allNames + x.name
   def rename(renaming: Renaming) = Lam(renaming(x), body.rename(renaming))
   def resolveNames(scope: Scope) = {
-    val gbody = body.resolveNames(scope + (x.name -> x))
+    val gbody = body.resolveNames(scope + (x.name -> Set(x)))
     NameGraphExtended(gbody.V + x, gbody.E)
   }
 

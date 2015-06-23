@@ -17,7 +17,7 @@ case class Var(x: Identifier) extends Exp {
   def rename(renaming: Renaming) = Var(renaming(x))
   def resolveNames(scope: Scope) =
     if (scope.contains(x.name))
-      NameGraphExtended(Set(x), Map(x -> Set(scope(x.name))))
+      NameGraphExtended(Set(x), Map(x -> scope(x.name)))
     else
       NameGraphExtended(Set(x), Map())
 

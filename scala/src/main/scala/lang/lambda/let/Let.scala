@@ -19,7 +19,7 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
   def rename(renaming: Renaming) = Let(renaming(x), bound.rename(renaming), body.rename(renaming))
   def resolveNames(scope: Scope) = {
     val gbound = bound.resolveNames(scope)
-    val gbody = body.resolveNames(scope + (x.name -> x))
+    val gbody = body.resolveNames(scope + (x.name -> Set(x)))
     gbound + gbody + NameGraphExtended(Set(x), Map())
   }
 
