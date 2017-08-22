@@ -38,7 +38,7 @@ case class Var(x: Identifier) extends Exp {
 
   override def asStructural(g: Map[String, Declaration]): lambdaref.Exp =
     g.get(x.name) match {
-      case None => lang.lambdaref.Var().withID(x.id)
+      case None => lang.lambdaref.Var(x.name).withID(x.id)
       case Some(d) => lang.lambdaref.Var(d.asInstanceOf[lang.lambdaref.Lam]).withID(x.id)
     }
 }

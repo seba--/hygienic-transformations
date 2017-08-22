@@ -9,26 +9,15 @@ import org.scalatest._
 class SubstTest extends FunSuite {
 
 
-  val p1 = {
-    val ref1 = Var()
-    val t = Lam("x", ref1)
-    ref1.initialize(t)
-    t
-  }
-
+  val p1 = Lam("x", x => Var(x))
   test ("p1") {
-    assertResult(p1)(p1.substGraph("x", new Var()))
-    assertResult(p1)(p1.substGraph("y", new Var()))
+    assertResult(p1)(p1.substGraph("x", Var("z")))
+    assertResult(p1)(p1.substGraph("y", Var("z")))
   }
 
-  val p2 = {
-    val ref1 = Var()
-    val t = Lam("y", Lam("x", ref1))
-    ref1.initialize(t)
-    t
-  }
+  val p2 = Lam("y", y => Lam("x", x => Var(y)))
   test ("p2") {
-    assertResult(p2)(p2.substGraph("x", Var()))
-    assertResult(p2)(p2.substGraph("y", Var()))
+    assertResult(p2)(p2.substGraph("x", Var("z")))
+    assertResult(p2)(p2.substGraph("y", Var("z")))
   }
 }

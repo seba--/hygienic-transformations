@@ -1,19 +1,16 @@
 package lang.lambdaref
 
 import name.Identifier.ID
-import name.{Gensym, GensymPure, Identifier}
+import name.{Gensym, GensymPure, Identifier, Name}
 import ref.{Declaration, RefGraph, Reference, Structural}
 
 object Var {
-  def apply(target: Declaration): Var = Var(Some(target))
+  def apply(target: Declaration): Var = Var(Some(target), None)
+  def apply(placeholderName: String): Var = Var(None, Some(placeholderName))
 }
-case class Var(var _target: Option[Declaration] = None) extends Exp with Reference {
+case class Var(var _target: Option[Declaration], val placeholderName: Option[Name]) extends Exp with Reference {
   def target = _target.getOrElse(throw new UnsupportedOperationException(s"Cannot apply operation before setting placeholder target"))
   def name = target.asInstanceOf[Lam].x
-
-  def initialize(target: Declaration) =
-    if (_target.isEmpty) _target = Some(target)
-    else throw new UnsupportedOperationException(s"Cannot reset target of placeholder var again, was $this")
 
   override def retarget(newtarget: Declaration): Var = if (newtarget == target) this else Var(newtarget)
   override def retarget(retargeting: Map[Reference, Declaration]): Exp = retargeting.get(this) match {
@@ -29,16 +26,20 @@ case class Var(var _target: Option[Declaration] = None) extends Exp with Referen
 
   override def toString = _target match {
     case Some(_) => s"Var($name)"
-    case None => "Var($placeholder)"
+    case None => s"Var($placeholderName)"
   }
 
   override def equiv(obj: Structural, eqDecls: Map[ID, Declaration]): Boolean = obj match {
-    case that: Var => _id == that._id || eqDecls.get(this.target.id).get.id == that.target.id
+    case that: Var => (this._target, that._target) match {
+      case (Some(t1), Some(t2)) => eqDecls(t1.id).id == t2.id
+      case (None, None) => this.id == that.id
+      case _ => false
+    }
     case _ => false
   }
 
   override def asNominal(implicit gensym: Gensym) = _target match {
     case Some(_) => lang.lambda.Var(new Identifier(name, id))
-    case None => lang.lambda.Var(new Identifier(gensym.fresh("placeholder"), id))
+    case None => lang.lambda.Var(new Identifier(placeholderName.get, id))
   }
 }
