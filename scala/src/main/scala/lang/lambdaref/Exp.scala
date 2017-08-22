@@ -10,9 +10,9 @@ abstract class Exp extends Structural {
   def resolveRefs: RefGraph
   def retarget(retargeting: Map[Reference, Declaration]): Exp
 
-  def unsafeSubst(x: String, e: Exp): Exp
-  def subst(w: String, e: Exp): Exp = refFix(resolveRefs, unsafeSubst(w, e))
+  def substGraph(x: String, e: Exp): Exp
+  def subst(w: String, e: Exp): Exp = refFix(resolveRefs, substGraph(w, e))
 
-  def unsafeNormalize: Exp
-  def normalize = refFix(resolveRefs, unsafeNormalize)
+  def normalizeGraph: Exp
+  def normalize = refFix(resolveRefs, normalizeGraph)
 }

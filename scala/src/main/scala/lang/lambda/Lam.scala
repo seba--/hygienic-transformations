@@ -20,7 +20,7 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
     NameGraphExtended(gbody.V + x, gbody.E)
   }
 
-  def unsafeSubst(w: String, e: Exp) = if (x.name == w) e else Lam(x, body.unsafeSubst(w, e))
+  def unsafeSubst(w: String, e: Exp) = if (x.name == w) this else Lam(x, body.unsafeSubst(w, e))
 
   def unsafeNormalize = Lam(x, body.unsafeNormalize)
 
