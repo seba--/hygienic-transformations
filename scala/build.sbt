@@ -2,7 +2,7 @@ name := "hygienic-transformations"
 
 version := "1.0"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
 
 scalacOptions += "-deprecation"
 
@@ -14,7 +14,7 @@ javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
 //libraryDependencies += "org.eclipse.jdt" % "core" % "3.3.0-v_771"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
 

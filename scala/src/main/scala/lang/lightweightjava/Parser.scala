@@ -11,6 +11,7 @@ import name.Identifier
 
 import scala.util.parsing.combinator.JavaTokenParsers
 
+
 object Parser extends JavaTokenParsers {
   override def ident = super.ident.filter(AST.isLegalName)
 
