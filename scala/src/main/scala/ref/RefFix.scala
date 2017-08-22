@@ -1,6 +1,6 @@
 package ref
 
-import name.Gensym._
+import name.GensymPure._
 import name._
 import name.namegraph.NameGraph.{Edges, Nodes}
 import name.namegraph.{NameGraph, NameGraphExtended, NameGraphModular}

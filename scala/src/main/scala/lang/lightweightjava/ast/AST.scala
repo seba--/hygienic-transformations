@@ -2,6 +2,7 @@ package lang.lightweightjava.ast
 
 import name.namegraph.NameGraphExtended
 import name.{Name, Nominal, Renaming}
+import ref.Structural
 
 object AST {
   def isLegalName(name: Name) = name.length > 0 && name.length < 256 &&
@@ -23,4 +24,6 @@ trait AST extends Nominal {
   def resolveNames(nameEnvironment : ClassNameEnvironment): NameGraphExtended
 
   override def resolveNames = resolveNames(Map())
+
+  override def asStructural: Structural = ???
 }

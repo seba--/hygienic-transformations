@@ -14,7 +14,7 @@ trait TermVariable extends Identifier with AST {
     else if (newName == "null") Null
     else {
       val renamed = VariableName(newName)
-      renamed.id = this.id
+      renamed._id = this._id
       renamed.oName = this.oName
       renamed
     }

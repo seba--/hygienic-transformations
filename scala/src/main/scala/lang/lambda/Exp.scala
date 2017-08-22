@@ -3,6 +3,7 @@ package lang.lambda
 import name._
 import name.namefix.NameFix._
 import name.namegraph.NameGraphExtended
+import ref.{Declaration, Structural}
 
 /**
  * Created by seba on 01/08/14.
@@ -26,4 +27,7 @@ abstract class Exp extends Nominal {
     alphaEqual(e, gthis + ge)
   }
   def alphaEqual(e: Exp, g: NameGraphExtended): Boolean
+
+  override def asStructural = asStructural(Map())
+  def asStructural(g: Map[String, Declaration]): lang.lambdaref.Exp
 }

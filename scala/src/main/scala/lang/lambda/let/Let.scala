@@ -1,8 +1,10 @@
 package lang.lambda.let
 
 import lang.lambda.Exp
+import lang.lambdaref
 import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
+import ref.Declaration
 
 /**
 * Created by seba on 01/08/14.
@@ -44,4 +46,6 @@ case class Let(x: Identifier, bound: Exp, body: Exp) extends Exp {
       }
     case _ => false
   }
+
+  override def asStructural(g: Map[String, Declaration]): lambdaref.Exp = ???
 }

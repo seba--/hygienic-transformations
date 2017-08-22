@@ -1,7 +1,9 @@
 package lang.lambda
 
+import lang.lambdaref
 import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
+import ref.Declaration
 
 /**
  * Created by seba on 01/08/14.
@@ -34,4 +36,7 @@ case class Lam(x: Identifier, body: Exp) extends Exp {
       body.alphaEqual(body2, g + NameGraphExtended(Set(), E2))
     case _ => false
   }
+
+  override def asStructural(g: Map[String, Declaration]): lambdaref.Exp =
+    lang.lambdaref.Lam(x.name, xdecl => body.asStructural(g + (x.name -> xdecl))).withID(x.id)
 }

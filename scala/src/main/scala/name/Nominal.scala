@@ -1,6 +1,7 @@
 package name
 
 import name.namegraph.NameGraphExtended
+import ref.Structural
 
 /**
  * Created by seba on 01/08/14.
@@ -16,4 +17,6 @@ trait Nominal {
       case None => name
       case Some(name2) => Identifier(name2)
     })
+
+  def asStructural: Structural
 }

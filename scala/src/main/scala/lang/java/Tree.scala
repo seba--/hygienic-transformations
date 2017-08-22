@@ -4,12 +4,15 @@ import java.io.File
 
 import com.sun.tools.javac.code.Symbol
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit
-import com.sun.tools.javac.tree.{TreeMaker, TreeCopier, JCTree}
+import com.sun.tools.javac.tree.{JCTree, TreeCopier, TreeMaker}
 import com.sun.tools.javac.util.{Context, Log}
 import name.namegraph.NameGraphExtended
-import name.{Renaming, Identifier, Name, Nominal}
+import name.{Identifier, Name, Nominal, Renaming}
+import ref.Structural
 
 class Tree(val units: List[JCCompilationUnit], val context: Context, originTrackedNames: Map[JCTree, Identifier] = Map()) extends Nominal {
+
+  override def asStructural: Structural = ???
 
   lazy val (_resolveNames, symMap, nodeMap): (NameGraphExtended, Map[Symbol, Identifier], Map[JCTree, Identifier]) = {
     val visitor = new NameGraphExtractor(originTrackedNames)

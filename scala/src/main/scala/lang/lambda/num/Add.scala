@@ -1,8 +1,10 @@
 package lang.lambda.num
 
 import lang.lambda.Exp
+import lang.lambdaref
 import name.namegraph.NameGraphExtended
 import name.Renaming
+import ref.Declaration
 
 /**
  * Created by seba on 01/08/14.
@@ -27,4 +29,6 @@ case class Add(e1: Exp, e2: Exp) extends Exp {
     case Add(e3, e4) => e1.alphaEqual(e3, g) && e2.alphaEqual(e4, g)
     case _ => false
   }
+
+  override def asStructural(g: Map[String, Declaration]): lambdaref.Exp = ???
 }

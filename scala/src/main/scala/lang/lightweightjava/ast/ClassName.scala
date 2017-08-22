@@ -14,7 +14,7 @@ trait ClassRef extends Identifier with AST {
     if (newName == "Object") ObjectClass
     else {
       val renamed = ClassName(newName)
-      renamed.id = this.id
+      renamed._id = this._id
       renamed.oName = this.oName
       renamed
     }

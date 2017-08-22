@@ -17,8 +17,8 @@ class SubstTest extends FunSuite {
   }
 
   test ("p1") {
-    assert(p1 equiv p1.substGraph("x", new Var()))
-    assert(p1 equiv p1.substGraph("y", new Var()))
+    assertResult(p1)(p1.substGraph("x", new Var()))
+    assertResult(p1)(p1.substGraph("y", new Var()))
   }
 
   val p2 = {
@@ -28,7 +28,7 @@ class SubstTest extends FunSuite {
     t
   }
   test ("p2") {
-    assert(p2 equiv p2.substGraph("x", Var()))
-    assert(p2 equiv p2.substGraph("y", Var()))
+    assertResult(p2)(p2.substGraph("x", Var()))
+    assertResult(p2)(p2.substGraph("y", Var()))
   }
 }

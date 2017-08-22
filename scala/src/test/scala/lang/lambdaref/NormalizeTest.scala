@@ -4,38 +4,22 @@ import org.scalatest._
 
 class NormalizeTest extends FunSuite {
 
-  val p1 = {
-    val ref = Var()
-    val t = Lam("x", ref)
-    ref.initialize(t)
-    t
-  }
-  test ("p1") { assert(p1 equiv p1.normalizeGraph) }
+  val p1 = Lam("x", x => Var(x))
+  test ("p1") { assertResult(p1)(p1.normalizeGraph) }
+  test ("p1-unsafe") { assertResult(p1)(p1.unsafeNormalize) }
 
   val refy = Var()
-  val p2 = {
-    val refx = Var()
-    val decx = Lam("x", refx)
-    refx.initialize(decx)
-    App(decx, refy)
-  }
-  test ("p2") { assert(refy equiv p2.normalizeGraph) }
+  val p2 = App(Lam("x", x => Var(x)), refy)
+  test ("p2") { assertResult(refy)(p2.normalizeGraph) }
+  test ("p2-unsafe") { assertResult(refy)(p2.unsafeNormalize) }
 
   val refy2 = Var()
-  val p3 = {
-    val refx = Var()
-    val refy1 = Var()
-    val decy1 = Lam("y", App(refx, refy1))
-    val decx = Lam("x", decy1)
-    refy1.initialize(decy1)
-    refx.initialize(decx)
-    App(decx, refy2)
-  }
+  val p3 = App(Lam("x", x => Lam("y", y => App(Var(x), Var(y)))), refy2)
   test ("p3") {
     val ry = Var()
     val dy = Lam("y", App(refy2, ry))
     ry.initialize(dy)
     assert(refy2._target.isEmpty)
-    assert(dy equiv p3.normalizeGraph)
+    assertResult(dy)(p3.normalizeGraph)
   }
 }

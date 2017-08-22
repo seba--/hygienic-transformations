@@ -5,7 +5,7 @@ import lang.lambda.num.{Num, Add}
 import lang.lambda.{Var, App, Lam, Exp}
 import lang.lambda.module.Module
 import lang.lambda.module.Module.Def
-import name.{Name, Gensym, Identifier}
+import name.{Name, GensymPure, Identifier}
 
 object LambdaLiftingTransformation {
   def transform(module: Module, exportLiftedLams : Boolean = false): Module = {
@@ -36,7 +36,7 @@ object LambdaLiftingTransformation {
         val exprGraph = expr.resolveNames
         val freeNames = exprGraph.V.filter(v => !exprGraph.E.contains(v) && !exprGraph.E.values.exists(_.contains(v))).toSeq
         val freeNamesUnique = freeNames.groupBy(_.name).map(_._2.head).toSeq
-        val newName = Identifier(Gensym.gensym("f", expr.allNames ++ usedFunNames ++ liftedLams.map(_._1.name)))
+        val newName = Identifier(GensymPure.gensym("f", expr.allNames ++ usedFunNames ++ liftedLams.map(_._1.name)))
         val newLam = freeNamesUnique.foldLeft(Lam(x, liftedBody))((curr, next) => Lam(next, curr))
         val newApp = freeNamesUnique.reverse.foldLeft(Var(newName):Exp)((curr, next) => App(curr, Var(next)))
         (newApp, liftedLams + ((newName, newLam)))

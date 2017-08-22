@@ -1,10 +1,20 @@
 package lang.lambdaref
 
-import name.namegraph.NameGraphExtended
-import name.Name
+import name.Identifier.ID
+import name.{Gensym, Identifier, Name}
 import ref.{Declaration, RefGraph, Reference, Structural}
 
-case class Lam(x: Name, body: Exp) extends Exp with Declaration {
+object Lam {
+  def apply(x: Name, body: Lam => Exp): Lam = {
+    val lam = Lam(x, null.asInstanceOf[Exp])
+    val b = body(lam)
+    lam._body = b
+    lam
+  }
+}
+
+case class Lam(x: Name, private var _body: Exp) extends Exp with Declaration {
+  def body = _body
 
   override def retarget(retargeting: Map[Reference, Declaration]): Exp =
     Lam(x, body.retarget(retargeting)).withID(this)
@@ -18,8 +28,10 @@ case class Lam(x: Name, body: Exp) extends Exp with Declaration {
 
   def normalizeGraph = Lam(x, body.normalizeGraph).withID(this)
 
-  override def equiv(obj: Structural, eqDecls: Map[Declaration, Declaration]): Boolean = obj match {
-    case that: Lam => this.x == that.x && this.body.equiv(that.body, eqDecls + (this -> that))
+  override def equiv(obj: Structural, eqDecls: Map[ID, Declaration]): Boolean = obj match {
+    case that: Lam => this.x == that.x && this.body.equiv(that.body, eqDecls + (this.id -> that))
     case _ => false
   }
+
+  override def asNominal(implicit gensym: Gensym) = lang.lambda.Lam(new Identifier(x, id), body.asNominal)
 }

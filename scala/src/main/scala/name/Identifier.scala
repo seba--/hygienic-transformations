@@ -19,18 +19,23 @@ object Identifier {
 // Since identifiers are used and stored more often (e. g. as part of an AST) and getting the name of an identifier is a lot more
 // common than finding the identifiers for a name, this variant is more intuitive to use in most cases.
 class Identifier(val name: Name) {
-  protected var id: Identifier.ID = new ID()
+  protected var _id: Identifier.ID = new ID()
+  def id = _id
   protected var oName: Name = name
 
   def this(name: Name, ident: Identifier) {
     this(name)
     if (ident != null)
-      this.id = ident.id
+      this._id = ident._id
+  }
+  def this(name: Name, id: ID) {
+    this(name)
+    this._id = id
   }
 
   override def toString = name
-  override def equals(obj: scala.Any) = obj.isInstanceOf[Identifier] && obj.asInstanceOf[Identifier].id == id
-  override def hashCode(): Int = id.hashCode()
+  override def equals(obj: scala.Any) = obj.isInstanceOf[Identifier] && obj.asInstanceOf[Identifier]._id == _id
+  override def hashCode(): Int = _id.hashCode()
 
   // Gets the original name of the identifier before any renamings were applied
   def originalName = oName

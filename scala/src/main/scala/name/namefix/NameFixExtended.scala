@@ -1,6 +1,6 @@
 package name.namefix
 
-import name.Gensym._
+import name.GensymPure._
 import name._
 import name.namegraph.NameGraphExtended
 import name.namegraph.NameGraphExtended.{Nodes,Edges}

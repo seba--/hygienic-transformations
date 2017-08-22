@@ -1,7 +1,9 @@
 package lang.lambda
 
+import lang.lambdaref
 import name.namegraph.NameGraphExtended
 import name.{Identifier, Renaming}
+import ref.Declaration
 
 /**
  * Created by seba on 01/08/14.
@@ -34,4 +36,9 @@ case class Var(x: Identifier) extends Exp {
     case _ => false
   }
 
+  override def asStructural(g: Map[String, Declaration]): lambdaref.Exp =
+    g.get(x.name) match {
+      case None => lang.lambdaref.Var().withID(x.id)
+      case Some(d) => lang.lambdaref.Var(d.asInstanceOf[lang.lambdaref.Lam]).withID(x.id)
+    }
 }
