@@ -16,7 +16,7 @@ object Lam {
 case class Lam(x: Name, private var _body: Exp) extends Exp with Declaration {
   def body = _body
 
-  override def retarget(retargeting: Map[Reference, Declaration]): Exp =
+  override def retarget(retargeting: Map[Reference, Option[Declaration]]): Exp =
     Lam(x, body.retarget(retargeting)).withID(this)
 
   override def resolveRefs: RefGraph = {

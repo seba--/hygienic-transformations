@@ -2,12 +2,14 @@ package lang.lambdaref
 
 import lang.lambdaref._
 import org.scalatest._
+import ref.Structural
 
 /**
  * Created by seba on 01/08/14.
  */
 class SubstTest extends FunSuite {
 
+  def assertResult(expected: Structural)(actual: Structural) = super.assert(expected equiv actual)
 
   val p1 = Lam("x", x => Var(x))
   test ("p1") {

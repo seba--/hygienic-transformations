@@ -9,11 +9,18 @@ object Var {
   def apply(placeholderName: String): Var = Var(None, Some(placeholderName))
 }
 case class Var(var _target: Option[Declaration], val placeholderName: Option[Name]) extends Exp with Reference {
-  def target = _target.getOrElse(throw new UnsupportedOperationException(s"Cannot apply operation before setting placeholder target"))
-  def name = target.asInstanceOf[Lam].x
 
-  override def retarget(newtarget: Declaration): Var = if (newtarget == target) this else Var(newtarget)
-  override def retarget(retargeting: Map[Reference, Declaration]): Exp = retargeting.get(this) match {
+
+  def target = _target.getOrElse(throw new UnsupportedOperationException(s"Cannot apply operation before setting placeholder target"))
+  def hasTarget = _target.isDefined
+  def name = _target match {
+    case Some(target) => target.asInstanceOf[Lam].x
+    case None => placeholderName.getOrElse("??")
+  }
+
+  override def retarget(newtarget: Option[Declaration]): Var =
+    if (newtarget == _target) this else Var(newtarget, Some(name)).withID(this)
+  override def retarget(retargeting: Map[Reference, Option[Declaration]]): Exp = retargeting.get(this) match {
     case None => this
     case Some(newtarget) => retarget(newtarget)
   }

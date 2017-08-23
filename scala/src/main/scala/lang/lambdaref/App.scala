@@ -6,7 +6,7 @@ import ref.{Declaration, RefGraph, Reference, Structural}
 
 case class App(e1: Exp, e2: Exp) extends Exp {
 
-  override def retarget(retargeting: Map[Reference, Declaration]): Exp =
+  override def retarget(retargeting: Map[Reference, Option[Declaration]]): Exp =
     App(e1.retarget(retargeting), e2.retarget(retargeting))
 
   override def resolveRefs: RefGraph = e1.resolveRefs + e2.resolveRefs

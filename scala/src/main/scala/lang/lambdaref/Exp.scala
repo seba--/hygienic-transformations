@@ -8,7 +8,7 @@ abstract class Exp extends Structural {
   type Scope = Map[String, Set[Identifier]]
 
   def resolveRefs: RefGraph
-  def retarget(retargeting: Map[Reference, Declaration]): Exp
+  def retarget(retargeting: Map[Reference, Option[Declaration]]): Exp
 
   def substGraph(x: String, e: Exp): Exp
   def unsafeSubst(w: String, e: Exp): Exp = asNominal.unsafeSubst(w, e.asNominal).asStructural

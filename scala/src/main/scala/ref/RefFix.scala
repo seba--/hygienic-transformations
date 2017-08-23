@@ -14,29 +14,40 @@ object RefFix {
 class RefFix(permittedCapture: Set[Reference] = Set()) {
 
   def findCapturedNodes(gs: RefGraph, gt: RefGraph): Set[Reference] = {
-
     // newrefs whose target was changed
     val notPreservedRefs = gt.refs.filter { case newref =>
-      gs.refs.exists(oldref => oldref == newref && oldref.target != newref.target)
+      gs.refs.exists(oldref => oldref == newref && ((oldref.hasTarget, newref.hasTarget) match {
+        case (true, true) => oldref.target != newref.target // was bound, now bound: not ok if target changed
+        case (false, true) => true // was unbound, now bound: not ok
+        case (true, false) => false // was bound, now unbound: ok
+        case (false, false) => false // was unbound, now unbound: ok
+      }))
     }
 
     // synthesized newrefs pointing to original decls
     val notPreserveDef = gt.refs.filter { case newref =>
-      gs.decls.contains(newref.target) && !gs.refs.contains(newref)
+      newref.hasTarget && gs.decls.contains(newref.target) && !gs.refs.contains(newref)
     }
 
     notPreservedRefs ++ notPreserveDef
   }
 
-  def compRetargeting(gs: RefGraph, gt: RefGraph, t: Structural, capture: Set[Reference]): Map[Reference, Declaration] = {
-    var retargeting: Map[Reference, Declaration] = Map()
+  def compRetargeting(gs: RefGraph, gt: RefGraph, t: Structural, capture: Set[Reference]): Map[Reference, Option[Declaration]] = {
+    var retargeting: Map[Reference, Option[Declaration]] = Map()
 
-    val captureDecls = capture.map(_.target)
-
-    for (d <- captureDecls) {
-      for (r <- gs.refs if d == r.target)
-        retargeting += (r -> d)
-    }
+    for (r <- capture)
+      if (gs.refs.contains(r)) {
+        // existing refs:
+        val old = gs.refs.find(_ == r).get
+        val newtarget = if (old.hasTarget) Some(old.target) else None
+        retargeting += (r -> newtarget)
+      }
+      else {
+        // synthesized refs:
+        // we cannot infer what the ref is supposed to point to
+        // possible solution: the transformation has to explicitly set targets for synthesized refs
+        retargeting += (r -> None)
+      }
 
     retargeting
   }
@@ -49,7 +60,7 @@ class RefFix(permittedCapture: Set[Reference] = Set()) {
     else {
       val retargeting = compRetargeting(gs, gt, t, capture)
       val tNew = t.retarget(retargeting).asInstanceOf[T]
-      refFix(gs, tNew)
+      tNew
     }
   }
 }
